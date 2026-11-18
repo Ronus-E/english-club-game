@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17233f">
+  <title>Mission: English Club 2.0</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="game" aria-label="Mission English Club 2.0">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn" aria-label="Ouvrir le menu">☰</button>
+      <div class="brand"><span class="brand-mark">EC</span><strong>MISSION: ENGLISH CLUB</strong><b>2.0</b></div>
+      <div class="statusbar">
+        <span id="levelBadge">A1 • Niveau 1</span>
+        <span class="xp"><i>XP</i><b id="xpText">0 / 100</b><em><u id="xpBar"></u></em></span>
+      </div>
+    </header>
+
+    <section id="placement" class="screen placement-screen active" aria-labelledby="placementTitle">
+      <div class="placement-card pixel-panel">
+        <div class="mascot" aria-hidden="true">🎓</div>
+        <p class="eyebrow">BIENVENUE AU CLUB</p>
+        <h1 id="placementTitle">Test de positionnement</h1>
+        <p id="placementIntro">Avant d'accéder au campus, réponds à 6 questions pour choisir ton point de départ.</p>
+        <div id="placementQuiz"></div>
+      </div>
+    </section>
+
+    <section id="campus" class="screen" aria-label="Campus du club">
+      <div class="campus-shell">
+        <aside id="sideMenu" class="side-menu">
+          <button class="close-menu" id="closeMenu" aria-label="Fermer">×</button>
+          <nav aria-label="Navigation">
+            <button data-screen="campus" class="nav-item active"><span>🏰</span>Campus</button>
+            <button data-screen="missions" class="nav-item"><span>🎯</span>Missions</button>
+            <button data-screen="progress" class="nav-item"><span>📊</span>Progression</button>
+            <button data-screen="review" class="nav-item"><span>🔁</span>Révision</button>
+          </nav>
+          <button id="resetBtn" class="reset-btn">Réinitialiser</button>
+        </aside>
+
+        <div class="world-wrap">
+          <div class="location-banner"><span id="locationLabel">English Club Hall</span></div>
+          <canvas id="world" width="960" height="620" aria-label="Carte isométrique du campus"></canvas>
+          <div id="touchControls" class="touch-controls" aria-label="Commandes tactiles">
+            <div class="dpad">
+              <button data-dir="up" aria-label="Haut">▲</button>
+              <button data-dir="left" aria-label="Gauche">◀</button>
+              <button data-dir="down" aria-label="Bas">▼</button>
+              <button data-dir="right" aria-label="Droite">▶</button>
+            </div>
+            <button id="interactBtn" class="interact-btn">E<br><small>Action</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lessonScreen" class="screen lesson-screen" aria-live="polite">
+      <div class="lesson-layout">
+        <aside class="lesson-nav pixel-panel">
+          <button id="lessonBack" class="back-btn">← Campus</button>
+          <h2 id="lessonPlaceTitle">Lieu</h2>
+          <div id="lessonSteps"></div>
+        </aside>
+        <article class="lesson-panel pixel-panel">
+          <div id="lessonContent"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="missions" class="screen"><div class="page-content"><h1>Missions du club</h1><div id="missionList" class="card-grid"></div></div></section>
+    <section id="progress" class="screen"><div class="page-content"><h1>Progression</h1><div id="statsGrid" class="stats-grid"></div><div id="badgeGrid" class="card-grid"></div></div></section>
+    <section id="review" class="screen"><div class="page-content"><h1>Révisions intelligentes</h1><div id="reviewContent" class="pixel-panel"></div></div></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
