@@ -13,7 +13,7 @@ import { h } from './activities.js';
 import { iconSvg } from './icons.js';
 
 export const SCREEN_IDS = ['splash', 'menu', 'level', 'stages', 'quiz', 'results', 'practice', 'progress', 'achievements'];
-const OVERLAY_IDS = ['settings', 'help', 'about', 'activity', 'confirm'];
+const OVERLAY_IDS = ['settings', 'help', 'about', 'stage', 'activity', 'confirm'];
 export const QUIZ_SKILLS = [...SKILLS, 'culture'];
 
 export class UI {
@@ -32,7 +32,9 @@ export class UI {
       'resultScore', 'resultMax', 'resultGrade', 'resultXp', 'newBest',
       'resultCorrect', 'resultWrong', 'resultsBadgeCanvas', 'skillReport',
       'answerReview', 'recommendations', 'sessionAchievements', 'resultsTitle', 'resultsSubtitle',
-      'replayBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn',
+      'replayBtn', 'nextStageBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn',
+      'stageWelcomeKicker', 'stageWelcomeTitle', 'stageWelcomeLead', 'stageWelcomeNum',
+      'stageStartBtn', 'stageBackBtn',
       'practiceLevel', 'practiceSummary', 'practiceTag', 'practiceTagBtn', 'skillGrid',
       'progressContent',
       'achievementLevel', 'achievementName', 'achievementXp',
@@ -44,7 +46,7 @@ export class UI {
       'updateBanner', 'updateBtn',
       'confirmTitle', 'confirmText', 'confirmYes', 'confirmNo',
       'overlayRoot', 'overlay-settings', 'overlay-help', 'overlay-about',
-      'overlay-activity', 'overlay-confirm',
+      'overlay-stage', 'overlay-activity', 'overlay-confirm',
       'toast',
       'activityBody', 'activityFoot', 'activityTitle', 'activityKicker',
       'activityCounter', 'activitySkill', 'activityQuit', 'activityIcon',
@@ -220,6 +222,38 @@ export class UI {
       h('small', { class: 'stage-meta', text: status }),
       );
       grid.append(button);
+    }
+  }
+
+  /* ----------------------------------------------------- stage welcome */
+  renderStageWelcome({ level = this.store.get().level, stage = 1, total = stageQuestionCount(stage), label = null } = {}) {
+    const info = LEVEL_INFO[level];
+    const state = this.store.stageState(level);
+    const entry = state.entries.find((row) => row.stage === stage);
+    const best = entry?.best || 0;
+    const nextStage = Math.min(QUIZ_STAGES, stage + 1);
+    if (this.el.stageWelcomeKicker) {
+      this.el.stageWelcomeKicker.textContent = label
+        ? `${label} · ${level} · Stage ${stage} of ${QUIZ_STAGES}`
+        : `Level ${level} · ${info?.short || level} · Stage ${stage} of ${QUIZ_STAGES}`;
+    }
+    if (this.el.stageWelcomeTitle) {
+      this.el.stageWelcomeTitle.textContent = `Welcome to stage ${stage}`;
+    }
+    if (this.el.stageWelcomeNum) this.el.stageWelcomeNum.textContent = String(stage);
+    if (this.el.stageWelcomeLead) {
+      const parts = [
+        `${total} question${total === 1 ? '' : 's'} across five skills, written for ${level} ${info?.short || ''}`.trim() + '.',
+      ];
+      if (stage === 1) parts.push('This warm-up uses the easiest questions of the level.');
+      else parts.push(`Difficulty is one step higher than stage ${stage - 1}, still inside ${level}.`);
+      parts.push(best >= 60
+        ? `Your best score here is ${best}%. Beat it to improve your record.`
+        : `Score 60% or more to unlock stage ${nextStage === stage ? 'the next level' : nextStage}.`);
+      this.el.stageWelcomeLead.textContent = parts.join(' ');
+    }
+    if (this.el.stageStartBtn) {
+      this.el.stageStartBtn.textContent = best >= 60 ? `Play stage ${stage} again →` : `Start stage ${stage} →`;
     }
   }
 
@@ -440,6 +474,15 @@ export class UI {
       this.el.resultsSubtitle.textContent = `Level ${result.level}${result.stage ? ` · Stage ${result.stage}` : ''} · ${result.correct} correct · ${result.wrong} to review`;
     }
     if (this.el.newBest) this.el.newBest.hidden = !result.isNewBest;
+    if (this.el.nextStageBtn) {
+      const current = Number(result.stage) || 0;
+      const next = current + 1;
+      const show = Boolean(result.stagePassed) && current > 0 && next <= QUIZ_STAGES;
+      this.el.nextStageBtn.hidden = !show;
+      this.el.nextStageBtn.textContent = show ? `Next level → Stage ${next}` : 'Next level →';
+      this.el.nextStageBtn.dataset.stage = show ? String(next) : '';
+      this.el.nextStageBtn.dataset.level = show ? result.level : '';
+    }
 
     const report = this.el.skillReport;
     if (report) {

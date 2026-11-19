@@ -624,6 +624,33 @@ kbd {
 }
 .confirm-panel { width: min(460px, 100%); }
 
+/* Stage welcome dialog, shown before every stage */
+.stage-welcome {
+  width: min(520px, 100%);
+  text-align: center;
+}
+.stage-welcome h2 { font-size: clamp(22px, 3.6vw, 30px); }
+.stage-welcome #stageWelcomeLead { margin: 0 auto; max-width: 44ch; }
+.stage-welcome-badge {
+  width: 96px; height: 96px;
+  margin: 16px auto 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--sky);
+  background: radial-gradient(circle at 50% 28%, rgba(99, 197, 255, .3), rgba(99, 197, 255, .05));
+  box-shadow: 0 0 0 6px rgba(99, 197, 255, .06);
+}
+.stage-welcome-badge b {
+  font-family: var(--font-display);
+  font-size: 40px; line-height: 1;
+}
+.stage-welcome-badge span {
+  font-family: var(--font-ui);
+  font-size: 11px; letter-spacing: .08em;
+  color: var(--text-dim);
+}
+.stage-welcome .overlay-actions { margin-top: 18px; }
+
 /* ======================= RESPONSIVE ======================= */
 
 @media (max-width: 900px) {

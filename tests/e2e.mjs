@@ -191,15 +191,26 @@ try {
   await shot('03-stages.png');
 
   /* ============================================================= 4. QUIZ */
-  await step('stage 1 starts a five-question quiz across five skills', async () => {
+  await step('stage 1 first shows a welcome message, then starts a five-question quiz', async () => {
     const out = await ev(async () => {
       document.querySelector('#stageGrid .stage-card[data-stage="1"]').click();
+      await new Promise((r) => setTimeout(r, 200));
+      const welcome = {
+        open: !document.getElementById('overlay-stage').hidden,
+        title: document.getElementById('stageWelcomeTitle').textContent,
+        kicker: document.getElementById('stageWelcomeKicker').textContent,
+        lead: document.getElementById('stageWelcomeLead').textContent,
+        button: document.getElementById('stageStartBtn').textContent,
+      };
+      document.getElementById('stageStartBtn').click();
       await new Promise((r) => setTimeout(r, 300));
       const g = window.__ENGLISH_CLUB__;
       const items = g.quiz.session ? g.activities.config.items : [];
       const counts = {};
       for (const item of items) counts[item.skill] = (counts[item.skill] || 0) + 1;
       return {
+        welcome,
+        welcomeClosed: document.getElementById('overlay-stage').hidden,
         screen: document.getElementById('screen-quiz').classList.contains('is-active'),
         overlay: !document.getElementById('overlay-activity').hidden,
         level: g.quiz.level,
@@ -213,6 +224,14 @@ try {
       };
     });
     if (!out.screen || !out.overlay) throw new Error(`quiz did not start: ${JSON.stringify(out)}`);
+    if (!out.welcome.open || !/Welcome to stage 1/.test(out.welcome.title)) {
+      throw new Error(`welcome message missing: ${JSON.stringify(out.welcome)}`);
+    }
+    if (!/Stage 1 of 10/.test(out.welcome.kicker) || !/5 questions/.test(out.welcome.lead)
+      || !/Start stage 1/.test(out.welcome.button)) {
+      throw new Error(`welcome content invalid: ${JSON.stringify(out.welcome)}`);
+    }
+    if (!out.welcomeClosed) throw new Error('welcome overlay stayed open');
     if (out.level !== 'A2' || out.stage !== 1) throw new Error(`wrong level or stage: ${JSON.stringify(out)}`);
     if (out.total !== 5) throw new Error(`expected 5 questions: ${JSON.stringify(out)}`);
     if (Object.values(out.counts).some((n) => n !== 1) || Object.keys(out.counts).length !== 5) {
@@ -330,10 +349,57 @@ try {
   });
   await shot('05-results.png');
 
-  /* ====================================================== 5. REPLAY/QUIT */
+  /* ==================================================== 5. NEXT LEVEL */
+  await step('a cleared stage offers a Next level button that announces stage 2', async () => {
+    const out = await ev(async () => {
+      const btn = document.getElementById('nextStageBtn');
+      const visible = !btn.hidden;
+      const text = btn.textContent;
+      const stage = btn.dataset.stage;
+      btn.click();
+      await new Promise((r) => setTimeout(r, 200));
+      const welcome = {
+        open: !document.getElementById('overlay-stage').hidden,
+        title: document.getElementById('stageWelcomeTitle').textContent,
+        kicker: document.getElementById('stageWelcomeKicker').textContent,
+        lead: document.getElementById('stageWelcomeLead').textContent,
+      };
+      document.getElementById('stageBackBtn').click();
+      await new Promise((r) => setTimeout(r, 150));
+      return {
+        visible,
+        text,
+        stage,
+        welcome,
+        closed: document.getElementById('overlay-stage').hidden,
+        results: document.getElementById('screen-results').classList.contains('is-active'),
+      };
+    });
+    if (!out.visible || out.stage !== '2' || !/Stage 2/.test(out.text)) {
+      throw new Error(`next level button missing: ${JSON.stringify(out)}`);
+    }
+    if (!out.welcome.open || !/Welcome to stage 2/.test(out.welcome.title)) {
+      throw new Error(`next stage welcome missing: ${JSON.stringify(out.welcome)}`);
+    }
+    if (!/Stage 2 of 10/.test(out.welcome.kicker) || !/5 questions/.test(out.welcome.lead)) {
+      throw new Error(`next stage welcome content invalid: ${JSON.stringify(out.welcome)}`);
+    }
+    if (!out.closed || !out.results) throw new Error('leaving the welcome should return to the report');
+    return out;
+  });
+  await shot('06-next-level.png');
+
+  /* ====================================================== 6. REPLAY/QUIT */
   await step('replay restarts the same stage as a fresh locked quiz', async () => {
     const out = await ev(async () => {
       document.getElementById('replayBtn').click();
+      await new Promise((r) => setTimeout(r, 200));
+      const welcome = {
+        open: !document.getElementById('overlay-stage').hidden,
+        title: document.getElementById('stageWelcomeTitle').textContent,
+        button: document.getElementById('stageStartBtn').textContent,
+      };
+      document.getElementById('stageStartBtn').click();
       await new Promise((r) => setTimeout(r, 250));
       const g = window.__ENGLISH_CLUB__;
       const quit = document.getElementById('activityQuit');
@@ -357,6 +423,7 @@ try {
       g.quiz.abandon();
       await new Promise((r) => setTimeout(r, 150));
       return {
+        welcome,
         reopened,
         stillOpen,
         menu: document.getElementById('screen-menu').classList.contains('is-active'),
@@ -364,6 +431,10 @@ try {
         missions: g.store.get().missions,
       };
     });
+    if (!out.welcome.open || !/Welcome to stage 1/.test(out.welcome.title)
+      || !/Play stage 1 again/.test(out.welcome.button)) {
+      throw new Error(`replay welcome invalid: ${JSON.stringify(out.welcome)}`);
+    }
     if (!out.reopened.active || out.reopened.level !== 'A2' || out.reopened.stage !== 1 || out.reopened.answers !== 0) {
       throw new Error(`replay failed: ${JSON.stringify(out)}`);
     }
@@ -379,9 +450,9 @@ try {
     if (out.missions !== 1) throw new Error('a left quiz was saved');
     return out;
   });
-  await shot('06-replay.png');
+  await shot('07-replay.png');
 
-  await step('the stage grid shows stage 1 cleared and stage 2 unlocked', async () => {
+  await step('the stage grid shows stage 1 cleared and stage 2 starts with its own welcome', async () => {
     const out = await ev(async () => {
       document.getElementById('playBtn').click();
       await new Promise((r) => setTimeout(r, 150));
@@ -390,7 +461,7 @@ try {
       const cards = [...document.querySelectorAll('#stageGrid .stage-card')];
       const first = cards.find((card) => card.dataset.stage === '1');
       const second = cards.find((card) => card.dataset.stage === '2');
-      return {
+      const grid = {
         screen: document.getElementById('screen-stages').classList.contains('is-active'),
         locked: cards.filter((card) => card.disabled).length,
         firstCleared: first.classList.contains('is-cleared'),
@@ -398,13 +469,40 @@ try {
         secondEnabled: !second.disabled,
         secondCurrent: second.classList.contains('is-current'),
       };
+      second.click();
+      await new Promise((r) => setTimeout(r, 200));
+      const welcome = {
+        open: !document.getElementById('overlay-stage').hidden,
+        title: document.getElementById('stageWelcomeTitle').textContent,
+        lead: document.getElementById('stageWelcomeLead').textContent,
+      };
+      document.getElementById('stageStartBtn').click();
+      await new Promise((r) => setTimeout(r, 300));
+      const g = window.__ENGLISH_CLUB__;
+      const played = {
+        active: g.quiz.isActive,
+        stage: g.quiz.stage,
+        total: g.activities.config.items.length,
+      };
+      g.quiz.abandon();
+      await new Promise((r) => setTimeout(r, 150));
+      return { grid, welcome, played };
     });
-    if (!out.screen || out.locked !== 8) throw new Error(`stage grid did not unlock: ${JSON.stringify(out)}`);
-    if (!out.firstCleared || !/80%/.test(out.firstBest)) {
-      throw new Error(`cleared stage not marked: ${JSON.stringify(out)}`);
+    if (!out.grid.screen || out.grid.locked !== 8) {
+      throw new Error(`stage grid did not unlock: ${JSON.stringify(out.grid)}`);
     }
-    if (!out.secondEnabled || !out.secondCurrent) {
-      throw new Error(`stage 2 is not the current unlocked stage: ${JSON.stringify(out)}`);
+    if (!out.grid.firstCleared || !/80%/.test(out.grid.firstBest)) {
+      throw new Error(`cleared stage not marked: ${JSON.stringify(out.grid)}`);
+    }
+    if (!out.grid.secondEnabled || !out.grid.secondCurrent) {
+      throw new Error(`stage 2 is not the current unlocked stage: ${JSON.stringify(out.grid)}`);
+    }
+    if (!out.welcome.open || !/Welcome to stage 2/.test(out.welcome.title)
+      || !/5 questions/.test(out.welcome.lead)) {
+      throw new Error(`stage 2 welcome invalid: ${JSON.stringify(out.welcome)}`);
+    }
+    if (!out.played.active || out.played.stage !== 2 || out.played.total !== 5) {
+      throw new Error(`stage 2 did not start correctly: ${JSON.stringify(out.played)}`);
     }
     return out;
   });
@@ -516,6 +614,13 @@ try {
     await sleep(120);
     await ev(() => document.getElementById('dailyBtn').click());
     await sleep(200);
+    const dailyWelcome = await ev(() => ({
+      open: !document.getElementById('overlay-stage').hidden,
+      title: document.getElementById('stageWelcomeTitle').textContent,
+      kicker: document.getElementById('stageWelcomeKicker').textContent,
+    }));
+    await ev(() => document.getElementById('stageStartBtn').click());
+    await sleep(250);
     const daily = await ev(() => {
       const g = window.__ENGLISH_CLUB__;
       const out = {
@@ -537,18 +642,37 @@ try {
       || !/Daily challenge/.test(daily.kicker) || !/Stage 2/.test(daily.kicker)) {
       throw new Error(`daily challenge failed: ${JSON.stringify(daily)}`);
     }
+    if (!dailyWelcome.open || !/Welcome to stage 2/.test(dailyWelcome.title)
+      || !/Daily challenge/.test(dailyWelcome.kicker)) {
+      throw new Error(`daily welcome failed: ${JSON.stringify(dailyWelcome)}`);
+    }
     if (daily.silent !== true || daily.noQuit !== true) throw new Error(`daily not locked: ${JSON.stringify(daily)}`);
     return { progress, daily };
   });
 
-  await step('the interface contains no French help left', async () => {
+  await step('the interface is English-only and locked against auto-translation', async () => {
     const out = await ev(() => {
       const body = document.body.textContent;
       const bad = ['Choisissez', 'Réponse correcte', 'Pas tout à fait', 'Explication', 'Niveau']
         .filter((word) => body.includes(word));
-      return { bad, frHints: document.querySelectorAll('.fr-hint, .dialogue-fr').length };
+      const html = document.documentElement;
+      return {
+        bad,
+        frHints: document.querySelectorAll('.fr-hint, .dialogue-fr').length,
+        lang: html.lang,
+        translate: html.getAttribute('translate'),
+        dir: html.getAttribute('dir'),
+        googleNotranslate: Boolean(document.querySelector('meta[name="google"][content="notranslate"]')),
+        contentLanguage: document.querySelector('meta[http-equiv="Content-Language"]')?.content || '',
+      };
     });
     if (out.bad.length || out.frHints) throw new Error(`French UI remains: ${JSON.stringify(out)}`);
+    if (out.lang !== 'en' || out.translate !== 'no' || out.dir !== 'ltr') {
+      throw new Error(`page language is not locked to English: ${JSON.stringify(out)}`);
+    }
+    if (!out.googleNotranslate || out.contentLanguage !== 'en') {
+      throw new Error(`translation meta tags missing: ${JSON.stringify(out)}`);
+    }
     return out;
   });
 

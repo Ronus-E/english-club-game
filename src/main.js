@@ -69,10 +69,16 @@ function boot() {
       ui.renderProgress();
       ui.renderTagSelect();
       ui.showScreen('results');
-      if (result.stagePassed) {
+      if (result.levelCompleted) {
+        ui.toast(`All ${QUIZ_STAGES} stages cleared at ${result.level}! Level complete.`, { ms: 5200 });
+      } else if (result.stagePassed) {
         ui.toast(result.stageUnlocked
           ? `Stage ${result.stage} cleared — stage ${result.stageUnlocked} unlocked.`
           : `Stage ${result.stage} cleared at ${result.percent}%.`, { ms: 4200 });
+      }
+      if (result.levelCompleted) {
+        audio.playLevelSong(result.level);
+        ui.toast('Level completed!', { ms: 3000 });
       }
     },
   });
@@ -105,11 +111,10 @@ function boot() {
     ui.showScreen('level');
   };
 
-  const startQuiz = (level, seed = null, stage = null, label = null) => {
-    const name = ui.el.playerNameInput?.value || store.get().name;
-    store.setName(name);
-    store.setLevel(level);
-    const chosenStage = normalizeStage(stage ?? store.stageState(level).current);
+  let pendingStage = null;
+
+  const launchStage = (level, seed, stage, label) => {
+    const chosenStage = normalizeStage(stage);
     const total = stageQuestionCount(chosenStage);
     ui.closeAllOverlays();
     ui.setQuizHeader(level, total, chosenStage);
@@ -118,7 +123,20 @@ function boot() {
     }
     ui.showScreen('quiz');
     lastResult = null;
+    pendingStage = null;
     quiz.start(level, seed ?? Date.now(), chosenStage);
+  };
+
+  const startQuiz = (level, seed = null, stage = null, label = null) => {
+    const name = ui.el.playerNameInput?.value || store.get().name;
+    store.setName(name);
+    store.setLevel(level);
+    const chosenStage = normalizeStage(stage ?? store.stageState(level).current);
+    const total = stageQuestionCount(chosenStage);
+    pendingStage = { level, seed, stage: chosenStage, label };
+    ui.closeAllOverlays();
+    ui.renderStageWelcome({ level, stage: chosenStage, total, label });
+    ui.openOverlay('stage');
   };
 
   const openStageSelect = () => {
@@ -320,7 +338,26 @@ function boot() {
     if (quiz.session) ui.openOverlay('activity');
   });
 
+  /* ------------------------------------------------------- stage welcome */
+  ui.el.stageStartBtn?.addEventListener('click', () => {
+    if (!pendingStage) { ui.closeOverlay('stage'); return; }
+    audio.play('fanfare');
+    const { level, seed, stage, label } = pendingStage;
+    launchStage(level, seed, stage, label);
+  });
+  ui.el.stageBackBtn?.addEventListener('click', () => {
+    audio.play('close');
+    pendingStage = null;
+    ui.closeOverlay('stage');
+  });
+
   /* ------------------------------------------------------------- results */
+  ui.el.nextStageBtn?.addEventListener('click', () => {
+    audio.play('click');
+    const level = lastResult?.level || store.get().level;
+    const next = Number(ui.el.nextStageBtn.dataset.stage) || ((lastResult?.stage || 1) + 1);
+    startQuiz(level, null, next);
+  });
   ui.el.replayBtn?.addEventListener('click', () => {
     audio.play('click');
     startQuiz(lastResult?.level || store.get().level, null, lastResult?.stage ?? null);

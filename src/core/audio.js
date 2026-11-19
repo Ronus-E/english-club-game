@@ -158,4 +158,42 @@ export class AudioEngine {
       this.musicTimer = null;
     }
   }
+
+  playLevelSong(level) {
+    if (!this.available || this.muted || !this.settings.musicOn) return;
+    const ctx = this.ensure();
+    if (!ctx) return;
+
+    // Short celebratory melody per CEFR level, all notes synthesized locally.
+    const base = 261.63; // C4
+    const durations = [0.18, 0.14, 0.22];
+    const types = ['sine', 'triangle', 'square'];
+
+    const playNote = (freq, dur, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = types[i % 3];
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.musicGain || ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + dur + 0.02);
+    };
+
+    const delays = [0, 0.1, 0.2];
+    const levelOffsets = {
+      A1: [0, 4, 7],    // C4, E4, G4 – bright major arpeggio
+      A2: [4, 7, 9],    // E4, G4, A4 – warmer folk-like
+      B1: [7, 9, 12],   // G4, A4, C5 – uplifting resolve
+    };
+    const offsets = levelOffsets[level] || [0, 4, 7];
+
+    for (let i = 0; i < 3; i++) {
+      const freq = base * Math.pow(2, offsets[i] / 12);
+      setTimeout(() => playNote(freq, durations[i], i), delays[i] * 1000);
+    }
+  }
 }

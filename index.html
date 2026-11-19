@@ -1,8 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Language" content="en">
+  <meta name="google" content="notranslate">
   <meta name="theme-color" content="#0b1026">
   <meta name="description" content="English Club Quiz — a free, offline CEFR quiz for A1, A2 and B1 learners. Vocabulary, grammar, reading, writing and American culture.">
   <meta name="mobile-web-app-capable" content="yes">
@@ -40,7 +42,7 @@
                 aria-label="English Club Quiz emblem"></canvas>
         <p class="kicker">American Corner · English Club</p>
         <h1 class="game-title">
-          <span class="game-title-small">LEARN:</span>
+          <span class="game-title-small">LEARN WITH:</span>
           <span class="game-title-big">ENGLISH CLUB</span>
         </h1>
         <p class="game-subtitle">The A1 · A2 · B1 quiz</p>
@@ -225,7 +227,8 @@
             <h3>What to improve next</h3>
             <ul id="recommendations" class="recommendations"></ul>
             <div class="row gap wrap">
-              <button id="replayBtn" class="btn btn-primary" type="button">↻ Replay this stage</button>
+              <button id="nextStageBtn" class="btn btn-primary" type="button" hidden>Next level →</button>
+              <button id="replayBtn" class="btn btn-secondary" type="button">↻ Replay this stage</button>
               <button id="reviewMistakesBtn" class="btn btn-secondary" type="button">Review my mistakes</button>
               <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
               <button id="resultsMenuBtn" class="btn btn-ghost" type="button">Main menu</button>
@@ -460,6 +463,23 @@
         </div>
         <div class="overlay-actions">
           <button class="btn btn-primary" data-close-overlay type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage welcome, shown before every stage -->
+    <div class="overlay" id="overlay-stage" hidden>
+      <div class="overlay-panel panel stage-welcome" role="dialog" aria-modal="true" aria-labelledby="stageWelcomeTitle">
+        <p class="kicker" id="stageWelcomeKicker">Level A1</p>
+        <h2 id="stageWelcomeTitle">Welcome to stage 1</h2>
+        <div class="stage-welcome-badge" aria-hidden="true">
+          <b id="stageWelcomeNum">1</b>
+          <span>/ 10</span>
+        </div>
+        <p class="muted" id="stageWelcomeLead">Five questions across five skills. Score 60% or more to unlock the next stage.</p>
+        <div class="overlay-actions row">
+          <button id="stageStartBtn" class="btn btn-primary btn-lg" type="button">Start stage 1 →</button>
+          <button id="stageBackBtn" class="btn btn-ghost" type="button">Not yet</button>
         </div>
       </div>
     </div>

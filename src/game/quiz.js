@@ -4,6 +4,7 @@
  */
 import { buildStageQuiz, getExerciseById, normalizeStage, LEVEL_INFO } from '../content/index.js';
 import { newSession, recordAnswer, computeResults } from '../core/scoring.js';
+import { STAGE_COUNT } from '../core/storage.js';
 import { evaluateAchievements } from '../core/achievements.js';
 
 function displayResponse(response) {
@@ -100,6 +101,9 @@ export class Quiz {
     result.stageBest = stageResult.best;
     result.stagePassed = stageResult.passed;
     result.stageUnlocked = stageResult.unlockedStage;
+    // Check if the full level (10 stages) is now complete.
+    const levelState = this.store.stageState(session.level);
+    result.levelCompleted = levelState.unlocked >= STAGE_COUNT;
     this.store.recordMistakes(session.answers.map((answer) => ({ ...answer, level: session.level })));
     this.store.recordSession(result);
     for (const badge of unlocked) this.store.unlock(badge);

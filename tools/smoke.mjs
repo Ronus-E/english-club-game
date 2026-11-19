@@ -46,6 +46,9 @@ try {
       splash: document.getElementById('screen-splash')?.classList.contains('is-active'),
       exercises: total,
       signature: document.body.textContent.includes('Developed by RONUS Eldo'),
+      lang: document.documentElement.lang,
+      translate: document.documentElement.getAttribute('translate'),
+      googleNotranslate: Boolean(document.querySelector('meta[name="google"][content="notranslate"]')),
       campus: ['gameCanvas', 'joystick', 'timerValue', 'screen-game', 'screen-intro']
         .filter((id) => document.getElementById(id)),
       newControls: [
@@ -65,6 +68,9 @@ try {
   if (boot.exercises !== 150) throw new Error(`expected 150 exercises, got ${boot.exercises}`);
   if (boot.campus.length) throw new Error(`campus elements remain: ${boot.campus.join(', ')}`);
   if (!boot.signature) throw new Error('developer signature is missing');
+  if (boot.lang !== 'en' || boot.translate !== 'no' || !boot.googleNotranslate) {
+    throw new Error(`page language is not locked to English: ${JSON.stringify({ lang: boot.lang, translate: boot.translate, googleNotranslate: boot.googleNotranslate })}`);
+  }
   if (boot.newControls.length) throw new Error(`new controls missing: ${boot.newControls.join(', ')}`);
   if (boot.weeklyOptions !== 14) throw new Error(`weekly goal options: ${boot.weeklyOptions}`);
   await client.screenshot(join(SHOTS, '01-smoke-splash.png'));
@@ -102,6 +108,23 @@ try {
   await client.screenshot(join(SHOTS, '02-smoke-stages.png'));
 
   await client.evaluate(`document.querySelector('#stageGrid .stage-card[data-stage="1"]').click()`);
+  await sleep(250);
+
+  const welcome = await client.evaluate(`(() => ({
+    open: !document.getElementById('overlay-stage')?.hidden,
+    title: document.getElementById('stageWelcomeTitle')?.textContent,
+    kicker: document.getElementById('stageWelcomeKicker')?.textContent,
+    lead: document.getElementById('stageWelcomeLead')?.textContent,
+  }))()`);
+  log('WELCOME', JSON.stringify(welcome, null, 2));
+  if (!welcome.open || !/Welcome to stage 1/.test(welcome.title || '')) {
+    throw new Error('stage welcome message did not open');
+  }
+  if (!/Stage 1 of 10/.test(welcome.kicker || '') || !/5 questions/.test(welcome.lead || '')) {
+    throw new Error(`stage welcome content is wrong: ${JSON.stringify(welcome)}`);
+  }
+
+  await client.evaluate(`document.getElementById('stageStartBtn').click()`);
   await sleep(400);
 
   const quiz = await client.evaluate(`(() => {
