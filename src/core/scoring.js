@@ -1,18 +1,17 @@
 /**
  * Quiz scoring. Pure functions only: a session holds the answers of one
- * 15-question quiz; results are derived from accuracy, never from speed.
+ * stage quiz; results are derived from accuracy, never from speed.
  */
 import { ALL_SKILLS, SKILL_INFO } from '../content/schema.js';
 
 export const POINTS_PER_ANSWER = 10;
-export const QUESTIONS_PER_QUIZ = 15;
-export const QUESTIONS_PER_SKILL = 3;
 
-export function newSession(level) {
+export function newSession(level, stage = null) {
   const skills = {};
   for (const key of ALL_SKILLS) skills[key] = { correct: 0, total: 0 };
   return {
     level,
+    stage: stage == null ? null : Number(stage),
     startedAt: Date.now(),
     endedAt: null,
     answers: [],
@@ -95,6 +94,7 @@ export function computeResults(session, profileBest = 0) {
   const xpGained = computeXp(session);
   return {
     level: session.level,
+    stage: session.stage ?? null,
     score: session.score,
     maxScore: session.maxScore,
     percent,

@@ -8,18 +8,23 @@ import assert from 'node:assert/strict';
 import {
   newSession, recordAnswer, percentFor, gradeFor, computeXp,
   recommendationsFor, computeResults, POINTS_PER_ANSWER,
-  QUESTIONS_PER_QUIZ, QUESTIONS_PER_SKILL,
 } from '../src/core/scoring.js';
 import { evaluateAchievements, achievementProgress, ACHIEVEMENTS } from '../src/core/achievements.js';
 import {
   ProfileStore, defaultProfile, levelFromXp, STORAGE_KEY, LEVEL_XP,
+  sanitizeSettings, sanitizeMistakes, sanitizeHistory, sanitizeStages,
+  weekKey, EXPORT_APP, STAGE_COUNT, STAGE_PASS_PERCENT,
 } from '../src/core/storage.js';
 import { createRng, shuffle, sample, normalizeText, todayIso } from '../src/core/util.js';
 import {
-  validateBank, countExercises, buildQuiz, getExercises,
-  getPlacementQuestions, LEVELS, SKILLS, QUIZ_SKILLS, banks,
+  validateBank, countExercises, buildQuiz, getExercises, allExercises,
+  getPlacementQuestions, getExerciseById, deriveTags, allTags,
+  getExercisesByTag, dailySeed, buildDaily,
+  buildStageQuiz, stageQuestionCount, stageBand, normalizeStage,
+  LEVELS, SKILLS, QUIZ_SKILLS, QUIZ_STAGES, STAGE_SIZES, banks,
 } from '../src/content/index.js';
 import { arrangeOptions, checkAnswer } from '../src/content/schema.js';
+import { iconSvg } from '../src/ui/icons.js';
 import { Quiz } from '../src/game/quiz.js';
 
 /* ------------------------------------------------------------------ helpers */
@@ -36,10 +41,10 @@ function answer(session, skill, id, correct) {
   return recordAnswer(session, { skill, itemId: id, correct, response: 'x' });
 }
 
-function fullSession(level = 'A1', correctPerSkill = 3) {
+function fullSession(level = 'A1', correctPerSkill = 3, perSkill = 3) {
   const s = newSession(level);
   for (const skill of QUIZ_SKILLS) {
-    for (let i = 1; i <= QUESTIONS_PER_SKILL; i++) {
+    for (let i = 1; i <= perSkill; i++) {
       answer(s, skill, `${skill}-${i}`, i <= correctPerSkill);
     }
   }
@@ -146,16 +151,22 @@ test('first quiz always unlocks Club Member', () => {
   assert.ok(out.some((a) => a.id === 'first_mission'));
 });
 
-test('perfect vocabulary needs all three answers correct', () => {
-  const two = newSession('A1');
-  answer(two, 'vocabulary', 'v1', true);
-  answer(two, 'vocabulary', 'v2', true);
-  const out = evaluateAchievements({ session: two, result: computeResults(two), profile: defaultProfile() });
-  assert.ok(!out.some((a) => a.id === 'perfect_vocab'));
-  const three = newSession('A1');
-  for (let i = 1; i <= 3; i++) answer(three, 'vocabulary', `v${i}`, true);
-  const out2 = evaluateAchievements({ session: three, result: computeResults(three), profile: defaultProfile() });
-  assert.ok(out2.some((a) => a.id === 'perfect_vocab'));
+test('a perfect skill unlocks only when every graded item is correct', () => {
+  const perfect = newSession('A1', 1);
+  answer(perfect, 'vocabulary', 'v1', true);
+  answer(perfect, 'vocabulary', 'v2', true);
+  const out = evaluateAchievements({ session: perfect, result: computeResults(perfect), profile: defaultProfile() });
+  assert.ok(out.some((a) => a.id === 'perfect_vocab'));
+
+  const partial = newSession('A1', 1);
+  answer(partial, 'vocabulary', 'v1', true);
+  answer(partial, 'vocabulary', 'v2', false);
+  const out2 = evaluateAchievements({ session: partial, result: computeResults(partial), profile: defaultProfile() });
+  assert.ok(!out2.some((a) => a.id === 'perfect_vocab'));
+
+  const none = newSession('A1', 1);
+  const out3 = evaluateAchievements({ session: none, result: computeResults(none), profile: defaultProfile() });
+  assert.ok(!out3.some((a) => a.id === 'perfect_vocab'));
 });
 
 test('the all-skills badge replaces campus exploration', () => {
@@ -261,6 +272,65 @@ test('unknown and hostile values are merged safely', () => {
   assert.equal(store.get().level, 'A1');
   assert.equal(store.getSettings().music, 100);
   assert.equal(store.getSettings().sfx, 0);
+});
+
+test('stage progress is sanitized, bounded and repaired', () => {
+  const stages = sanitizeStages({
+    A1: { unlocked: 99, best: { 1: 70, 2: 150, 3: -5, 11: 80, foo: 50 } },
+    A2: { unlocked: 'x', best: { 1: 60 } },
+    B1: null,
+  });
+  assert.equal(stages.A1.unlocked, STAGE_COUNT);
+  assert.equal(stages.A1.best[1], 70);
+  assert.equal(stages.A1.best[2], 100);
+  assert.equal(stages.A1.best[3], 0);
+  assert.ok(!(11 in stages.A1.best) && !('foo' in stages.A1.best));
+  assert.equal(stages.A2.unlocked, 2);
+  assert.equal(stages.B1.unlocked, 1);
+  assert.deepEqual(stages.B1.best, {});
+  assert.equal(sanitizeStages(null).A1.unlocked, 1);
+});
+
+test('recording a stage unlocks the next one at the pass threshold only', () => {
+  const store = storeWith();
+  const passed = store.recordStage('A2', 1, STAGE_PASS_PERCENT);
+  assert.equal(passed.passed, true);
+  assert.equal(passed.best, STAGE_PASS_PERCENT);
+  assert.equal(passed.unlocked, 2);
+  assert.equal(passed.unlockedStage, 2);
+
+  const lower = store.recordStage('A2', 1, 40);
+  assert.equal(lower.newBest, false);
+  assert.equal(lower.best, STAGE_PASS_PERCENT);
+  assert.equal(store.stageState('A2').unlocked, 2);
+
+  const failed = store.recordStage('A2', 2, STAGE_PASS_PERCENT - 1);
+  assert.equal(failed.passed, false);
+  assert.equal(failed.unlockedStage, null);
+  assert.equal(store.stageState('A2').unlocked, 2);
+
+  const second = store.recordStage('A2', 2, 75);
+  assert.equal(second.unlockedStage, 3);
+  const last = store.recordStage('A2', STAGE_COUNT, 100);
+  assert.equal(last.unlocked, STAGE_COUNT);
+  const state = store.stageState('A2');
+  assert.equal(state.entries.length, STAGE_COUNT);
+  assert.equal(state.entries[0].cleared, true);
+  assert.equal(state.entries[1].cleared, true);
+  assert.equal(state.entries[1].current, false);
+  assert.equal(state.entries[STAGE_COUNT - 1].unlocked, true);
+});
+
+test('profile export and import keep stage progress', () => {
+  const store = storeWith();
+  store.recordStage('B1', 1, 80);
+  store.recordStage('B1', 2, 70);
+  const fresh = storeWith();
+  fresh.importProfile(store.exportProfile());
+  const state = fresh.stageState('B1');
+  assert.equal(state.unlocked, 3);
+  assert.equal(state.entries[0].best, 80);
+  assert.equal(state.entries[1].best, 70);
 });
 
 test('reset clears everything on the device', () => {
@@ -413,17 +483,18 @@ test('checkAnswer handles choices, order and short answers', () => {
   assert.equal(checkAnswer(short, 'pen').correct, false);
 });
 
-test('a quiz has 15 questions, three per skill, from the chosen level', () => {
+test('the legacy fixed builder remains available for compatibility', () => {
+  const legacyPerSkill = 3;
   for (const level of LEVELS) {
     const q = buildQuiz(level, 1234);
-    assert.equal(q.length, QUESTIONS_PER_QUIZ);
+    assert.equal(q.length, legacyPerSkill * QUIZ_SKILLS.length);
     const counts = {};
     for (const item of q) {
       counts[item.skill] = (counts[item.skill] || 0) + 1;
       assert.equal(item.level, level, item.id);
     }
-    assert.deepEqual(counts, Object.fromEntries(QUIZ_SKILLS.map((s) => [s, 3])));
-    assert.equal(new Set(q.map((i) => i.id)).size, 15);
+    assert.deepEqual(counts, Object.fromEntries(QUIZ_SKILLS.map((s) => [s, legacyPerSkill])));
+    assert.equal(new Set(q.map((i) => i.id)).size, q.length);
   }
 });
 
@@ -446,6 +517,90 @@ test('quiz rounds interleave skills rather than grouping them', () => {
 
 test('an unknown level is rejected explicitly', () => {
   assert.throws(() => buildQuiz('C1', 1), /Unknown level/);
+});
+
+/* ------------------------------------------------------------- stage model */
+test('ten stages per level use 5 to 9 questions', () => {
+  assert.equal(QUIZ_STAGES, 10);
+  assert.equal(STAGE_SIZES.length, QUIZ_STAGES);
+  assert.equal(Math.min(...STAGE_SIZES), 5);
+  assert.equal(Math.max(...STAGE_SIZES), 9);
+  for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
+    assert.equal(stageQuestionCount(stage), STAGE_SIZES[stage - 1]);
+  }
+  assert.equal(stageQuestionCount(0), 5);
+  assert.equal(stageQuestionCount(99), 9);
+  assert.equal(normalizeStage(3.4), 3);
+});
+
+test('every stage quiz respects its level, size, skills and uniqueness', () => {
+  for (const level of LEVELS) {
+    for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
+      const quiz = buildStageQuiz(level, stage, 4242);
+      assert.equal(quiz.length, stageQuestionCount(stage), `${level} stage ${stage}`);
+      assert.equal(new Set(quiz.map((item) => item.id)).size, quiz.length);
+      const counts = {};
+      for (const item of quiz) {
+        assert.equal(item.level, level, item.id);
+        counts[item.skill] = (counts[item.skill] || 0) + 1;
+      }
+      assert.deepEqual(Object.keys(counts).sort(), [...QUIZ_SKILLS].sort());
+      const values = Object.values(counts);
+      assert.ok(Math.max(...values) - Math.min(...values) <= 1, JSON.stringify(counts));
+    }
+  }
+});
+
+test('stage quizzes are reproducible and interleave the five skills', () => {
+  const ids = (level, stage, seed) => buildStageQuiz(level, stage, seed).map((item) => item.id).join('|');
+  assert.equal(ids('A2', 5, 99), ids('A2', 5, 99));
+  const quiz = buildStageQuiz('B1', 10, 2026);
+  const runs = quiz.reduce((acc, item) => {
+    if (acc.length && acc[acc.length - 1].skill === item.skill) acc[acc.length - 1].n += 1;
+    else acc.push({ skill: item.skill, n: 1 });
+    return acc;
+  }, []);
+  assert.ok(runs.every((run) => run.n <= 2), JSON.stringify(runs));
+  assert.ok(runs.length >= 5, JSON.stringify(runs));
+});
+
+test('the difficulty window slides through the authored bank', () => {
+  let previous = { start: -1, end: -1 };
+  for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
+    const band = stageBand(stage);
+    assert.ok(band.start >= 0 && band.end <= 9, JSON.stringify(band));
+    assert.ok(band.start < band.end, JSON.stringify(band));
+    assert.ok(band.start >= previous.start && band.end >= previous.end, `stage ${stage}`);
+    previous = band;
+  }
+  assert.deepEqual(stageBand(1), { start: 0, end: 1, center: 0 });
+  assert.equal(stageBand(10).end, 9);
+
+  const authorIndex = (level, item) => getExercises(item.skill, level)
+    .findIndex((candidate) => candidate.id === item.id);
+  for (const level of LEVELS) {
+    for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
+      const band = stageBand(stage);
+      for (const item of buildStageQuiz(level, stage, 7)) {
+        const index = authorIndex(level, item);
+        assert.ok(index >= band.start && index <= band.end, `${item.id} outside stage ${stage}`);
+      }
+    }
+  }
+
+  // Across the full sequence the later stages clearly draw on richer items.
+  for (const level of LEVELS) {
+    const average = (stages) => {
+      const values = stages.flatMap((stage) => buildStageQuiz(level, stage, 555)
+        .map((item) => authorIndex(level, item)));
+      return values.reduce((sum, value) => sum + value, 0) / values.length;
+    };
+    assert.ok(average([8, 9, 10]) > average([1, 2, 3]) + 3, level);
+  }
+});
+
+test('the stage builder rejects an unknown level', () => {
+  assert.throws(() => buildStageQuiz('C1', 1, 1), /Unknown level/);
 });
 
 test('the placement check is six distinct questions across levels', () => {
@@ -473,19 +628,48 @@ test('the quiz controller records every answer and produces a report', () => {
     close() { this.isOpen = false; },
   };
   const quiz = new Quiz({ store, activities, onEnd: (e) => { ended = e; } });
-  quiz.start('A1', 55);
-  assert.equal(opened.items.length, 15);
+  quiz.start('A1', 55, 1);
+  assert.equal(opened.items.length, stageQuestionCount(1));
+  assert.equal(quiz.stage, 1);
+  assert.equal(quiz.session.stage, 1);
   assert.equal(quiz.isActive, true);
   for (const item of opened.items) {
     opened.onAnswer({ item, correct: true, response: 0 });
   }
-  assert.equal(quiz.session.answers.length, 15);
+  assert.equal(quiz.session.answers.length, stageQuestionCount(1));
   opened.onFinish();
   assert.equal(ended.result.percent, 100);
   assert.equal(ended.result.grade, 'S');
+  assert.equal(ended.result.stage, 1);
+  assert.equal(ended.result.stagePassed, true);
+  assert.equal(ended.result.stageUnlocked, 2);
   assert.equal(store.get().missions, 1);
   assert.equal(store.get().best.A1, 100);
+  assert.equal(store.stageState('A1').unlocked, 2);
+  assert.equal(store.stageState('A1').entries[0].best, 100);
   assert.equal(quiz.session, null);
+});
+
+test('failing a stage keeps the next stage locked', () => {
+  const store = storeWith();
+  let opened = null;
+  let ended = null;
+  const activities = {
+    isOpen: true,
+    open(config) { opened = config; },
+    close() { this.isOpen = false; },
+  };
+  const quiz = new Quiz({ store, activities, onEnd: (event) => { ended = event; } });
+  quiz.start('A2', 11, 1);
+  opened.items.forEach((item, index) => {
+    opened.onAnswer({ item, correct: index < 2, response: 0 });
+  });
+  opened.onFinish();
+  assert.equal(ended.result.percent, 40);
+  assert.equal(ended.result.stagePassed, false);
+  assert.equal(ended.result.stageUnlocked, null);
+  assert.equal(store.stageState('A2').unlocked, 1);
+  assert.equal(store.stageState('A2').entries[0].best, 40);
 });
 
 test('leaving a quiz closes the overlay and saves nothing', () => {
@@ -503,4 +687,169 @@ test('leaving a quiz closes the overlay and saves nothing', () => {
   assert.equal(quit, true);
   assert.equal(quiz.isActive, false);
   assert.equal(store.get().missions, 0);
+});
+
+/* --------------------------------------------------- new local improvements */
+test('settings sanitizers clamp weekly goal and reject bad types', () => {
+  const s = sanitizeSettings({ weeklyGoal: 99, largeText: 'yes', music: -8 });
+  assert.equal(s.weeklyGoal, 14);
+  assert.equal(s.largeText, true);
+  assert.equal(s.music, 0);
+  assert.equal(sanitizeSettings(null).weeklyGoal, 3);
+});
+
+test('week keys start on Monday and stay stable inside one week', () => {
+  assert.equal(weekKey('2026-11-19'), '2026-11-16');
+  assert.equal(weekKey('2026-11-16'), '2026-11-16');
+  assert.equal(weekKey('2026-11-22'), '2026-11-16');
+  assert.equal(weekKey('2026-11-23'), '2026-11-23');
+});
+
+test('mistake and history sanitizers bound hostile records', () => {
+  const mistakes = sanitizeMistakes({
+    good: { count: 900, skill: 'vocabulary', level: 'A1', last: '2026-11-19' },
+    bad: { count: 'x', level: 'C1' },
+  });
+  assert.equal(mistakes.good.count, 99);
+  assert.equal(mistakes.bad.count, 1);
+  assert.equal(mistakes.bad.level, '');
+  const history = sanitizeHistory([
+    { date: '2026-11-19', level: 'B1', percent: 900, correct: -2 },
+    { date: 'bad' },
+  ]);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].percent, 100);
+  assert.equal(history[0].correct, 0);
+});
+
+test('mistake book counts repeats and records only failed answers', () => {
+  const store = storeWith();
+  store.recordMistakes([
+    { itemId: 'voc-a1-01', correct: false, skill: 'vocabulary', level: 'A1' },
+    { itemId: 'voc-a1-01', correct: false, skill: 'vocabulary', level: 'A1' },
+    { itemId: 'gra-a1-01', correct: true, skill: 'grammar', level: 'A1' },
+  ]);
+  assert.equal(store.getMistakes().length, 1);
+  assert.equal(store.getMistakes()[0].count, 2);
+  assert.equal(store.clearMistake('voc-a1-01'), true);
+  assert.equal(store.getMistakes().length, 0);
+});
+
+test('weekly count uses the stored history and the selected goal', () => {
+  const store = storeWith();
+  store.setSetting('weeklyGoal', 5);
+  store.profile.history = [
+    { date: '2026-11-16', level: 'A1', percent: 80, correct: 12 },
+    { date: '2026-11-18', level: 'A2', percent: 90, correct: 13 },
+    { date: '2026-11-23', level: 'B1', percent: 70, correct: 10 },
+  ];
+  assert.equal(store.weeklyCount('2026-11-19'), 2);
+  assert.equal(store.weeklyGoal(), 5);
+});
+
+test('profile export and import preserve progress with an app marker', () => {
+  const store = storeWith();
+  store.setName('Ronus');
+  store.recordSession(computeResults(fullSession('A1', 3)));
+  const payload = store.exportProfile();
+  assert.match(payload, new RegExp(EXPORT_APP));
+  const fresh = storeWith();
+  fresh.importProfile(payload);
+  assert.equal(fresh.get().name, 'Ronus');
+  assert.equal(fresh.get().missions, 1);
+  assert.equal(fresh.get().best.A1, 100);
+});
+
+test('profile import rejects foreign apps, huge files and absurd values', () => {
+  const store = storeWith();
+  assert.throws(
+    () => store.importProfile(JSON.stringify({ app: 'Another App', profile: defaultProfile() })),
+    /another application/,
+  );
+  assert.throws(() => store.importProfile('x'.repeat(1_000_001)), /too large/);
+  store.importProfile(JSON.stringify({
+    app: EXPORT_APP,
+    profile: {
+      xp: 10 ** 12, missions: -5, best: { A1: 900 },
+      skills: { vocabulary: { correct: 99, total: 5 } },
+      achievements: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`badge${i}`, { date: '2026-01-01' }])),
+    },
+  }));
+  const p = store.get();
+  assert.equal(p.xp, 1_000_000_000);
+  assert.equal(p.missions, 0);
+  assert.equal(p.best.A1, 100);
+  assert.equal(p.skills.vocabulary.correct, 5);
+  assert.equal(Object.keys(p.achievements).length, 40);
+});
+
+test('content helpers resolve ids, derive tags and filter exercises', () => {
+  const first = allExercises()[0];
+  assert.equal(getExerciseById(first.id), first);
+  assert.equal(getExerciseById('does-not-exist'), undefined);
+  const tags = deriveTags(first);
+  assert.ok(tags.includes(first.skill));
+  assert.ok(tags.length > 0 && tags.length <= 8);
+  const listed = allTags(200);
+  assert.ok(listed.length > 10);
+  assert.ok(listed.every((entry) => entry.count >= 1));
+  const tag = listed.find((entry) => entry.count >= 2)?.tag || first.skill;
+  const matches = getExercisesByTag(tag, first.level);
+  assert.ok(matches.length >= 1);
+  assert.ok(matches.every((item) => item.level === first.level));
+});
+
+test('daily seed is stable and builds the requested stage', () => {
+  assert.equal(dailySeed('2026-11-19'), dailySeed('2026-11-19'));
+  assert.notEqual(dailySeed('2026-11-19'), dailySeed('2026-11-20'));
+  const a = buildDaily('B1', '2026-11-19').map((item) => item.id).join('|');
+  const b = buildDaily('B1', '2026-11-19').map((item) => item.id).join('|');
+  assert.equal(a, b);
+  assert.equal(a.split('|').length, stageQuestionCount(1));
+  assert.equal(buildDaily('B1', '2026-11-19', 5).length, stageQuestionCount(5));
+});
+
+test('every picture-matching icon has a scalable offline SVG', () => {
+  const icons = new Set();
+  for (const levels of Object.values(banks)) {
+    for (const items of Object.values(levels)) {
+      for (const item of items.filter((i) => i.type === 'match')) {
+        for (const pair of item.pairs) icons.add(pair.icon);
+      }
+    }
+  }
+  assert.ok(icons.size >= 10, `only ${icons.size} match icons found`);
+  for (const icon of icons) {
+    const svg = iconSvg(icon);
+    assert.match(svg, /^<svg /, icon);
+    assert.match(svg, /viewBox="0 0 24 24"/, icon);
+    assert.match(svg, /<(?:path|circle|rect)\b/, icon);
+  }
+});
+
+test('the quiz is silent, locked until the end and produces a full review', () => {
+  const store = storeWith();
+  let opened = null;
+  let ended = null;
+  const activities = {
+    isOpen: true,
+    open(config) { opened = config; },
+    close() { this.isOpen = false; },
+  };
+  const quiz = new Quiz({ store, activities, onEnd: (event) => { ended = event; } });
+  quiz.start('A1', 321, 3);
+  assert.equal(opened.silent, true);
+  assert.equal(opened.noQuit, true);
+  assert.equal(opened.finishLabel, 'See my report');
+  assert.equal(quiz.stage, 3);
+  assert.equal(quiz.session.stage, 3);
+  for (const item of opened.items) {
+    opened.onAnswer({ item, correct: false, response: 'wrong' });
+  }
+  opened.onFinish();
+  assert.equal(ended.review.length, stageQuestionCount(3));
+  assert.equal(ended.review[0].correct, false);
+  assert.equal(typeof ended.review[0].prompt, 'string');
+  assert.ok(ended.review[0].expected.length > 0);
+  assert.equal(store.getMistakes().length, stageQuestionCount(3));
 });

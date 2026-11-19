@@ -10,7 +10,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Stand by the screen. Splash screen visible. Wait two seconds, then begin.]*
 
-> "Fifteen questions. Five skills. One level. No clock, no pressure. And one question: can you show what you know in English?
+> "Ten progressive stages, five–nine questions each. No clock, no pressure. And one question: can you show what you know in English?
 >
 > This is **English Club Quiz**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
 
@@ -30,7 +30,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 > "Today I'll show A1, beginner level. I type a name — nothing is uploaded. It stays on this machine."
 
-*[Type a name, click **START THE 15-QUESTION QUIZ**.]*
+*[Type a name, click **START A STAGE** → A1. *[cut]* Skip the check and go straight to A1.]*
 
 ---
 
@@ -62,7 +62,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Finish the culture items. Let the last explanation appear, then click **See my report**.]*
 
-> "Culture items are checked facts, with sources kept in the documentation. Fifteen answers, then the report."
+> "Culture items are checked facts, with sources kept in the documentation. Stage answers, not trivia guesses. Five to nine answers per stage."
 
 ---
 
@@ -70,7 +70,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Point at each region of the report in turn: grade, numbers, skill rows, recommendations.]*
 
-> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer, out of 150.
+> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer, per stage.
 >
 > A breakdown across five areas. Two recommendations that point at the weakest skills.
 >

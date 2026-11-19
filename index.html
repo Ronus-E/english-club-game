@@ -26,6 +26,11 @@
       <span aria-hidden="true">◍</span> Offline mode — the full quiz is cached and ready.
     </div>
 
+    <div id="updateBanner" class="update-banner" role="status" hidden>
+      <span>A new version is ready.</span>
+      <button id="updateBtn" class="btn btn-small" type="button">Update quiz</button>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <!-- ===================== SPLASH ===================== -->
@@ -43,7 +48,8 @@
           <button id="bootBtn" class="btn btn-primary btn-lg" type="button">START</button>
           <p id="bootStatus" class="boot-status" role="status">Loading&hellip;</p>
         </div>
-        <p class="splash-credit">Fifteen questions · Five skills · Any device</p>
+        <p class="splash-credit">10 progressive stages · 5–9 questions · Five skills</p>
+        <p class="splash-credit">Game developed by Ronus ELDO</p>
       </div>
     </section>
 
@@ -69,15 +75,21 @@
           <div class="menu-card menu-card-feature">
             <p class="kicker">Ready to learn?</p>
             <h3>Choose your level and play</h3>
-            <p class="muted">Fifteen questions per quiz: three each in vocabulary, grammar, reading, writing and American culture. Answers are corrected immediately, with an explanation.</p>
+            <p class="muted">Ten progressive stages per level, each with 5–9 questions across vocabulary, grammar, reading, writing and American culture. Corrections stay hidden until the final dashboard.</p>
             <button id="playBtn" class="btn btn-primary btn-lg" type="button">▶ START A QUIZ</button>
             <div class="mode-row">
               <button id="practiceBtn" class="btn" type="button">Free practice</button>
+              <button id="dailyBtn" class="btn" type="button">Daily challenge</button>
               <button id="howBtn" class="btn btn-ghost" type="button">How it works</button>
             </div>
           </div>
 
           <nav class="menu-grid" aria-label="Main menu options">
+            <button class="menu-tile" id="progressBtn" type="button">
+              <span class="tile-icon" aria-hidden="true">📈</span>
+              <strong>Progress</strong>
+              <small id="progressHint">Weekly goal &amp; skill totals</small>
+            </button>
             <button class="menu-tile" id="achievementsBtn" type="button">
               <span class="tile-icon" aria-hidden="true">🏅</span>
               <strong>Achievements</strong>
@@ -103,6 +115,8 @@
 
         <footer class="menu-footer">
           <span id="storageBadge">Progress saved on this device</span>
+          <span>Developed by RONUS Eldo</span>
+          <span>Game Develloper : Ronus Eldo</span>
           <span>v4.0 · No external assets · No internet needed</span>
         </footer>
       </div>
@@ -118,7 +132,7 @@
             <h2>Level selection</h2>
           </div>
         </header>
-        <p class="muted page-lead">Pick A1, A2 or B1. The questions change with your level — the quiz format stays the same.</p>
+        <p class="muted page-lead">Pick A1, A2 or B1, then choose one of ten progressive stages. Each stage asks 5–9 questions; the difficulty rises as you advance.</p>
 
         <div class="level-grid" id="levelGrid" role="list"></div>
 
@@ -128,7 +142,7 @@
         </label>
 
         <div class="row gap wrap">
-          <button id="levelContinueBtn" class="btn btn-primary btn-lg" type="button">START THE 15-QUESTION QUIZ →</button>
+          <button id="levelContinueBtn" class="btn btn-primary btn-lg" type="button">CHOOSE A QUIZ STAGE →</button>
         </div>
 
         <div class="placement-card">
@@ -141,19 +155,40 @@
       </div>
     </section>
 
+    <!-- ===================== STAGE SELECT ===================== -->
+    <section id="screen-stages" class="screen" aria-label="Quiz stage selection">
+      <div class="page">
+        <header class="page-head">
+          <button class="btn btn-ghost btn-icon" data-back="level" type="button" aria-label="Back to level selection">←</button>
+          <div>
+            <p class="kicker">Ten progressive stages</p>
+            <h2 id="stagesTitle">Quiz stages</h2>
+          </div>
+        </header>
+        <p class="muted page-lead" id="stagesLead">Each stage asks 5–9 questions. Score 60% or more to unlock the next one.</p>
+
+        <div class="stage-grid" id="stageGrid" role="list"></div>
+
+        <div class="panel stage-note">
+          <strong>How progression works</strong>
+          <p>Every stage mixes the five skills and becomes slightly harder. Stage scores are saved on this device. Clearing a stage with 60% or more opens the next one; you can replay any unlocked stage to improve your best score.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ===================== QUIZ ===================== -->
     <section id="screen-quiz" class="screen" aria-label="Quiz">
       <div class="page quiz-page">
         <header class="page-head">
           <button id="quizQuitBtn" class="btn btn-ghost btn-icon" type="button" aria-label="Leave the quiz">←</button>
           <div>
-            <p class="kicker" id="quizKicker">A1 · 15 questions</p>
+            <p class="kicker" id="quizKicker">A1 · Stage 1 · 5 questions</p>
             <h2 id="quizTitle">Quiz in progress</h2>
           </div>
         </header>
         <div class="panel quiz-card">
-          <p class="muted" id="quizLead">Answer each question in the panel. Feedback and an explanation appear straight away.</p>
-          <p class="quiz-status" id="quizStatus" role="status" aria-live="polite">Question 1 of 15</p>
+          <p class="muted" id="quizLead">Answers stay neutral while you play. Corrections and explanations appear together in the final dashboard.</p>
+          <p class="quiz-status" id="quizStatus" role="status" aria-live="polite">Question 1 of 5</p>
           <div class="skill-pips" id="quizPips" aria-label="Skills covered"></div>
           <button id="quizOpenBtn" class="btn btn-primary btn-lg" type="button">OPEN THE QUESTION PANEL →</button>
         </div>
@@ -190,11 +225,20 @@
             <h3>What to improve next</h3>
             <ul id="recommendations" class="recommendations"></ul>
             <div class="row gap wrap">
-              <button id="replayBtn" class="btn btn-primary" type="button">↻ Replay quiz</button>
+              <button id="replayBtn" class="btn btn-primary" type="button">↻ Replay this stage</button>
+              <button id="reviewMistakesBtn" class="btn btn-secondary" type="button">Review my mistakes</button>
               <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
               <button id="resultsMenuBtn" class="btn btn-ghost" type="button">Main menu</button>
             </div>
           </div>
+        </div>
+
+        <div class="panel answer-review-panel">
+          <h3>Full correction dashboard</h3>
+          <p class="micro muted">Nothing is revealed while you answer. Every result appears here after the last question.</p>
+          <div id="answerReview" class="answer-review"></div>
+          <p class="signature">Developed by RONUS Eldo</p>
+          <p class="signature">Game Develloper : Ronus Eldo</p>
         </div>
 
         <div class="panel achievements-strip">
@@ -225,7 +269,31 @@
           </label>
           <p class="muted" id="practiceSummary">Ten exercises per skill and level.</p>
         </div>
+        <div class="panel topic-panel">
+          <label class="field-inline" for="practiceTag">
+            <span>Revision topic</span>
+            <select id="practiceTag">
+              <option value="">Choose a topic…</option>
+            </select>
+            <button id="practiceTagBtn" class="btn btn-secondary" type="button">Practise topic</button>
+          </label>
+          <p class="micro muted">Topics are drawn from the objectives of the 150 local exercises.</p>
+        </div>
         <div class="skill-grid" id="skillGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== PROGRESS ===================== -->
+    <section id="screen-progress" class="screen" aria-label="Progress dashboard">
+      <div class="page">
+        <header class="page-head">
+          <button class="btn btn-ghost btn-icon" data-back="menu" type="button" aria-label="Back to menu">←</button>
+          <div>
+            <p class="kicker">Local progress</p>
+            <h2>Your progress</h2>
+          </div>
+        </header>
+        <div id="progressContent" class="progress-content"></div>
       </div>
     </section>
 
@@ -294,6 +362,41 @@
             <span>High contrast UI</span>
             <input type="checkbox" id="highContrast">
           </label>
+          <label class="setting toggle-row">
+            <span>Larger text</span>
+            <small class="muted">Scales the whole interface by 10%</small>
+            <input type="checkbox" id="largeText">
+          </label>
+          <div class="setting">
+            <label for="weeklyGoal">Weekly quiz goal <output id="weeklyGoalOut">3</output></label>
+            <select id="weeklyGoal">
+              <option value="1">1 quiz / week</option>
+              <option value="2">2 quizzes / week</option>
+              <option value="3">3 quizzes / week</option>
+              <option value="4">4 quizzes / week</option>
+              <option value="5">5 quizzes / week</option>
+              <option value="6">6 quizzes / week</option>
+              <option value="7">7 quizzes / week</option>
+              <option value="8">8 quizzes / week</option>
+              <option value="9">9 quizzes / week</option>
+              <option value="10">10 quizzes / week</option>
+              <option value="11">11 quizzes / week</option>
+              <option value="12">12 quizzes / week</option>
+              <option value="13">13 quizzes / week</option>
+              <option value="14">14 quizzes / week</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-inline data-zone">
+          <div>
+            <strong>Your data stays yours</strong>
+            <p class="micro muted">Export a JSON backup, or import one to restore progress on this device.</p>
+          </div>
+          <div class="row gap wrap">
+            <button id="exportBtn" class="btn btn-secondary" type="button">Export progress</button>
+            <button id="importBtn" class="btn btn-secondary" type="button">Import progress</button>
+            <input id="importFile" type="file" accept="application/json,.json" hidden>
+          </div>
         </div>
         <div class="panel-inline danger-zone">
           <div>
@@ -315,10 +418,10 @@
         <h2 id="helpTitle">How the quiz works</h2>
         <div class="help-grid">
           <div>
-            <h3>One quiz</h3>
-            <p>Choose A1, A2 or B1. You answer fifteen questions: three each in vocabulary, grammar, reading, writing and American culture.</p>
+            <h3>Ten stages</h3>
+            <p>Choose A1, A2 or B1, then one of ten stages. Each stage asks 5–9 questions across vocabulary, grammar, reading, writing and American culture. The difficulty rises stage by stage.</p>
             <h3>Answer</h3>
-            <p>Tap an option, type a short answer or put words in order. The correct answer and a short explanation appear immediately.</p>
+            <p>Tap an option, type a short answer or put words in order. Answers stay neutral while the stage is running; every correction and explanation is revealed in the final dashboard.</p>
           </div>
           <div>
             <h3>Five skills</h3>
@@ -329,7 +432,7 @@
               <li>Writing — build or complete a sentence</li>
               <li>American culture — verified facts</li>
             </ol>
-            <p class="muted">There is no clock. Your report shows a grade per skill and two suggestions for what to practise next.</p>
+            <p class="muted">There is no clock. Score 60% or more to unlock the next stage. Your report shows a grade per skill and two suggestions for what to practise next.</p>
           </div>
         </div>
         <div class="overlay-actions">
@@ -346,12 +449,14 @@
         <div class="about-copy">
           <p>An offline educational quiz for the American Corner English Club. All artwork is generated in code, all sounds are synthesised live, and the whole quiz is cached locally after the first visit.</p>
           <ul>
-            <li><strong>CEFR content:</strong> A1, A2 and B1 exercises across four skills plus American culture.</li>
+            <li><strong>CEFR content:</strong> A1, A2 and B1 exercises across four skills plus American culture, organised into ten progressive stages per level.</li>
             <li><strong>Accessibility:</strong> keyboard and touch support, reduced motion, high contrast, screen-reader labels.</li>
             <li><strong>Privacy:</strong> no accounts, no trackers, no external requests. Progress lives in <code>localStorage</code> on this device.</li>
             <li><strong>Factual care:</strong> culture items distinguish verified facts from simplified classroom explanations; sources are listed in the documentation.</li>
           </ul>
           <p class="micro muted">Version 4.0 · Made for learners, not for data collection.</p>
+          <p class="signature">Developed by RONUS Eldo</p>
+          <p class="signature">Game Develloper : Ronus Eldo</p>
         </div>
         <div class="overlay-actions">
           <button class="btn btn-primary" data-close-overlay type="button">Close</button>
@@ -371,7 +476,7 @@
             </div>
           </div>
           <div class="activity-meta">
-            <span id="activityCounter">1 / 15</span>
+            <span id="activityCounter">1 / 5</span>
             <span id="activitySkill" class="pill">Vocabulary</span>
             <button id="activityQuit" class="btn btn-icon" type="button" aria-label="Leave quiz">✕</button>
           </div>

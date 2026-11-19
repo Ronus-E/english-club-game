@@ -113,42 +113,43 @@ export class AudioEngine {
     if (this.musicTimer) return;
     const ctx = this.ensure();
     if (!ctx) return;
-    const pattern = [0, 7, 12, 7, 3, 10, 15, 10, 5, 12, 17, 12, 3, 10, 15, 7];
-    const base = 220;
-    const interval = 210;
-    const playStep = () => {
-      if (!this.ctx || this.musicGain.gain.value < 0.001) return;
-      const semis = pattern[this.musicStep % pattern.length];
-      const freq = base * Math.pow(2, semis / 12);
-      const t0 = this.ctx.currentTime;
+
+    // A calm, slow ambient loop: soft sine arpeggio over a warm drone.
+    // Nothing musical is fetched; every note is synthesised locally.
+    const scale = [0, 3, 5, 7, 10, 12, 10, 7, 5, 3];
+    const base = 261.63; // C4
+    const stepMs = 560;
+    const note = (freq, t0, { type = 'sine', peak = 0.16, attack = 0.08, release = 1.6, detune = 0 }) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'triangle';
+      osc.type = type;
       osc.frequency.value = freq;
+      osc.detune.value = detune;
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
+      gain.gain.exponentialRampToValueAtTime(peak, t0 + attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + release);
       osc.connect(gain);
-      gain.connect(this.musicGain);
+      if (this.musicGain) gain.connect(this.musicGain);
       osc.start(t0);
-      osc.stop(t0 + 0.4);
-      if (this.musicStep % 4 === 0) {
-        const bass = this.ctx.createOscillator();
-        const bg = this.ctx.createGain();
-        bass.type = 'sine';
-        bass.frequency.value = base / 2;
-        bg.gain.setValueAtTime(0.0001, t0);
-        bg.gain.exponentialRampToValueAtTime(0.3, t0 + 0.03);
-        bg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
-        bass.connect(bg);
-        bg.connect(this.musicGain);
-        bass.start(t0);
-        bass.stop(t0 + 0.55);
+      osc.stop(t0 + release + 0.05);
+    };
+
+    const playStep = () => {
+      if (!this.ctx || !this.musicGain || this.musicGain.gain.value < 0.001) return;
+      const t0 = this.ctx.currentTime;
+      const semis = scale[this.musicStep % scale.length];
+      const freq = base * Math.pow(2, semis / 12);
+      note(freq, t0, { peak: 0.14, release: 1.5, detune: -4 });
+      note(freq * 2, t0 + 0.12, { peak: 0.05, release: 1.9, detune: 6 });
+      // Warm sub drone every bar, very quiet.
+      if (this.musicStep % 6 === 0) {
+        note(base / 4, t0, { type: 'sine', peak: 0.1, attack: 0.35, release: 3.4 });
+        note((base / 2) * Math.pow(2, 7 / 12), t0 + 0.05, { type: 'sine', peak: 0.05, attack: 0.4, release: 3.2 });
       }
       this.musicStep += 1;
     };
     playStep();
-    this.musicTimer = setInterval(playStep, interval);
+    this.musicTimer = setInterval(playStep, stepMs);
   }
 
   stopMusic() {

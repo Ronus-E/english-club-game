@@ -23,13 +23,13 @@ The display uses an English editorial style: serif titles, red / blue / parchmen
 
 | Time | Action | What to say |
 |---|---|---|
-| 0:00–0:25 | Splash → menu | "Fifteen questions. Five skills. No clock. Everything you see is drawn in code." |
+| 0:00–0:25 | Splash → menu | "Ten progressive stages, five–nine questions each. No clock. Everything you see is drawn in code." |
 | 0:25–0:50 | **Find my level** (or skip) | "Six questions suggest A1, A2 or B1. A learner can change it any time." |
 | 0:50–1:15 | Choose A1 → enter a name → start | "One name, stored on this device only. Nothing is uploaded." |
 | 1:15–1:45 | First question: match or choice | "Every answer is corrected straight away — and the reason is shown immediately." |
 | 1:45–2:45 | Grammar, reading and writing questions | "Three questions per skill, mixed together. The five pips show what is covered." |
-| 2:45–3:30 | Culture questions, then the last explanations | "Verified cultural facts, not trivia guesses." |
-| 3:30–4:10 | Results | "Score out of 150, grade, five-skill breakdown, two suggestions, XP and badges." |
+| 2:45–3:30 | Culture questions, then the last explanations | "Verified cultural facts, not trivia guesses. 5–9 questions per stage." |
+| 3:30–4:10 | Results | "Score per stage, grade, per-skill breakdown, two suggestions, XP and badges." |
 | 4:10–4:35 | **Practice weak skill** + achievement hall | "The report leads straight to focused practice. Ten badges, all local." |
 | 4:35–5:00 | Settings + offline reload | "Reduced motion, high contrast, no trackers — and we are offline right now." |
 

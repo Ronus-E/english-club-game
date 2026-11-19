@@ -4,7 +4,7 @@
    Bump CACHE_VERSION whenever a precached file changes.
    ============================================================ */
 
-const CACHE_VERSION = 'ec-v2.0.1';
+const CACHE_VERSION = 'ec-v2.0.2';
 const PRECACHE = [
   './',
   './index.html',
@@ -59,7 +59,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  const data = event.data;
+  if (data === 'SKIP_WAITING' || data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {

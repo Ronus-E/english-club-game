@@ -88,6 +88,14 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
   border-radius: 2px;
 }
 
+html.large-text { font-size: 112%; }
+html.large-text .screen { font-size: 112%; }
+html.large-text .btn,
+html.large-text .panel,
+html.large-text .menu-tile,
+html.large-text .stage-card,
+html.large-text .match-cell { font-size: 1.08em; }
+
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;

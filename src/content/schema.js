@@ -69,18 +69,18 @@ export function choice({ id, skill, level, prompt, options, answer, explanation,
 }
 
 /** Word ↔ picture matching set. */
-export function match({ id, skill = 'vocabulary', level, pairs, explanation, objective, instruction = 'Match each word with the correct picture.', prompt = 'Tap a word, then tap its picture.' }) {
-  return { id, skill, level, type: 'match', pairs, explanation, objective, instruction, prompt };
+export function match({ id, skill = 'vocabulary', level, pairs, explanation, objective, instruction = 'Match each word with the correct picture.', prompt = 'Tap a word, then tap its picture.', tags = [] }) {
+  return { id, skill, level, type: 'match', pairs, explanation, objective, instruction, prompt, tags };
 }
 
 /** Word-order / sentence building. */
-export function order({ id, skill, level, prompt, words, answerText, explanation, objective, instruction, accepted = [] }) {
-  return { id, skill, level, type: 'order', prompt, words, answerText, accepted, explanation, objective, instruction };
+export function order({ id, skill, level, prompt, words, answerText, explanation, objective, instruction, accepted = [], tags = [] }) {
+  return { id, skill, level, type: 'order', prompt, words, answerText, accepted, explanation, objective, instruction, tags };
 }
 
 /** Short written answer with accepted variants. */
-export function short({ id, skill = 'writing', level, prompt, accepted, explanation, objective, instruction, hint = '' }) {
-  return { id, skill, level, type: 'short', prompt, accepted, explanation, objective, instruction, hint };
+export function short({ id, skill = 'writing', level, prompt, accepted, explanation, objective, instruction, hint = '', tags = [] }) {
+  return { id, skill, level, type: 'short', prompt, accepted, explanation, objective, instruction, hint, tags };
 }
 
 /** American culture question. `fact` marks verified factual content. */

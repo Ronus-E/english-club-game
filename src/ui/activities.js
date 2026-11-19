@@ -2,7 +2,7 @@
  * Activity overlay: renders every exercise type, gives immediate correction
  * and reports each attempt back to the mission or practice session.
  */
-import { drawIcon } from './icons.js';
+import { iconSvg } from './icons.js';
 import { checkAnswer, SKILL_INFO } from '../content/schema.js';
 import { shuffle } from '../core/util.js';
 
@@ -45,6 +45,7 @@ export class ActivityRunner {
   get isOpen() { return !this.overlay.hidden; }
 
   requestQuit() {
+    if (this.config?.noQuit) return;
     const handler = this.config?.onQuit || this.onQuitRequest;
     handler?.();
   }
@@ -64,6 +65,7 @@ export class ActivityRunner {
     this.answers = [];
     this.phase = 'question';
     this.overlay.hidden = false;
+    if (this.els.quit) this.els.quit.hidden = Boolean(config.noQuit);
     this.syncRoot();
     this.isFinal = Boolean(this.config.final);
     this.els.panel?.classList.toggle('is-final', this.isFinal);
@@ -79,6 +81,7 @@ export class ActivityRunner {
     this.timers.forEach((id) => clearTimeout(id));
     this.timers = [];
     this.overlay.hidden = true;
+    if (this.els.quit) this.els.quit.hidden = false;
     this.config = null;
     this.syncRoot();
   }
@@ -145,8 +148,13 @@ export class ActivityRunner {
     const { correct } = checkAnswer(item, index);
     buttons.forEach((b, i) => {
       b.disabled = true;
-      if (i === item.answer) b.classList.add('is-correct');
-      else if (i === index) b.classList.add('is-wrong');
+      if (this.config.silent) {
+        if (i === index) b.classList.add('is-picked');
+      } else if (i === item.answer) {
+        b.classList.add('is-correct');
+      } else if (i === index) {
+        b.classList.add('is-wrong');
+      }
     });
     this.finishAnswer(item, correct, index);
   }
@@ -155,7 +163,7 @@ export class ActivityRunner {
   renderMatch(item) {
     const words = shuffle(item.pairs.map((p) => p.term));
     const pictures = shuffle(item.pairs.map((p) => p.icon));
-    this.matchState = { selected: null, matched: new Set(), mistakes: 0 };
+    this.matchState = { selected: null, matched: new Set(), pairings: [], mistakes: 0 };
 
     const wordCol = h('div', { style: 'display:grid;gap:8px' });
     const picCol = h('div', { style: 'display:grid;gap:8px' });
@@ -167,11 +175,9 @@ export class ActivityRunner {
       wordCol.append(cell);
     }
     for (const icon of pictures) {
-      const canvas = h('canvas', { width: 44, height: 44, 'aria-hidden': 'true' });
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      drawIcon(ctx, icon, 4, 4, 36);
-      const cell = h('button', { class: 'match-cell', type: 'button', dataset: { icon }, 'aria-label': `Picture option ${icon}` }, canvas);
+      const symbol = h('span', { class: 'match-icon', 'aria-hidden': 'true' });
+      symbol.innerHTML = iconSvg(icon);
+      const cell = h('button', { class: 'match-cell', type: 'button', dataset: { icon }, 'aria-label': `Picture option ${icon}` }, symbol);
       cell.addEventListener('click', () => this.selectPicture(icon, cell));
       picCol.append(cell);
     }
@@ -198,7 +204,30 @@ export class ActivityRunner {
       return;
     }
     const pair = this.item.pairs.find((p) => p.term === selected.word);
-    const good = pair && pair.icon === icon;
+    const good = Boolean(pair && pair.icon === icon);
+
+    if (this.config.silent) {
+      this.matchState.matched.add(selected.word);
+      this.matchState.pairings.push({ term: selected.word, icon, correct: good });
+      if (!good) this.matchState.mistakes += 1;
+      selected.cell.classList.remove('is-selected');
+      selected.cell.classList.add('is-done');
+      selected.cell.disabled = true;
+      cell.classList.add('is-done');
+      cell.disabled = true;
+      this.matchState.selected = null;
+      this.audio.play('select');
+      if (this.matchState.matched.size === this.item.pairs.length) {
+        this.answered = true;
+        this.finishAnswer(this.item, this.matchState.mistakes === 0, [...this.matchState.pairings], {
+          prefix: 'Answers recorded.',
+        });
+        return;
+      }
+      this.refreshMatchFoot();
+      return;
+    }
+
     if (good) {
       this.matchState.matched.add(selected.word);
       selected.cell.classList.remove('is-selected');
@@ -342,15 +371,26 @@ export class ActivityRunner {
 
   finishAnswer(item, correct, response, extra = {}) {
     const good = correct === true;
-    this.audio.play(good ? 'correct' : correct === false ? 'wrong' : 'pickup');
+    const silent = Boolean(this.config.silent);
+    this.audio.play(silent ? 'pickup' : good ? 'correct' : correct === false ? 'wrong' : 'pickup');
     this.lastAnswer = { item, correct, response };
     this.answers.push(this.lastAnswer);
-    this.els.body.append(h('div', { class: `feedback ${good ? 'is-good' : correct === false ? 'is-bad' : ''}` },
-      h('strong', { text: extra.participation ? 'Recorded' : good ? 'Correct' : 'Not quite' }),
-      extra.prefix ? h('p', { text: extra.prefix }) : null,
-      extra.expected ? h('p', { class: 'why', text: `Model answer: ${extra.expected}` }) : null,
-      h('p', { class: 'why', text: item.explanation || '' }),
-    ));
+    if (silent) {
+      this.els.body.append(h('div', { class: 'feedback is-neutral' },
+        h('strong', { text: 'Answer recorded' }),
+        h('p', { class: 'micro muted', text: 'Corrections appear in the final dashboard.' }),
+      ));
+    } else {
+      this.els.body.append(h('div', { class: `feedback ${good ? 'is-good' : correct === false ? 'is-bad' : ''}` },
+        h('strong', { text: extra.participation ? 'Recorded' : good ? 'Correct' : 'Not quite' }),
+        extra.prefix ? h('p', { text: extra.prefix }) : null,
+        extra.expected ? h('p', { class: 'why', text: `Model answer: ${extra.expected}` }) : null,
+        h('p', { class: 'why', text: item.explanation || '' }),
+        item.skill === 'culture' && (item.note || item.region)
+          ? h('p', { class: 'source-note', text: [item.region && `Region: ${item.region}`, item.note && `Source note: ${item.note}`].filter(Boolean).join(' · ') })
+          : null,
+      ));
+    }
     this.els.body.scrollTop = this.els.body.scrollHeight;
     this.config.onAnswer?.(this.lastAnswer);
     const isLast = this.index >= this.config.items.length - 1;

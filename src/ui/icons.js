@@ -150,4 +150,47 @@ export function drawIcon(ctx, name, x, y, size, { smoothing = false } = {}) {
   ctx.imageSmoothingEnabled = prev;
 }
 
+/* ---------------------------------------------------------------------------
+   Modern flat icons. Same offline rule, no pixel grid: clean SVG geometry that
+   stays sharp at any size. Used by the word ↔ picture matching exercises.
+   --------------------------------------------------------------------------- */
+const SVG_BODIES = {
+  book: '<path d="M12 6.5c-2-1.4-5-1.4-8-.4v11c3-1 6-1 8 .4 2-1.4 5-1.4 8-.4v-11c-3-1-6-1-8 .4Z" fill="#f4f1e0"/><path d="M12 6.5v11"/><path d="M17 6.2v5l1.8-1.4 1.8 1.4v-5" fill="#ffc857"/>',
+  pencil: '<path d="M4.5 19.5 5.5 15 16.8 3.7a1.8 1.8 0 0 1 2.5 2.5L8 17.5l-3.5 2Z" fill="#ffc857"/><path d="m15.5 5 3.5 3.5"/><path d="m5.5 15 3.5 3.5" stroke="#e8846b"/>',
+  clock: '<circle cx="12" cy="12" r="8.5" fill="#e8eefc"/><path d="M12 7v5.2l3.4 2" stroke="#2b4c9b" stroke-width="2"/><path d="M12 3.5v1M12 19.5v1M3.5 12h1M19.5 12h1"/>',
+  apple: '<path d="M12 7.5c-3-3-7.5-1.2-7.5 4.8 0 4.2 3 7.7 5.5 7.7.9 0 1.3-.5 2-.5s1.1.5 2 .5c2.5 0 5.5-3.5 5.5-7.7 0-6-4.5-7.8-7.5-4.8Z" fill="#e04b4b"/><path d="M12 7.5V5" stroke="#7a5230" stroke-width="2"/><path d="M12.2 6.5c.6-2 2-3 3.8-3.2-.2 2-1.6 3.2-3.8 3.2Z" fill="#3f8f3f"/>',
+  sandwich: '<path d="M4 14h16l-2 5.5H6L4 14Z" fill="#e8c07a"/><path d="M4 14c1-3.2 4-4.8 8-4.8s7 1.6 8 4.8H4Z" fill="#f6e6c0"/><path d="M5 14h14" stroke="#5fae5f" stroke-width="2.4"/>',
+  water: '<path d="M12 3c3.2 4.2 6 7.2 6 10.2A6 6 0 0 1 6 13.2C6 10.2 8.8 7.2 12 3Z" fill="#4aa8e0"/><path d="M9 14.5a3 3 0 0 0 3 3" stroke="#bfe8ff" stroke-width="2"/>',
+  house: '<path d="m3 11 9-7 9 7" stroke-width="2"/><path d="M5.5 10v10h13V10" fill="#d98a5f"/><rect x="10" y="14" width="4" height="6" fill="#8b5a3c"/><rect x="6.5" y="12" width="2.5" height="2.5" fill="#63c5ff"/>',
+  school: '<path d="M3 10h18v10H3z" fill="#e0c9a0"/><path d="m3 10 9-6 9 6"/><path d="M17 4v6l4-2z" fill="#ffc857"/><rect x="6" y="13" width="3" height="3" fill="#63c5ff"/><rect x="11" y="13" width="3" height="3" fill="#63c5ff"/><rect x="16" y="13" width="3" height="3" fill="#63c5ff"/>',
+  tree: '<path d="m12 3 5.5 7.5h-3l4 5.5H5.5l4-5.5h-3L12 3Z" fill="#4f9c52"/><rect x="11" y="16" width="2" height="5" fill="#7a5230"/>',
+  bus: '<rect x="3" y="5" width="18" height="12" rx="3" fill="#e8b23a"/><rect x="6" y="8" width="12" height="5" rx="1" fill="#63c5ff"/><circle cx="7" cy="19" r="2" fill="#1c2440"/><circle cx="17" cy="19" r="2" fill="#1c2440"/>',
+  bicycle: '<circle cx="6" cy="17" r="4"/><circle cx="18" cy="17" r="4"/><path d="m6 17 4-8h5l3 8M10 9h5M9 17h6" stroke-width="1.8"/><circle cx="15" cy="9" r="1" fill="#ffc857"/>',
+  airplane: '<path d="M12 2.5c.9 0 1.3 3 1.3 6.2l7.2 4.8v1.8l-7.2-2v3.7l2.2 1.7v1l-3.5-.9-3.5.9v-1l2.2-1.7v-3.7l-7.2 2v-1.8l7.2-4.8c0-3.2.4-6.2 1.3-6.2Z" fill="#e8eefc"/>',
+  passport: '<rect x="5" y="3" width="14" height="18" rx="2" fill="#8c2f3a"/><circle cx="12" cy="11" r="4" fill="#63c5ff" stroke="#ffc857"/><path d="M8 11h8M12 7v8" stroke="#ffc857"/>',
+  ticket: '<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V7Z" fill="#ffc857"/><path d="M12 7.5v9" stroke="#8b5a2b" stroke-dasharray="2 2"/><path d="M5 11h4M15 11h4" stroke="#ff6b6b" stroke-width="2"/>',
+  suitcase: '<rect x="4" y="8" width="16" height="11" rx="2" fill="#c96a3a"/><path d="M9 8V5.5h6V8"/><path d="M4 13h16" stroke="#8b4a2b"/><rect x="6.5" y="19" width="3" height="2" fill="#1c2440"/><rect x="14.5" y="19" width="3" height="2" fill="#1c2440"/>',
+  sun: '<circle cx="12" cy="12" r="4" fill="#ffd166" stroke="#f2a93b"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1" stroke="#ffb84d" stroke-width="2"/>',
+  umbrella: '<path d="M3.5 12a8.5 8.5 0 0 1 17 0H3.5Z" fill="#ff6b6b"/><path d="M12 12v6.5a2 2 0 0 0 4 0" stroke-width="2"/><path d="M12 3.5V2"/>',
+  snowflake: '<path d="M12 2.5v19M4 7l16 10M20 7 4 17" stroke="#63c5ff" stroke-width="2"/><path d="m9.5 5 2.5 2 2.5-2M9.5 19l2.5-2 2.5 2" stroke="#bfe8ff" stroke-width="1.8"/>',
+  chef: '<path d="M7 13.5A4 4 0 0 1 8.2 5.8 4 4 0 0 1 12 8a4 4 0 0 1 3.8-2.2A4 4 0 0 1 17 13.5H7Z" fill="#f4f1e0"/><rect x="7" y="13.5" width="10" height="7" rx="1.5" fill="#f4f1e0"/><path d="M7 17h10" stroke="#e8846b" stroke-width="2"/>',
+  laptop: '<rect x="5" y="5" width="14" height="10" rx="1.5" fill="#8b93b8"/><rect x="7" y="7" width="10" height="6" fill="#63c5ff" stroke="none"/><path d="M3 17h18l-2 3H5l-2-3Z" fill="#e8eefc"/>',
+  hospital: '<rect x="4" y="4" width="16" height="16" rx="2" fill="#f4f1e0"/><path d="M12 7v10M7 12h10" stroke="#e04b4b" stroke-width="3"/>',
+  recycle: '<path d="m8.5 6 2-3.5h3L15.5 6" stroke="#2f8f6a" stroke-width="2"/><path d="M15.5 18l-2 3.5h-3L8.5 18" stroke="#2f8f6a" stroke-width="2"/><path d="M19.5 9.5 21 13l-3 2" stroke="#5ce1a6" stroke-width="2"/><path d="M4.5 14.5 3 11l3-2" stroke="#5ce1a6" stroke-width="2"/><path d="M12 8.5 15.5 14h-7L12 8.5Z" fill="#5ce1a6"/>',
+  factory: '<path d="M3 20V10l6 4v-4l6 4V6h6v14H3Z" fill="#8b93b8"/><rect x="14" y="9" width="3" height="3" fill="#ffc857" stroke="none"/><rect x="18" y="9" width="2" height="3" fill="#e04b4b" stroke="none"/>',
+  car: '<path d="M4.5 15 6.5 9h11l2 6" fill="#e04b4b"/><rect x="3" y="15" width="18" height="4" rx="1.5" fill="#e04b4b"/><circle cx="7" cy="19" r="2" fill="#1c2440"/><circle cx="17" cy="19" r="2" fill="#1c2440"/><path d="M6.5 12h11" stroke="#f4f1e0"/>',
+  lock: '<rect x="5" y="10" width="14" height="11" rx="2.4" fill="#ffc857"/><path d="M8.2 10V7.6a3.8 3.8 0 0 1 7.6 0V10" stroke="#ffc857" stroke-width="2.4"/><circle cx="12" cy="15.2" r="1.5" fill="#1c2440" stroke="none"/><path d="M12 16.4v2.2" stroke="#1c2440" stroke-width="2"/>',
+  check: '<path d="m4.8 12.4 4.7 4.7L19.2 7.4" stroke="#5ce1a6" stroke-width="3.2"/>',
+  play: '<path d="M8 4.8v14.4L20 12 8 4.8Z" fill="#63c5ff"/>',
+};
+
+/** Scalable flat icon as a self-contained SVG string. */
+export function iconSvg(name) {
+  const body = SVG_BODIES[name];
+  if (!body) return '';
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+    + `<g fill="none" stroke="#1c2440" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${body}</g>`
+    + '</svg>';
+}
+
 export function iconNames() { return Object.keys(ICONS); }

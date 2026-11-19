@@ -16,7 +16,7 @@ index.html
         ├── ui/decor.js           ambient field, logo, results badge
         ├── ui/activities.js      ActivityRunner: four exercise renderers
         ├── ui/icons.js           procedural icons for matching exercises
-        └── game/quiz.js          Quiz: 15-question controller
+        └── game/quiz.js          stage-aware quiz controller
 ```
 
 Content is data, separate from logic:
@@ -45,7 +45,7 @@ The splash screen does not load a game world. It only waits for the modules and 
 
 ## No clock
 
-There is no mission timer, no 180-second limit and no time bonus. A quiz ends when the fifteenth answer has been received and the learner confirms the last explanation. Leaving a quiz discards that run; only finished quizzes change the profile.
+There is no mission timer, no time limit and no time bonus. A quiz ends when the learner finishes all questions in the current stage and confirms the last explanation. Leaving a quiz discards that run; only finished quizzes change the profile.
 
 ## Quiz data flow
 
@@ -62,7 +62,7 @@ startQuiz(level)
     ↓  UI.renderResults() → results screen
 ```
 
-`buildQuiz()` samples three exercises from each of the five skills and interleaves them into three rounds of five questions. The seed makes a run reproducible in tests; the browser uses `Date.now()`.
+`buildStageQuiz(level, stage, seed)` returns 5–9 questions depending on stage. The seed makes a run reproducible in tests; the browser uses `Date.now()`.
 
 The level cards are A1, A2 and B1. Questions change with the level; the quiz format never changes.
 
@@ -86,8 +86,8 @@ After each answer: immediate feedback, a short explanation, then an explicit Con
 | `LEVELS` | `A1`, `A2`, `B1` |
 | `SKILLS` | `vocabulary`, `grammar`, `reading`, `writing` |
 | `ALL_SKILLS` | the four skills above plus `culture` |
-| `QUESTIONS_PER_QUIZ` | 15 |
-| `QUESTIONS_PER_SKILL` | 3 |
+| `QUIZ_STAGES` | `10` |
+| `STAGE_SIZES` | `[5, 5, 6, 6, 7, 7, 7, 8, 8, 9]` |
 
 `LEVEL_INFO` and `SKILL_INFO` hold the labels, descriptions, icons and colours used by the level cards, pips, practice screen and skill report. Culture is authored with `fact = true` and optional `note` / `region` fields so classroom simplifications stay distinguishable from verified facts.
 
@@ -118,7 +118,7 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 25 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.1`.
+`sw.js` precaches 25 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.2`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
@@ -134,7 +134,7 @@ The test model cannot judge aesthetics. Visual verification uses measurable prox
 ## Design invariants
 
 1. Accuracy earns points; speed, stations and exploration never do.
-2. Every quiz has exactly 15 questions: three per skill.
+2. Every level has 10 progressive stages, 5–9 questions per stage, difficulty rising across stages.
 3. The interface is 100 % English; no French content or hint layer remains.
 4. Option order is deterministic and the correct answer is not always A.
 5. The correct answer and an explanation follow every response immediately.

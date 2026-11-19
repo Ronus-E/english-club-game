@@ -4,13 +4,15 @@
  * results and settings.
  */
 import { LEVELS, LEVEL_INFO, SKILLS, SKILL_INFO } from '../content/schema.js';
+import { allTags, QUIZ_STAGES, stageQuestionCount } from '../content/index.js';
 import { achievementProgress } from '../core/achievements.js';
 import { levelFromXp } from '../core/storage.js';
 import { drawResultsBadge } from './decor.js';
 import { escapeHtml } from '../core/util.js';
 import { h } from './activities.js';
+import { iconSvg } from './icons.js';
 
-export const SCREEN_IDS = ['splash', 'menu', 'level', 'quiz', 'results', 'practice', 'achievements'];
+export const SCREEN_IDS = ['splash', 'menu', 'level', 'stages', 'quiz', 'results', 'practice', 'progress', 'achievements'];
 const OVERLAY_IDS = ['settings', 'help', 'about', 'activity', 'confirm'];
 export const QUIZ_SKILLS = [...SKILLS, 'culture'];
 
@@ -21,21 +23,25 @@ export class UI {
     this.el = {};
     const ids = [
       'app', 'offlineBanner', 'bootBtn', 'bootStatus',
-      'playBtn', 'practiceBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
-      'aboutBtn', 'installBtn', 'installHint',
+      'playBtn', 'practiceBtn', 'dailyBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
+      'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
       'profileName', 'profileStats', 'profileAvatar', 'storageBadge',
       'levelGrid', 'levelContinueBtn', 'placementBtn', 'playerNameInput',
+      'stageGrid', 'stagesTitle', 'stagesLead',
       'quizQuitBtn', 'quizOpenBtn', 'quizKicker', 'quizTitle', 'quizStatus', 'quizPips',
       'resultScore', 'resultMax', 'resultGrade', 'resultXp', 'newBest',
       'resultCorrect', 'resultWrong', 'resultsBadgeCanvas', 'skillReport',
-      'recommendations', 'sessionAchievements', 'resultsTitle', 'resultsSubtitle',
-      'replayBtn', 'practiceWeakBtn', 'resultsMenuBtn',
-      'practiceLevel', 'practiceSummary', 'skillGrid',
+      'answerReview', 'recommendations', 'sessionAchievements', 'resultsTitle', 'resultsSubtitle',
+      'replayBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn',
+      'practiceLevel', 'practiceSummary', 'practiceTag', 'practiceTagBtn', 'skillGrid',
+      'progressContent',
       'achievementLevel', 'achievementName', 'achievementXp',
       'levelProgressBar', 'bestScore', 'achievementGrid',
       'resetProgressBtn',
       'musicVolume', 'musicVolumeOut', 'sfxVolume', 'sfxVolumeOut', 'musicToggle',
-      'reducedGraphics', 'reduceMotion', 'highContrast',
+      'reducedGraphics', 'reduceMotion', 'highContrast', 'largeText',
+      'weeklyGoal', 'weeklyGoalOut', 'exportBtn', 'importBtn', 'importFile',
+      'updateBanner', 'updateBtn',
       'confirmTitle', 'confirmText', 'confirmYes', 'confirmNo',
       'overlayRoot', 'overlay-settings', 'overlay-help', 'overlay-about',
       'overlay-activity', 'overlay-confirm',
@@ -152,7 +158,12 @@ export class UI {
       h('h3', { text: info.short }),
       h('p', { text: info.description }),
       h('ul', {}, ...info.bullets.map((b) => h('li', { text: b }))),
-      h('span', { class: 'level-best', text: best ? `Personal best ${best}%` : 'Not attempted yet' }),
+      h('span', {
+        class: 'level-best',
+        text: best
+          ? `Best ${best}% · stage ${this.store.stageState(level).unlocked} of ${QUIZ_STAGES}`
+          : `Stage 1 of ${QUIZ_STAGES} · not attempted`,
+      }),
       );
       grid.append(card);
     }
@@ -161,9 +172,60 @@ export class UI {
     }
   }
 
+  /* ------------------------------------------------------------ stage grid */
+  renderStageGrid(level = this.store.get().level, { onPick } = {}) {
+    const grid = this.el.stageGrid;
+    if (!grid) return;
+    const info = LEVEL_INFO[level];
+    const state = this.store.stageState(level);
+    if (this.el.stagesTitle) {
+      this.el.stagesTitle.textContent = `${info?.short || level} · ${QUIZ_STAGES} quiz stages`;
+    }
+    if (this.el.stagesLead) {
+      this.el.stagesLead.textContent = `Level ${level} · ${QUIZ_STAGES} stages of 5–9 questions. `
+        + 'The difficulty rises stage by stage. Score 60% or more to unlock the next one.';
+    }
+    grid.replaceChildren();
+    for (const entry of state.entries) {
+      const size = stageQuestionCount(entry.stage);
+      const icon = entry.cleared ? 'check' : entry.unlocked ? 'play' : 'lock';
+      const badge = h('span', { class: 'stage-icon', 'aria-hidden': 'true' });
+      badge.innerHTML = iconSvg(icon);
+      const status = entry.cleared
+        ? `Cleared · best ${entry.best}%`
+        : entry.current
+          ? (entry.best ? `Current stage · best ${entry.best}%` : 'Current stage · play now')
+          : entry.unlocked
+            ? (entry.best ? `Best ${entry.best}% · replay` : 'Ready to play')
+            : `Locked · clear stage ${entry.stage - 1} first`;
+      const button = h('button', {
+        class: `stage-card${entry.unlocked ? '' : ' is-locked'}${entry.cleared ? ' is-cleared' : ''}${entry.current ? ' is-current' : ''}`,
+        type: 'button',
+        dataset: { stage: String(entry.stage), level },
+        disabled: !entry.unlocked,
+        'aria-disabled': entry.unlocked ? 'false' : 'true',
+        'aria-label': `Stage ${entry.stage}, ${size} questions. ${status}`,
+        onclick: () => {
+          if (!entry.unlocked) return;
+          this.audio.play('select');
+          onPick?.(entry.stage);
+        },
+      },
+      h('span', { class: 'stage-top' },
+        h('span', { class: 'stage-num', text: `Stage ${entry.stage}` }),
+        badge,
+      ),
+      h('strong', { class: 'stage-size', text: `${size} questions` }),
+      h('span', { class: 'stage-bar' }, h('i', { style: `width:${entry.unlocked ? entry.best : 0}%` })),
+      h('small', { class: 'stage-meta', text: status }),
+      );
+      grid.append(button);
+    }
+  }
+
   /* ------------------------------------------------------------- quiz UI */
-  setQuizHeader(level, total = 15) {
-    if (this.el.quizKicker) this.el.quizKicker.textContent = `${level} · ${total} questions`;
+  setQuizHeader(level, total = 5, stage = 1) {
+    if (this.el.quizKicker) this.el.quizKicker.textContent = `${level} · Stage ${stage} · ${total} questions`;
     if (this.el.quizTitle) this.el.quizTitle.textContent = `${LEVEL_INFO[level]?.short || level} quiz`;
     this.renderQuizPips({});
     this.setQuizStatus(1, total);
@@ -230,13 +292,79 @@ export class UI {
     }
   }
 
+  /* ---------------------------------------------------------------- topics */
+  renderTagSelect(selected = '') {
+    const select = this.el.practiceTag;
+    if (!select) return;
+    const tags = allTags(30);
+    select.replaceChildren(h('option', { value: '', text: 'Choose a topic…' }));
+    for (const { tag, count } of tags) {
+      select.append(h('option', { value: tag, text: `${tag} (${count})` }));
+    }
+    select.value = tags.some((t) => t.tag === selected) ? selected : '';
+  }
+
+  /* ------------------------------------------------------------- progress */
+  renderProgress() {
+    const host = this.el.progressContent;
+    if (!host) return;
+    const p = this.store.get();
+    const goal = Math.max(1, Number(p.settings.weeklyGoal) || 3);
+    const done = this.store.weeklyCount();
+    const ratio = Math.min(100, Math.round((done / goal) * 100));
+    host.replaceChildren(
+      h('div', { class: 'panel progress-card' },
+        h('p', { class: 'kicker', text: 'This week' }),
+        h('h3', { text: `${done} of ${goal} quizzes` }),
+        h('div', { class: 'progress-track' }, h('i', { style: `width:${ratio}%` })),
+        h('p', { class: 'muted', text: done >= goal ? 'Weekly goal reached. Well done.' : `${goal - done} more quiz${goal - done === 1 ? '' : 'zes'} to reach your goal.` }),
+      ),
+      h('div', { class: 'panel progress-card' },
+        h('p', { class: 'kicker', text: 'Lifetime' }),
+        h('h3', { text: `${p.missions} quiz${p.missions === 1 ? '' : 'zes'} completed` }),
+        h('p', { class: 'muted', text: `${p.xp} XP · ${Object.keys(p.achievements).length} of 10 badges` }),
+      ),
+      h('div', { class: 'panel progress-card' },
+        h('p', { class: 'kicker', text: 'Quiz stages' }),
+        ...LEVELS.map((level) => {
+          const state = this.store.stageState(level);
+          return h('div', { class: 'progress-history' },
+            h('span', { text: `${level} · stage ${state.unlocked} of ${QUIZ_STAGES}` }),
+            h('strong', { text: `${state.cleared}/${QUIZ_STAGES} cleared` }),
+          );
+        }),
+      ),
+      h('div', { class: 'panel progress-card progress-skills' },
+        h('p', { class: 'kicker', text: 'Skills' }),
+        ...Object.entries(p.skills).map(([key, stat]) => {
+          const percent = stat.total ? Math.round((stat.correct / stat.total) * 100) : null;
+          const name = SKILL_INFO[key]?.name || key;
+          return h('div', { class: 'progress-skill' },
+            h('span', { class: 'progress-skill-name', text: name }),
+            h('span', { class: 'progress-skill-track' }, h('i', { style: `width:${percent ?? 0}%` })),
+            h('span', { class: 'progress-skill-val', text: percent === null ? '—' : `${percent}%` }),
+          );
+        }),
+      ),
+      h('div', { class: 'panel progress-card' },
+        h('p', { class: 'kicker', text: 'Recent quizzes' }),
+        ...(p.history.length
+          ? p.history.slice(-5).reverse().map((entry) => h('div', { class: 'progress-history' },
+            h('span', { text: `${entry.date} · ${entry.level}${entry.stage ? ` · Stage ${entry.stage}` : ''}` }),
+            h('strong', { text: `${entry.percent}%` }),
+          ))
+          : [h('p', { class: 'muted', text: 'No quiz recorded yet.' })]),
+      ),
+    );
+  }
+
   /* ------------------------------------------------------------- settings */
   syncSettingsInputs() {
     const s = this.store.getSettings();
     const map = {
       musicVolume: 'music', sfxVolume: 'sfx', musicToggle: 'musicOn',
       reducedGraphics: 'reducedGraphics', reduceMotion: 'reduceMotion',
-      highContrast: 'highContrast',
+      highContrast: 'highContrast', largeText: 'largeText', weeklyGoal: 'weeklyGoal',
     };
     for (const [id, key] of Object.entries(map)) {
       const input = this.el[id];
@@ -252,16 +380,19 @@ export class UI {
       musicVolume: ['music', Number], sfxVolume: ['sfx', Number],
       musicToggle: ['musicOn', Boolean], reducedGraphics: ['reducedGraphics', Boolean],
       reduceMotion: ['reduceMotion', Boolean], highContrast: ['highContrast', Boolean],
+      largeText: ['largeText', Boolean], weeklyGoal: ['weeklyGoal', Number],
     };
     for (const [id, [key, cast]] of Object.entries(map)) {
       const input = this.el[id];
       if (!input) continue;
-      input.addEventListener('input', () => {
+      const handler = () => {
         const value = input.type === 'checkbox' ? input.checked : cast(input.value);
         this.store.setSetting(key, value);
         this.syncSettingLabels();
         onChange?.(key, value, this.store.getSettings());
-      });
+      };
+      const events = input.tagName === 'SELECT' ? ['change'] : ['input'];
+      for (const eventName of events) input.addEventListener(eventName, handler);
     }
     this.syncSettingLabels();
   }
@@ -270,12 +401,14 @@ export class UI {
     const s = this.store.getSettings();
     if (this.el.musicVolumeOut) this.el.musicVolumeOut.textContent = `${s.music}%`;
     if (this.el.sfxVolumeOut) this.el.sfxVolumeOut.textContent = `${s.sfx}%`;
+    if (this.el.weeklyGoalOut) this.el.weeklyGoalOut.textContent = String(s.weeklyGoal);
   }
 
   applyA11yClasses() {
     const s = this.store.getSettings();
     document.documentElement.classList.toggle('reduce-motion', Boolean(s.reduceMotion));
     document.documentElement.classList.toggle('high-contrast', Boolean(s.highContrast));
+    document.documentElement.classList.toggle('large-text', Boolean(s.largeText));
   }
 
   /* --------------------------------------------------------------- toasts */
@@ -290,7 +423,7 @@ export class UI {
   }
 
   /* -------------------------------------------------------------- results */
-  renderResults(result, { unlocked = [] } = {}) {
+  renderResults(result, { unlocked = [], review = [] } = {}) {
     const set = (id, value) => { if (this.el[id]) this.el[id].textContent = String(value); };
     set('resultScore', result.score);
     set('resultMax', result.maxScore);
@@ -304,7 +437,7 @@ export class UI {
         ? 'Outstanding quiz' : result.percent >= 50 ? 'Good work' : 'Quiz debrief';
     }
     if (this.el.resultsSubtitle) {
-      this.el.resultsSubtitle.textContent = `Level ${result.level} · ${result.correct} correct · ${result.wrong} to review`;
+      this.el.resultsSubtitle.textContent = `Level ${result.level}${result.stage ? ` · Stage ${result.stage}` : ''} · ${result.correct} correct · ${result.wrong} to review`;
     }
     if (this.el.newBest) this.el.newBest.hidden = !result.isNewBest;
 
@@ -318,6 +451,31 @@ export class UI {
           h('span', { class: 'skill-track' }, h('i', { style: `width:${na ? 0 : stat.percent}%` })),
           h('span', { class: 'skill-val', text: na ? '—' : `${stat.percent}%` }),
         ));
+      }
+    }
+
+    const answerHost = this.el.answerReview;
+    if (answerHost) {
+      answerHost.replaceChildren();
+      if (!review.length) {
+        answerHost.append(h('p', { class: 'muted', text: 'No question review available for this run.' }));
+      } else {
+        for (const row of review) {
+          answerHost.append(h('article', { class: `review-item ${row.correct ? 'is-correct' : 'is-wrong'}` },
+            h('header', { class: 'review-head' },
+              h('span', { class: 'review-num', text: String(row.number).padStart(2, '0') }),
+              h('span', { class: 'review-skill', text: SKILL_INFO[row.skill]?.name || row.skill }),
+              h('strong', { class: 'review-status', text: row.correct ? 'Correct' : 'To review' }),
+            ),
+            h('p', { class: 'review-prompt', text: row.prompt }),
+            h('p', { class: 'review-line' }, h('strong', { text: 'Your answer: ' }), row.yourAnswer),
+            row.correct
+              ? h('p', { class: 'review-line' }, h('strong', { text: 'Correct answer: ' }), row.expected)
+              : h('p', { class: 'review-line is-fix' }, h('strong', { text: 'Correction: ' }), row.expected),
+            row.explanation ? h('p', { class: 'micro muted', text: row.explanation }) : null,
+            row.note ? h('p', { class: 'source-note', text: row.note }) : null,
+          ));
+        }
       }
     }
 

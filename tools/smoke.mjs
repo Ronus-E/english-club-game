@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Quick real-browser check: boot the quiz, reach the first question and verify
- * that the 15-question setup is intact. Full coverage lives in tests/e2e.mjs.
+ * Quick real-browser check: boot the quiz, open the stage grid, start stage 1
+ * and verify the progressive stage setup. Full coverage lives in tests/e2e.mjs.
  *
  * Usage: node tools/smoke.mjs [url]
  */
@@ -45,14 +45,28 @@ try {
       hasGlobal: Boolean(g),
       splash: document.getElementById('screen-splash')?.classList.contains('is-active'),
       exercises: total,
+      signature: document.body.textContent.includes('Developed by RONUS Eldo'),
       campus: ['gameCanvas', 'joystick', 'timerValue', 'screen-game', 'screen-intro']
         .filter((id) => document.getElementById(id)),
+      newControls: [
+        'progressBtn', 'dailyBtn', 'reviewMistakesBtn', 'practiceTag', 'answerReview',
+        'updateBanner', 'largeText', 'weeklyGoal', 'exportBtn', 'importBtn',
+      ].filter((id) => !document.getElementById(id)),
+      weeklyOptions: document.getElementById('weeklyGoal')?.options.length || 0,
     };
   })()`);
   log('BOOT', JSON.stringify(boot, null, 2));
+  log('BOOT_ERRORS', JSON.stringify({
+    errors: client.consoleErrors,
+    exceptions: client.exceptions,
+    warnings: client.consoleWarnings.slice(0, 10),
+  }, null, 2));
   if (!boot.booted || !boot.hasGlobal || !boot.splash) throw new Error('quiz did not boot');
   if (boot.exercises !== 150) throw new Error(`expected 150 exercises, got ${boot.exercises}`);
   if (boot.campus.length) throw new Error(`campus elements remain: ${boot.campus.join(', ')}`);
+  if (!boot.signature) throw new Error('developer signature is missing');
+  if (boot.newControls.length) throw new Error(`new controls missing: ${boot.newControls.join(', ')}`);
+  if (boot.weeklyOptions !== 14) throw new Error(`weekly goal options: ${boot.weeklyOptions}`);
   await client.screenshot(join(SHOTS, '01-smoke-splash.png'));
 
   await client.evaluate(`document.getElementById('bootBtn').click()`);
@@ -67,6 +81,27 @@ try {
     document.getElementById('levelContinueBtn').click();
     return true;
   })()`);
+  await sleep(250);
+
+  const stages = await client.evaluate(`(() => {
+    const cards = [...document.querySelectorAll('#stageGrid .stage-card')];
+    return {
+      screen: document.getElementById('screen-stages')?.classList.contains('is-active'),
+      cards: cards.length,
+      locked: cards.filter((card) => card.disabled).length,
+      current: cards.filter((card) => card.classList.contains('is-current')).map((card) => card.dataset.stage),
+      sizes: cards.map((card) => card.querySelector('.stage-size')?.textContent),
+    };
+  })()`);
+  log('STAGES', JSON.stringify(stages, null, 2));
+  if (!stages.screen || stages.cards !== 10) throw new Error('stage grid did not open');
+  if (stages.locked !== 9 || stages.current.join(',') !== '1') throw new Error('stage locks are wrong');
+  if (stages.sizes[0] !== '5 questions' || stages.sizes[9] !== '9 questions') {
+    throw new Error(`stage sizes are wrong: ${stages.sizes.join(', ')}`);
+  }
+  await client.screenshot(join(SHOTS, '02-smoke-stages.png'));
+
+  await client.evaluate(`document.querySelector('#stageGrid .stage-card[data-stage="1"]').click()`);
   await sleep(400);
 
   const quiz = await client.evaluate(`(() => {
@@ -78,22 +113,31 @@ try {
       screen: document.getElementById('screen-quiz')?.classList.contains('is-active'),
       overlay: !document.getElementById('overlay-activity')?.hidden,
       level: g.quiz.level,
+      stage: g.quiz.stage,
       answers: g.quiz.session?.answers.length,
       total: items.length,
       counts,
       counter: document.getElementById('activityCounter')?.textContent,
       status: document.getElementById('quizStatus')?.textContent,
+      kicker: document.getElementById('quizKicker')?.textContent,
+      silent: g.activities.config?.silent,
+      noQuit: g.activities.config?.noQuit,
+      quitHidden: document.getElementById('activityQuit')?.hidden,
     };
   })()`);
   log('QUIZ', JSON.stringify(quiz, null, 2));
-  await client.screenshot(join(SHOTS, '02-smoke-question.png'));
+  await client.screenshot(join(SHOTS, '03-smoke-question.png'));
 
   if (!quiz.screen || !quiz.overlay) throw new Error('question panel did not open');
-  if (quiz.level !== 'A1' || quiz.answers !== 0) throw new Error('quiz session is wrong');
-  if (quiz.total !== 15 || Object.values(quiz.counts).some((n) => n !== 3)) {
-    throw new Error('quiz is not 3 questions per skill');
+  if (quiz.level !== 'A1' || quiz.stage !== 1 || quiz.answers !== 0) throw new Error('quiz session is wrong');
+  if (quiz.total !== 5 || Object.values(quiz.counts).some((n) => n !== 1) || Object.keys(quiz.counts).length !== 5) {
+    throw new Error('stage 1 is not five questions across five skills');
   }
-  if (!/Question 1 of 15/.test(quiz.status || '')) throw new Error('quiz status is wrong');
+  if (!/Question 1 of 5/.test(quiz.status || '')) throw new Error('quiz status is wrong');
+  if (!/Stage 1/.test(quiz.kicker || '')) throw new Error('quiz kicker is wrong');
+  if (quiz.silent !== true || quiz.noQuit !== true || quiz.quitHidden !== true) {
+    throw new Error(`quiz must be silent and locked: ${JSON.stringify(quiz)}`);
+  }
 
   const errors = client.consoleErrors;
   const exceptions = client.exceptions;

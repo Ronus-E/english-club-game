@@ -34,9 +34,9 @@ export function evaluateAchievements({ session, result, profile }) {
 
   const tests = [
     ['first_mission', (profile.missions || 0) + 1 >= 1],
-    ['perfect_vocab', perfect('vocabulary', 3)],
-    ['grammar_guru', perfect('grammar', 3)],
-    ['culture_whiz', perfect('culture', 3)],
+    ['perfect_vocab', perfect('vocabulary')],
+    ['grammar_guru', perfect('grammar')],
+    ['culture_whiz', perfect('culture')],
     ['all_skills', skills.vocabulary?.total > 0 && scoredSkills.length === 5 && scoredSkills.every((s) => s.percent >= 60)],
     ['best_improved', result.isNewBest && result.percent > 0],
     ['level_five', nextLevel >= 5],
