@@ -24,16 +24,6 @@ export const STATIONS = [
     description: 'Complete sentences and choose accurate forms.',
   },
   {
-    id: 'listening', name: 'Listening Lounge', short: 'Listening', icon: '🎧', kind: 'activity',
-    x: 11, y: 1, w: 2, h: 2, entrance: { x: 12, y: 3.1 }, color: '#a78bfa', accent: '#5a3fa0',
-    description: 'Understand short recordings, with transcripts.',
-  },
-  {
-    id: 'speaking', name: 'Speaking Stage', short: 'Speaking', icon: '🎙', kind: 'activity',
-    x: 15, y: 4, w: 2, h: 2, entrance: { x: 16, y: 6.1 }, color: '#ff8fd8', accent: '#8f3f70',
-    description: 'Guided speaking practice, never auto-graded.',
-  },
-  {
     id: 'reading', name: 'Reading Library', short: 'Reading', icon: '📖', kind: 'activity',
     x: 15, y: 9, w: 2, h: 2, entrance: { x: 16, y: 11.1 }, color: '#ffc857', accent: '#8a5c12',
     description: 'Short texts, notices and practical details.',
@@ -186,6 +176,6 @@ export function stationIsNear(player, id, radius = 1.75) {
 
 // Route order. `arena` is the world station; the mission plan calls the same
 // stop `final`, so mission.js maps between the two names in one place.
-export const MISSION_ROUTE = ['vocabulary', 'grammar', 'listening', 'speaking', 'culture', 'arena'];
+export const MISSION_ROUTE = ['vocabulary', 'grammar', 'culture', 'arena'];
 export const PLAN_KEY = { arena: 'final' };
 export const planKeyFor = (stationId) => PLAN_KEY[stationId] || stationId;

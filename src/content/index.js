@@ -1,9 +1,7 @@
 import { vocabulary } from './vocabulary.js';
 import { grammar } from './grammar.js';
-import { listening } from './listening.js';
 import { reading } from './reading.js';
 import { writing } from './writing.js';
-import { speaking } from './speaking.js';
 import { cultureBank } from './culture.js';
 import { LEVELS, SKILLS, SKILL_INFO, LEVEL_INFO, validateBank, checkAnswer } from './schema.js';
 import { sample, shuffle, createRng } from '../core/util.js';
@@ -11,8 +9,6 @@ import { sample, shuffle, createRng } from '../core/util.js';
 export const banks = {
   vocabulary,
   grammar,
-  listening,
-  speaking,
   reading,
   writing,
   culture: cultureBank,
@@ -39,17 +35,15 @@ export function countExercises() {
 
 /**
  * Build the exercise sets for one 3-minute mission.
- * Kept deliberately small: 11 required interactions, plus an optional writing task.
+ * Kept deliberately small: 9 required interactions, plus optional bonus stations.
  */
 export function buildMissionPlan(level, seed = Date.now()) {
   const rng = createRng(seed);
   const vocab = getExercises('vocabulary', level);
   const grammar = getExercises('grammar', level);
-  const listeningItems = getExercises('listening', level);
   const culture = getExercises('culture', level);
   const readingItems = getExercises('reading', level);
   const writingItems = getExercises('writing', level);
-  const speakingItems = getExercises('speaking', level);
 
   const matchItems = vocab.filter((item) => item.type === 'match');
   const choiceItems = vocab.filter((item) => item.type === 'choice');
@@ -58,9 +52,7 @@ export function buildMissionPlan(level, seed = Date.now()) {
     ...sample(choiceItems, 2, rng),
   ];
   const grammarSet = sample(grammar, 2, rng);
-  const listeningSet = sample(listeningItems, 1, rng);
   const cultureSet = sample(culture, 2, rng);
-  const speakingSet = sample(speakingItems, 1, rng);
   const writingSet = sample(writingItems.filter((i) => i.type === 'order'), 1, rng);
   const finalSet = shuffle([
     ...sample(grammar.filter((i) => !grammarSet.includes(i)), 1, rng),
@@ -73,8 +65,6 @@ export function buildMissionPlan(level, seed = Date.now()) {
     stations: {
       vocabulary: vocabSet,
       grammar: grammarSet,
-      listening: listeningSet,
-      speaking: speakingSet,
       writing: writingSet,
       culture: cultureSet,
       final: finalSet,

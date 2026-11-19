@@ -13,7 +13,7 @@ import { SKILL_INFO } from '../content/schema.js';
 import { MissionTimer } from '../core/timer.js';
 import { sample } from '../core/util.js';
 import {
-  newSession, recordAnswer, recordParticipation, completeStation, visitStation,
+  newSession, recordAnswer, completeStation, visitStation,
   computeResults,
 } from '../core/scoring.js';
 import { evaluateAchievements, achievementProgress } from '../core/achievements.js';
@@ -24,8 +24,6 @@ const TIME_CREDIT = 3; // seconds granted per correct answer (capped in the time
 const STATION_KICKER = {
   vocabulary: 'Vocabulary Garden · word practice',
   grammar: 'Grammar Classroom · accuracy',
-  listening: 'Listening Lounge · audio',
-  speaking: 'Speaking Stage · production',
   reading: 'Reading Library · bonus',
   writing: 'Writing Office · bonus',
   culture: 'American Culture Zone · discovery',
@@ -271,11 +269,7 @@ export class Mission {
 
   onAnswer({ item, correct, response, participation }) {
     if (!this.session || !this.activeStation) return;
-    if (participation || item.type === 'speak') {
-      recordParticipation(this.session, { skill: 'speaking', itemId: item.id, response });
-    } else {
-      recordAnswer(this.session, { skill: item.skill, itemId: item.id, correct, response });
-    }
+    recordAnswer(this.session, { skill: item.skill, itemId: item.id, correct, response });
     if (correct === true) {
       this.timer.extend(TIME_CREDIT);
       if (this.timer.remainingSeconds() < 100) {

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 
 import { MissionTimer } from '../src/core/timer.js';
 import {
-  newSession, recordAnswer, recordParticipation, completeStation, visitStation,
+  newSession, recordAnswer, completeStation, visitStation,
   computeResults, gradeFor, computeXp, percentFor, recommendationsFor,
 } from '../src/core/scoring.js';
 import { evaluateAchievements, achievementProgress, ACHIEVEMENTS } from '../src/core/achievements.js';
@@ -109,15 +109,6 @@ test('answers, score and maximum score stay consistent', () => {
   assert.equal(session.answers.length, 3);
 });
 
-test('participation is tracked separately from graded answers', () => {
-  const session = newSession('A1');
-  recordAnswer(session, { skill: 'grammar', itemId: 'g1', correct: true });
-  recordParticipation(session, { skill: 'speaking', itemId: 's1', response: { checked: 3 } });
-  assert.equal(session.maxScore, 10, 'speaking must not inflate the graded maximum');
-  assert.equal(session.speaking.completed, true);
-  assert.equal(session.answers.at(-1).correct, null);
-});
-
 test('grades follow the documented thresholds', () => {
   assert.equal(gradeFor(100), 'S');
   assert.equal(gradeFor(90), 'S');
@@ -146,7 +137,6 @@ test('results report per-skill percentages and a new best', () => {
   recordAnswer(session, { skill: 'vocabulary', itemId: 'v1', correct: true });
   recordAnswer(session, { skill: 'vocabulary', itemId: 'v2', correct: true });
   recordAnswer(session, { skill: 'grammar', itemId: 'g1', correct: false });
-  recordParticipation(session, { skill: 'speaking', itemId: 's1' });
   session.usedSeconds = 92.4;
   const result = computeResults(session, 40);
   assert.equal(result.percent, 67);
@@ -158,7 +148,7 @@ test('results report per-skill percentages and a new best', () => {
   assert.equal(result.best, 67);
   assert.equal(result.skills.vocabulary.percent, 100);
   assert.equal(result.skills.grammar.percent, 0);
-  assert.equal(result.skills.listening.percent, null, 'untouched skills must be null, not 0');
+  assert.equal(result.skills.reading.percent, null, 'untouched skills must be null, not 0');
 });
 
 test('an answerless session produces a defensible report', () => {
@@ -174,16 +164,15 @@ test('recommendations target the weakest graded skill first', () => {
   const skills = {
     vocabulary: { correct: 1, total: 1 },
     grammar: { correct: 0, total: 2 },
-    listening: { correct: 1, total: 1 },
+    writing: { correct: 1, total: 1 },
     reading: { correct: 0, total: 1 },
     writing: { correct: 0, total: 0 },
     culture: { correct: 1, total: 1 },
   };
-  const lines = recommendationsFor(skills, { completed: false });
+  const lines = recommendationsFor(skills);
   assert.match(lines[0], /Grammar/);
   assert.match(lines[0], /0%/);
   assert.match(lines.join(' '), /Reading/);
-  assert.match(lines.join(' '), /Speaking was not attempted/);
 });
 
 /* ------------------------------------------------------------- achievements */
@@ -224,12 +213,13 @@ test('already unlocked achievements are never returned twice', () => {
 
 test('achievement list and progress agree', () => {
   const profile = defaultProfile();
-  profile.achievements.speaker = { date: '2026-02-02', name: 'Brave Speaker' };
+  profile.achievements.culture_whiz = { date: '2026-02-02', name: 'Culture Explorer' };
   const progress = achievementProgress(profile);
   assert.equal(progress.length, ACHIEVEMENTS.length);
-  const speaker = progress.find((a) => a.id === 'speaker');
-  assert.equal(speaker.unlocked, true);
-  assert.equal(speaker.date, '2026-02-02');
+  assert.equal(ACHIEVEMENTS.length, 10);
+  const badge = progress.find((a) => a.id === 'culture_whiz');
+  assert.equal(badge.unlocked, true);
+  assert.equal(badge.date, '2026-02-02');
   assert.equal(progress.filter((a) => a.unlocked).length, 1);
 });
 
@@ -292,10 +282,10 @@ test('recording a session updates XP, missions, best and skill totals', () => {
 
 test('unlocking is idempotent', () => {
   const store = new ProfileStore(new MemoryStorage());
-  const badge = { id: 'speaker', name: 'Brave Speaker' };
-  assert.equal(store.unlock(badge), true);
-  assert.equal(store.unlock(badge), false);
-  assert.equal(store.hasAchievement('speaker'), true);
+  const item = { id: 'culture_whiz', name: 'Culture Explorer' };
+  assert.equal(store.unlock(item), true);
+  assert.equal(store.unlock(item), false);
+  assert.equal(store.hasAchievement('culture_whiz'), true);
 });
 
 test('corrupt storage never breaks the game', () => {
@@ -324,10 +314,10 @@ test('reset clears everything on the device', () => {
   const memory = new MemoryStorage();
   const store = new ProfileStore(memory);
   store.setName('Ronus');
-  store.unlock({ id: 'speaker', name: 'Brave Speaker' });
+  store.unlock({ id: 'culture_whiz', name: 'Culture Explorer' });
   store.reset();
   assert.equal(store.get().name, 'Explorer');
-  assert.equal(store.hasAchievement('speaker'), false);
+  assert.equal(store.hasAchievement('culture_whiz'), false);
   assert.equal(new ProfileStore(memory).get().xp, 0);
 });
 
@@ -374,15 +364,16 @@ test('every skill and level has exactly ten exercises', () => {
       assert.equal(counts[skill][level], 10, `${skill} ${level}`);
     }
   }
+  assert.ok(!('listening' in counts) && !('speaking' in counts));
   assert.equal(Object.values(counts).reduce((sum, byLevel) => sum
-    + Object.values(byLevel).reduce((a, b) => a + b, 0), 0), 210);
+    + Object.values(byLevel).reduce((a, b) => a + b, 0), 0), 150);
 });
 
 test('the content bank validates without any schema error', () => {
   let report = null;
   assert.doesNotThrow(() => { report = validateBank(banks); });
-  assert.equal(report.total, 210);
-  assert.equal(Object.keys(report.counts).length, 21);
+  assert.equal(report.total, 150);
+  assert.equal(Object.keys(report.counts).length, 15);
 });
 
 test('every exercise carries a French translation of its instruction', () => {
@@ -423,7 +414,7 @@ test('exercise ids are unique across the whole bank', () => {
       }
     }
   }
-  assert.equal(ids.size, 210);
+  assert.equal(ids.size, 150);
 });
 
 test('every exercise carries objective, instruction and explanation', () => {
@@ -454,12 +445,12 @@ test('mission plans have the advertised shape at every level', () => {
     const plan = buildMissionPlan(level, 2026);
     assert.equal(plan.stations.vocabulary.length, 3, `${level} vocabulary`);
     assert.equal(plan.stations.grammar.length, 2, `${level} grammar`);
-    assert.equal(plan.stations.listening.length, 1, `${level} listening`);
-    assert.equal(plan.stations.speaking.length, 1, `${level} speaking`);
+    assert.equal(plan.stations.writing.length, 1, `${level} writing bonus`);
     assert.equal(plan.stations.culture.length, 2, `${level} culture`);
     assert.equal(plan.stations.final.length, 2, `${level} final`);
     const ids = Object.values(plan.stations).flat().map((i) => i.id);
     assert.equal(new Set(ids).size, ids.length, `${level} plan has no duplicate exercise`);
+    assert.ok(!('listening' in plan.stations) && !('speaking' in plan.stations), `${level} has no removed skill`);
   }
 });
 

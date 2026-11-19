@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b1026">
-  <meta name="description" content="Mission: English Club — a 180-second educational pixel-art adventure for English learners. Vocabulary, grammar, listening, speaking, writing and American culture.">
+  <meta name="description" content="Mission: English Club — a 180-second educational pixel-art adventure for English learners. Vocabulary, grammar, reading, writing and American culture.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -84,7 +84,7 @@
             <button class="menu-tile" id="settingsBtn" type="button">
               <span class="tile-icon" aria-hidden="true">⚙</span>
               <strong>Settings</strong>
-              <small>Audio, motion, language &amp; data</small>
+              <small>Motion, language &amp; data</small>
             </button>
             <button class="menu-tile" id="aboutBtn" type="button">
               <span class="tile-icon" aria-hidden="true">ⓘ</span>
@@ -169,7 +169,6 @@
             <ul class="mission-list">
               <li><span class="dot v"></span><strong>Vocabulary Garden</strong><small>3 word–picture matches</small></li>
               <li><span class="dot g"></span><strong>Grammar Classroom</strong><small>2 language decisions</small></li>
-              <li><span class="dot l"></span><strong>Listening Lounge &amp; Speaking Stage</strong><small>1 audio + 1 speaking task</small></li>
               <li><span class="dot c"></span><strong>American Culture Zone</strong><small>2 discovery questions</small></li>
               <li><span class="dot f"></span><strong>Final Challenge Arena</strong><small>2 rapid questions · results</small></li>
             </ul>
@@ -262,7 +261,6 @@
           <div class="panel skill-panel">
             <h3>Skill report</h3>
             <div id="skillReport" class="skill-report"></div>
-            <p class="micro muted" id="speakingNote">Speaking practice is recorded as participation, not as a proficiency score.</p>
           </div>
 
           <div class="panel review-panel">
@@ -446,14 +444,12 @@
               <li>00:00 Welcome &amp; guide</li>
               <li>00:20 Vocabulary Garden</li>
               <li>01:00 Grammar Classroom</li>
-              <li>01:40 Listening Lounge &amp; Speaking Stage</li>
               <li>02:20 American Culture Zone</li>
               <li>02:50 Final Challenge Arena → results</li>
             </ol>
             <p class="muted">The timer is a challenge, not a punishment: every correct answer is banked immediately, and unfinished stations still appear in your skill report.</p>
           </div>
         </div>
-        <p class="callout">Audio tip: listening tasks use your device's English voice. If no voice is available, the transcript appears automatically — the exercise remains fully solvable.</p>
         <div class="overlay-actions">
           <button class="btn btn-primary" data-close-overlay type="button">Understood</button>
         </div>
@@ -468,12 +464,12 @@
         <div class="about-copy">
           <p>An original educational game built for the American Corner English Clubs Exhibition. All pixel art is generated in code, all audio is synthesized live, and the whole game is cached locally after the first visit.</p>
           <ul>
-            <li><strong>CEFR content:</strong> A1, A2 and B1 exercises across six skills plus American culture.</li>
-            <li><strong>Accessibility:</strong> keyboard and touch controls, transcripts, text alternative for speaking, reduced motion, high contrast, screen-reader labels.</li>
+            <li><strong>CEFR content:</strong> A1, A2 and B1 exercises across four skills plus American culture.</li>
+            <li><strong>Accessibility:</strong> keyboard and touch controls, reduced motion, high contrast, screen-reader labels.</li>
             <li><strong>Privacy:</strong> no accounts, no trackers, no external requests. Progress lives in <code>localStorage</code> on this device.</li>
             <li><strong>Factual care:</strong> culture items distinguish verified facts from simplified classroom explanations; sources are listed in the documentation.</li>
           </ul>
-          <p class="micro muted">Version 3.0 · Made for learners, not for data collection.</p>
+          <p class="micro muted">Version 3.1 · Made for learners, not for data collection.</p>
         </div>
         <div class="overlay-actions">
           <button class="btn btn-primary" data-close-overlay type="button">Close</button>

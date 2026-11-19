@@ -5,7 +5,7 @@
 import { normalizeText } from '../core/util.js';
 
 export const LEVELS = ['A1', 'A2', 'B1'];
-export const SKILLS = ['vocabulary', 'grammar', 'listening', 'speaking', 'reading', 'writing'];
+export const SKILLS = ['vocabulary', 'grammar', 'reading', 'writing'];
 export const ALL_SKILLS = [...SKILLS, 'culture'];
 
 export const LEVEL_INFO = {
@@ -32,8 +32,6 @@ export const LEVEL_INFO = {
 export const SKILL_INFO = {
   vocabulary: { name: 'Vocabulary', icon: '📚', color: '#5ce1a6', blurb: 'Words, pictures and meaning in context.' },
   grammar: { name: 'Grammar', icon: '🧩', color: '#63c5ff', blurb: 'Forms, accuracy and sentence building.' },
-  listening: { name: 'Listening', icon: '🎧', color: '#a78bfa', blurb: 'Understand spoken English with transcripts.' },
-  speaking: { name: 'Speaking', icon: '🎙', color: '#ff8fd8', blurb: 'Guided production, never auto-graded as proficiency.' },
   reading: { name: 'Reading', icon: '📖', color: '#ffc857', blurb: 'Short texts, notices and details.' },
   writing: { name: 'Writing', icon: '✍', color: '#ff6b6b', blurb: 'Sentence order, register and short messages.' },
   culture: { name: 'American culture', icon: '🇺🇸', color: '#ffd166', blurb: 'Geography, landmarks, traditions and education.' },
@@ -47,12 +45,9 @@ export const FR_INSTRUCTIONS = {
   'Choose the best answer.': 'Choisissez la meilleure réponse.',
   'Choose the best option for the situation.': 'Choisissez la meilleure option pour la situation.',
   'Choose the correct option to complete the sentence.': 'Choisissez l’option correcte pour compléter la phrase.',
-  'Listen to the short recording, then choose the best answer.': 'Écoutez le court enregistrement, puis choisissez la meilleure réponse.',
-  'Listen to the model, say it out loud, then check your own delivery.': 'Écoutez le modèle, dites-le à voix haute, puis vérifiez votre prononciation.',
   'Read the text, then choose the best answer.': 'Lisez le texte, puis choisissez la meilleure réponse.',
   'Tap the words in the correct order to build the sentence.': 'Touchez les mots dans le bon ordre pour construire la phrase.',
   'Match each word with the correct picture.': 'Associez chaque mot à la bonne image.',
-  'Say it out loud, then check what you said.': 'Dites-le à voix haute, puis vérifiez ce que vous avez dit.',
 };
 
 /** Explicit translation wins; otherwise fall back to the shared table. */
@@ -69,7 +64,7 @@ const base = (data) => ({
   ...data,
 });
 
-/** Multiple-choice or listening question. answer = index of the correct option. */
+/** Multiple-choice question. answer = index of the correct option. */
 export function choice({ id, skill, level, prompt, options, answer, explanation, objective, instruction, passage = null, script = '', fr = '', instructionFr = '', tags = [] }) {
   return base({ id, skill, level, type: 'choice', prompt, options, answer, explanation, objective, instruction, passage, script, fr, instructionFr: frInstruction(instruction, instructionFr), tags });
 }
@@ -98,15 +93,6 @@ export function short({ id, skill = 'writing', level, prompt, accepted, explanat
   };
 }
 
-/** Speaking practice task. Not graded as proficiency. */
-export function speak({ id, level, prompt, target, tips = [], checklist = [], explanation, objective, instruction = 'Say it out loud, then check what you said.', fr = '', instructionFr = '' }) {
-  return {
-    id, skill: 'speaking', level, type: 'speak', prompt, target, tips, checklist,
-    explanation, objective, instruction, fr,
-    instructionFr: frInstruction(instruction, instructionFr),
-  };
-}
-
 /** American culture question. `fact` marks verified factual content. */
 export function culture({ id, level, prompt, options, answer, explanation, objective, instruction = 'Choose the best answer.', fact = true, note = '', region = '', fr = '', instructionFr = '' }) {
   return base({
@@ -121,7 +107,7 @@ export function normalizeOrder(item, words) {
 }
 
 /**
- * Check a non-speaking exercise answer.
+ * Check a graded exercise answer.
  * Returns { correct: boolean|null, expected?: string }.
  */
 export function checkAnswer(item, response) {
@@ -188,12 +174,9 @@ export function validateBank(banks, { perSkillLevel = 10 } = {}) {
           }
         } else if (item.type === 'short') {
           if (!Array.isArray(item.accepted) || !item.accepted.length) problems.push(`${item.id}: short needs accepted answers`);
-        } else if (item.type === 'speak') {
-          if (!item.target) problems.push(`${item.id}: speaking task missing target`);
         } else {
           problems.push(`${item.id}: unknown type ${item.type}`);
         }
-        if (skillKey === 'listening' && !item.script) problems.push(`${item.id}: listening item missing script`);
         if (skillKey === 'reading' && !item.passage) problems.push(`${item.id}: reading item missing passage`);
       }
       if (perSkillLevel && items.length < perSkillLevel) {

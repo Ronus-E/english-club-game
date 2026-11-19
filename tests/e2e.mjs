@@ -1,7 +1,7 @@
 /**
  * End-to-end test in real Chromium, driven over CDP (no Playwright).
  * Covers: boot, navigation, keyboard movement, collision, NPC dialogue,
- * every station and exercise type, final arena, results, achievements,
+ * every remaining station and exercise type, final arena, results, achievements,
  * pause, practice, settings, responsive layout and offline reload.
  *
  * Run: node tests/e2e.mjs [url]
@@ -132,10 +132,10 @@ try {
       };
     });
     if (out.state !== 'playing') throw new Error(`state ${out.state}`);
-    if (JSON.stringify(out.plan) !== JSON.stringify({ vocabulary: 3, grammar: 2, listening: 1, speaking: 1, writing: 1, culture: 2, final: 2 })) {
+    if (JSON.stringify(out.plan) !== JSON.stringify({ vocabulary: 3, grammar: 2, writing: 1, culture: 2, final: 2 })) {
       throw new Error(`plan shape ${JSON.stringify(out.plan)}`);
     }
-    if (out.routeChips !== 6) throw new Error(`route chips ${out.routeChips}`);
+    if (out.routeChips !== 4) throw new Error(`route chips ${out.routeChips}`);
     if (!out.timerRunning) throw new Error('timer not running');
     return out;
   });
@@ -289,11 +289,6 @@ try {
         input.dispatchEvent(new Event('input', { bubbles: true }));
         foot.querySelector('button').click();
         log.push(item.id + ':short');
-      } else if (item.type === 'speak') {
-        const boxes = [...body.querySelectorAll('.checklist input[type="checkbox"]')];
-        boxes.forEach((b) => { b.checked = true; b.dispatchEvent(new Event('change', { bubbles: true })); });
-        foot.querySelector('button').click();
-        log.push(item.id + ':speak');
       } else {
         throw new Error('unhandled exercise type ' + item.type);
       }
@@ -302,7 +297,7 @@ try {
     return { solved: log, closed: overlay.hidden, guard };
   };`);
 
-  const stationOrder = ['vocabulary', 'grammar', 'listening', 'speaking', 'culture'];
+  const stationOrder = ['vocabulary', 'grammar', 'culture'];
 
   for (const stationId of stationOrder) {
     await step(`station "${stationId}" can be entered and fully answered`, async () => {
@@ -350,7 +345,7 @@ try {
       }
       return { title: entered.title, counter: entered.counter, solved: solved.solved.length, ...after };
     });
-    if (stationId === 'vocabulary' || stationId === 'speaking') await shot(`05-station-${stationId}.png`);
+    if (stationId === 'vocabulary') await shot(`05-station-${stationId}.png`);
   }
 
   /* ============================================================ 7. FINAL + RESULTS */
@@ -399,11 +394,10 @@ try {
     });
     if (!done.screen) throw new Error('results screen not shown');
     if (done.state !== 'ended') throw new Error(`mission state ${done.state}`);
-    if (done.skillRows < 7) throw new Error(`expected 7 skill rows, got ${done.skillRows}`);
+    if (done.skillRows < 5) throw new Error(`expected 5 skill rows, got ${done.skillRows}`);
     if (done.recommendations < 1) throw new Error('no recommendations');
     if (done.storedBest !== 100) throw new Error(`best score not stored (${done.storedBest})`);
     if (!done.achievements.includes('first_mission')) throw new Error('first mission achievement missing');
-    if (!done.achievements.includes('speaker')) throw new Error('speaking achievement missing');
     if (!done.badges.length) throw new Error('no badge shown on results');
     return done;
   });
@@ -481,7 +475,7 @@ try {
         timerStopped: !g.mission.timer || g.mission.timer.finished || !g.mission.timer.running,
       };
     });
-    if (out.cards !== 7) throw new Error(`expected 7 skill cards, got ${out.cards}`);
+    if (out.cards !== 5) throw new Error(`expected 5 skill cards, got ${out.cards}`);
     if (!out.activityOpen) throw new Error('practice activity did not open');
     if (!out.timerStopped) throw new Error('mission clock still running in practice');
     await shot('09-practice.png');
@@ -717,36 +711,6 @@ try {
     return out;
   });
 
-  await step('listening exercise offers a working transcript fallback', async () => {
-    const out = await ev(async () => {
-      const { getExercises } = await import('/src/content/index.js');
-      const g = window.__ENGLISH_CLUB__;
-      const item = getExercises('listening', 'A1')[0];
-      g.activities.open({
-        stationId: 'test', title: 'Listening test', kicker: 'test', icon: '🎧',
-        skill: 'listening', items: [item], onAnswer: () => {}, onFinish: () => {},
-      });
-      await new Promise((r) => setTimeout(r, 80));
-      const toggle = document.querySelector('#activityBody .transcript-toggle');
-      const transcript = document.querySelector('#activityBody .transcript');
-      const before = { exists: Boolean(toggle), hidden: transcript?.hidden ?? null };
-      toggle?.click();
-      await new Promise((r) => setTimeout(r, 40));
-      const after = {
-        hidden: transcript?.hidden ?? null,
-        text: transcript?.textContent || '',
-        label: toggle?.textContent || '',
-      };
-      g.activities.close();
-      return { itemId: item.id, before, after, script: item.script };
-    });
-    if (!out.before.exists) throw new Error('no transcript toggle');
-    if (!out.before.hidden) throw new Error('transcript visible before asking for it');
-    if (out.after.hidden) throw new Error('transcript did not open');
-    if (out.after.text.trim() !== out.script.trim()) throw new Error('transcript text does not match the script');
-    return out;
-  });
-
   await step('achievement hall lists every badge and the profile summary', async () => {
     const out = await ev(async () => {
       const g = window.__ENGLISH_CLUB__;
@@ -765,13 +729,13 @@ try {
       };
     });
     if (!out.active) throw new Error('achievements screen not shown');
-    if (out.cards !== 12) throw new Error(`expected 12 badges, got ${out.cards}`);
+    if (out.cards !== 10) throw new Error(`expected 10 badges, got ${out.cards}`);
     if (out.unlocked < 5) throw new Error(`unlocked badges not displayed (${out.unlocked})`);
     await shot('13-achievements.png');
     return out;
   });
 
-  await step('B1 mission keeps the same 11-answer structure', async () => {
+  await step('B1 mission keeps the same 9-graded-answer structure', async () => {
     const out = await ev(async () => {
       const g = window.__ENGLISH_CLUB__;
       g.mission.start('B1');
@@ -783,7 +747,11 @@ try {
       await new Promise((r) => setTimeout(r, 150));
       return { plan, levels: [...levels], hud };
     });
-    if (out.plan.vocabulary !== 3 || out.plan.final !== 2) throw new Error(`plan ${JSON.stringify(out.plan)}`);
+    const expected = { vocabulary: 3, grammar: 2, writing: 1, culture: 2, final: 2 };
+    if (JSON.stringify(out.plan) !== JSON.stringify(expected)) throw new Error(`plan ${JSON.stringify(out.plan)}`);
+    if ('listening' in out.plan || 'speaking' in out.plan) {
+      throw new Error(`removed skills present in plan ${JSON.stringify(out.plan)}`);
+    }
     if (out.levels.length !== 1 || out.levels[0] !== 'B1') throw new Error(`mixed levels: ${out.levels}`);
     return out;
   });
@@ -848,8 +816,12 @@ try {
     });
     client.resetLogs();
     await client.send('Page.reload', { ignoreCache: false });
-    await sleep(1800);
+    await sleep(4000);
     const offline = await ev(() => ({
+      readyState: document.readyState,
+      url: location.href,
+      htmlLength: document.documentElement?.outerHTML?.length || 0,
+      scripts: [...document.querySelectorAll('script')].map((n) => n.src || 'inline'),
       booted: document.body.classList.contains('is-booted'),
       global: Boolean(window.__ENGLISH_CLUB__),
       banner: !document.getElementById('offlineBanner').hidden,
@@ -866,7 +838,7 @@ try {
     if (client.exceptions.length) throw new Error(`exceptions offline: ${client.exceptions[0]}`);
     const fatal = client.consoleErrors.filter((e) => !/Failed to load resource/i.test(e));
     if (fatal.length) throw new Error(`console errors offline: ${fatal.join(' | ')}`);
-    if (!offline.booted || !offline.global) throw new Error('game did not boot offline');
+    if (!offline.booted || !offline.global) throw new Error(`game did not boot offline ${JSON.stringify(offline)} errors=${JSON.stringify(client.consoleErrors)} exceptions=${JSON.stringify(client.exceptions)}`);
     if (!offline.banner) throw new Error('offline banner not shown');
     if (!offline.canStart) throw new Error('menu unreachable offline');
     return { ...controlled, ...offline };

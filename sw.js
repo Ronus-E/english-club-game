@@ -4,7 +4,7 @@
    Bump CACHE_VERSION whenever a precached file changes.
    ============================================================ */
 
-const CACHE_VERSION = 'ec-v1.0.0';
+const CACHE_VERSION = 'ec-v1.1.0';
 const PRECACHE = [
   './',
   './index.html',
@@ -34,10 +34,8 @@ const PRECACHE = [
   './src/content/schema.js',
   './src/content/vocabulary.js',
   './src/content/grammar.js',
-  './src/content/listening.js',
   './src/content/reading.js',
   './src/content/writing.js',
-  './src/content/speaking.js',
   './src/content/culture.js',
   './src/content/dialogues.js',
   './src/content/index.js',

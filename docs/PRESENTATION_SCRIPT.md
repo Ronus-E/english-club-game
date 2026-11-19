@@ -10,13 +10,13 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Stand by the screen. Splash screen visible. Wait two seconds, then begin.]*
 
-> "Three minutes. One campus. Ten places to visit. And one question: can you finish an English mission before the clock runs out?
+> "Three minutes. One campus. Eight places to visit. And one question: can you finish an English mission before the clock runs out?
 >
 > This is **Mission: English Club**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
 
 *[Press **START MISSION**. Gesture at the splash animation.]*
 
-> "That logo, the campus, the characters, even the sound — all generated locally by the browser."
+> "That logo, the campus, the characters — all generated locally by the browser."
 
 ---
 
@@ -64,35 +64,31 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 ---
 
-## 2:30 — Grammar and Listening
+## 2:30 — Grammar and Culture
 
-*[Finish vocabulary. Walk or use the HUD route to the Grammar Classroom; answer two items.]*
+*[Finish vocabulary. Go to the Grammar Classroom; answer two items.]*
 
 > "Grammar: two decisions about real sentences, not abstract rules."
 
-*[Enter the Listening Lounge. Click **play**, answer, then click **Show transcript**.]*
+*[Complete Culture — two questions about the United States.]*
 
-> "Listening: a short recording, synthesized by the browser in English. And if you can't hear it — or there's no English voice — the transcript opens. Accessibility isn't an afterthought here."
-
----
-
-## 3:15 — Speaking Stage
-
-*[Enter the Speaking Stage. Let the model sentence play. Use the checklist alternative if the microphone is unavailable.]*
-
-> "Speaking is the delicate one. The model sentence plays; the learner says it aloud. Speech recognition works where the browser supports it.
->
-> But we **never grade an accent**. There's always a checklist or a typed answer. The learner participates and gets credit for trying — full stop."
+> "Then culture: verified facts, tied to places and dates. Nine graded answers make the whole mission."
 
 ---
 
-## 3:45 — Culture and Final Challenge
+## 3:10 — Bonus stations
 
-*[Complete Culture — two questions about the United States. Then enter the Final Challenge Arena.]*
+*[Visit the Writing Office, or the Reading Library if the route is crowded. *[cut]* Skip entirely.]*
 
-> "Two culture questions — real, checkable facts. Then the arena: two mixed questions to close the mission."
+> "Two optional stations. Rebuild a sentence here, or read a short text there. No penalty for skipping them — they are extra practice, not extra pressure."
 
-*[Solve the final two items. Let the results screen appear. Pause.]*
+---
+
+## 3:40 — Final Challenge Arena
+
+*[Enter the arena. Solve the two mixed questions. Let the results screen appear. Pause.]*
+
+> "The arena mixes grammar and reading. Two questions, then the report."
 
 ---
 
@@ -100,11 +96,11 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Point at each region of the report in turn: grade, numbers, skill rows, recommendations.]*
 
-> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer; speaking is reported separately, so it can't distort the score.
+> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer.
 >
-> A breakdown by skill: vocabulary, grammar, listening, speaking, reading, writing, culture. Two recommendations that point at the weakest area.
+> A breakdown across five areas: vocabulary, grammar, reading, writing and American culture. Two recommendations that point at the weakest area.
 >
-> XP, a personal best, and badges — twelve of them. Everything saved locally, in this browser only."
+> XP, a personal best, and badges — ten of them. Everything saved locally, in this browser only."
 
 ---
 
@@ -114,11 +110,11 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 > "Instructions can appear in French. Reduced motion, high contrast, forced touch controls — all in settings."
 
-*[If Wi-Fi is on, turn it off now and reload. Let the offline banner appear.]*
+*[If Wi-Fi is on, turn it off now and reload. Let the offline banner appear; wait a few seconds.]*
 
 > "And one last thing. We are now offline. Reload — it still works. The whole game is cached after one visit.
 >
-> No account. No analytics. No server. Just English practice that works anywhere."
+> No account. No analytics. No server. No microphone. Just English practice that works anywhere."
 
 *[Smile. Stop talking.]*
 
@@ -128,10 +124,10 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 | Problem | Say / do |
 |---|---|
-| Microphone denied | "Exactly the point — I'll use the checklist instead." |
-| No English voice | Click the transcript: "The fallback works as designed." |
-| Wi-Fi can't be disabled | Show the service worker in DevTools → Application → Service Workers, then say "registered and controlling". |
 | Time running out | Skip placement, skip the NPC, answer one item per station, jump to results. |
+| French text missing | Settings → French help; glosses appear after answering. |
+| Wi-Fi can't be disabled | Show DevTools → Application → Service Workers: "registered and controlling". |
+| Offline reload seems stuck | Wait a few seconds for cached ES modules, then say "cached modules take a moment." |
 | Page goes blank | Hard reload; if still blank, start `node tools/serve.mjs --port 8080` from the project root. |
 
 ## Delivery notes

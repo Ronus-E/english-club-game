@@ -328,7 +328,7 @@ function boot() {
     const result = lastResult;
     if (!result) { ui.showScreen('practice'); return; }
     const scored = Object.entries(result.skills)
-      .filter(([key, stat]) => key !== 'speaking' && stat.total > 0 && stat.percent !== null)
+      .filter(([, stat]) => stat.total > 0 && stat.percent !== null)
       .sort((a, b) => a[1].percent - b[1].percent);
     const weakest = scored[0]?.[0] || 'vocabulary';
     ui.el.practiceLevel.value = result.level;

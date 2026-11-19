@@ -18,7 +18,7 @@ export const npcs = {
         next: 'brief',
       },
       brief: {
-        text: 'The campus is yours: vocabulary, grammar, listening, speaking, culture — and the Final Challenge Arena. Every correct answer powers the beacon.',
+        text: 'The campus is yours: vocabulary, grammar, reading, writing, culture — and the Final Challenge Arena. Every correct answer powers the beacon.',
         next: 'ask',
       },
       ask: {
@@ -54,8 +54,8 @@ export const npcs = {
     start: 'greet',
     nodes: {
       greet: {
-        text: 'Hi! Welcome to the Listening Lounge café. What can I get you?',
-        fr: 'Bonjour ! Bienvenue au café du Listening Lounge. Qu’est-ce que je vous sers ?',
+        text: 'Hi! Welcome to the Campus Café. What can I get you?',
+        fr: 'Bonjour ! Bienvenue au café du campus. Qu’est-ce que je vous sers ?',
         choices: [
           { text: 'Can I have a tea and a sandwich, please?', next: 'polite' },
           { text: 'Give me tea.', next: 'rude' },
@@ -82,11 +82,11 @@ export const npcs = {
         ],
       },
       recommend: {
-        text: 'The Speaking Stage is fun, and the Culture Zone has real maps. I would start with the Vocabulary Garden, though.',
+        text: 'The Reading Library has short texts, and the Culture Zone has real maps. I would start with the Vocabulary Garden, though.',
         next: 'goodluck',
       },
       goodluck: {
-        text: 'Good luck! Come back if you need a pronunciation check.',
+        text: 'Good luck! Come back if you need a reading tip.',
         close: true,
       },
     },
@@ -155,7 +155,7 @@ export const npcs = {
         ],
       },
       recommend: {
-        text: 'Try a graded reader with short chapters. Read one page aloud each day — it helps both reading and speaking.',
+        text: 'Try a graded reader with short chapters. Read one page aloud each day — it helps pronunciation and fluency.',
         next: 'question',
       },
       exit: {
@@ -256,8 +256,8 @@ export const npcs = {
       chat: {
         text: 'The campus looks great. Which station is your favourite so far?',
         choices: [
-          { text: 'The Listening Lounge — I like hearing real conversations.', next: 'end' },
-          { text: 'The Speaking Stage, because I can practise without pressure.', next: 'end' },
+          { text: 'The Reading Library — I like short texts with real details.', next: 'end' },
+          { text: 'The Culture Zone, because the maps are real.', next: 'end' },
         ],
       },
       end: {

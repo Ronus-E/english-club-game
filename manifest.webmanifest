@@ -1,7 +1,7 @@
 {
   "name": "Mission: English Club — The 180-Second English Challenge",
   "short_name": "English Club",
-  "description": "A 180-second pixel-art English mission for American Corner clubs: vocabulary, grammar, listening, speaking, reading, writing and American culture.",
+  "description": "A 180-second pixel-art English mission for American Corner clubs: vocabulary, grammar, reading, writing and American culture.",
   "id": "/english-club-game/",
   "start_url": "./",
   "scope": "./",

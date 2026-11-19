@@ -26,7 +26,7 @@ export class UI {
       'interactionHint', 'interactionLabel', 'toast', 'routeBar', 'locationLabel', 'npcHint',
       'joystick', 'joystickKnob', 'actionBtn',
       'resultScore', 'resultMax', 'resultGrade', 'resultXp', 'newBest', 'resultCorrect', 'resultWrong', 'resultTime',
-      'resultsBadgeCanvas', 'skillReport', 'recommendations', 'sessionAchievements', 'speakingNote',
+      'resultsBadgeCanvas', 'skillReport', 'recommendations', 'sessionAchievements',
       'replayBtn', 'practiceWeakBtn', 'resultsMenuBtn',
       'practiceLevel', 'practiceSummary', 'skillGrid', 'practiceCampusBtn',
       'achievementLevel', 'achievementName', 'achievementXp', 'levelProgressBar', 'bestScore', 'achievementGrid',
@@ -362,7 +362,7 @@ export class UI {
     }
     const subtitle = this.el['resultsSubtitle'];
     if (subtitle) {
-      subtitle.textContent = `Level ${result.level} · ${result.correct} correct · ${result.wrong} to review · speaking: ${result.speaking.completed ? 'completed' : 'not attempted'}`;
+      subtitle.textContent = `Level ${result.level} · ${result.correct} correct · ${result.wrong} to review`;
     }
     if (this.el.newBest) this.el.newBest.hidden = !result.isNewBest;
 

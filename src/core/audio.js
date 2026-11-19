@@ -158,38 +158,3 @@ export class AudioEngine {
     }
   }
 }
-
-/** Browser speech synthesis helper with a clean availability check. */
-export function canSpeak() {
-  return typeof window !== 'undefined' && 'speechSynthesis' in window;
-}
-
-export function speakText(text, { rate = 0.92, lang = 'en-US', onEnd } = {}) {
-  if (!canSpeak()) return false;
-  try {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    utter.rate = rate;
-    utter.pitch = 1;
-    const voices = window.speechSynthesis.getVoices?.() || [];
-    const preferred = voices.find((v) => v.lang === lang) || voices.find((v) => v.lang?.startsWith('en'));
-    if (preferred) utter.voice = preferred;
-    if (onEnd) utter.onend = onEnd;
-    window.speechSynthesis.speak(utter);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function stopSpeech() {
-  if (!canSpeak()) return;
-  try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
-}
-
-/** Speech recognition availability (Chrome/Edge, HTTPS or localhost). */
-export function speechRecognitionCtor() {
-  if (typeof window === 'undefined') return null;
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-}

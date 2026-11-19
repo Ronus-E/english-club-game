@@ -5,7 +5,6 @@
 import { drawIcon } from './icons.js';
 import { checkAnswer, SKILL_INFO } from '../content/schema.js';
 import { shuffle } from '../core/util.js';
-import { speakText, stopSpeech, canSpeak, speechRecognitionCtor } from '../core/audio.js';
 
 export function h(tag, props = null, ...children) {
   const node = document.createElement(tag);
@@ -39,7 +38,6 @@ export class ActivityRunner {
     this.getSettings = getSettings || (() => ({}));
     this.onQuitRequest = onQuitRequest || (() => {});
     this.syncRoot = syncRoot || (() => {});
-    this.recognition = null;
     this.timers = [];
     this.els.quit?.addEventListener('click', () => this.requestQuit());
   }
@@ -58,7 +56,7 @@ export class ActivityRunner {
     if (!items.length) {
       this.overlay.hidden = true;
       this.syncRoot();
-      config?.onFinish?.({ answers: [], correct: 0, total: 0, percent: null, speaking: false });
+      config?.onFinish?.({ answers: [], correct: 0, total: 0, percent: null });
       return;
     }
     this.config = { ...config, items };
@@ -78,8 +76,6 @@ export class ActivityRunner {
   }
 
   close() {
-    stopSpeech();
-    this.stopRecognition();
     this.timers.forEach((id) => clearTimeout(id));
     this.timers = [];
     this.overlay.hidden = true;
@@ -128,14 +124,12 @@ export class ActivityRunner {
       case 'match': this.renderMatch(item); break;
       case 'order': this.renderOrder(item); break;
       case 'short': this.renderShort(item); break;
-      case 'speak': this.renderSpeak(item); break;
       default: this.renderFallback(item); break;
     }
   }
 
   /* --------------------------------------------------------------- choice */
   renderChoice(item) {
-    if (item.script) this.renderAudio(item.script);
     const optionWrap = h('div', { class: 'options' });
     const buttons = item.options.map((option, i) => h('button', {
       class: 'option-btn',
@@ -333,163 +327,6 @@ export class ActivityRunner {
     this.finishAnswer(this.item, correct, value, { expected: correct ? null : expected });
   }
 
-  /* ---------------------------------------------------------------- speak */
-  renderSpeak(item) {
-    this.els.body.append(h('div', { class: 'speak-target' },
-      item.target,
-      h('span', { class: 'speak-hint', text: 'Model sentence — listen, then repeat it in your own voice.' }),
-    ));
-
-    const listenBtn = h('button', {
-      class: 'btn audio-btn', type: 'button', onclick: () => this.playModel(item.target),
-    }, '▶ Listen to the model');
-
-    const row = h('div', { class: 'audio-row' }, listenBtn);
-
-    const Recognition = speechRecognitionCtor();
-    this.recognitionCtor = Recognition;
-    if (Recognition) {
-      this.recordBtn = h('button', {
-        class: 'btn mic-btn', type: 'button', onclick: () => this.toggleRecognition(item),
-      }, '● Record my voice');
-      row.append(this.recordBtn);
-    }
-    this.els.body.append(row);
-
-    this.transcriptEl = h('p', { class: 'transcript', hidden: true });
-    this.els.body.append(this.transcriptEl);
-
-    if (!Recognition) {
-      this.els.body.append(h('p', { class: 'speak-note', text: 'Speech recognition is unavailable in this browser. Use the text alternative: say the sentence aloud, then tick the checklist.' }));
-    }
-
-    if (item.tips?.length) {
-      this.els.body.append(h('ul', { class: 'recommendations' }, ...item.tips.map((t) => h('li', { text: t }))));
-    }
-
-    const list = h('ul', { class: 'checklist' });
-    (item.checklist || []).forEach((line, i) => {
-      const box = h('input', { type: 'checkbox', id: `speak-check-${i}` });
-      box.addEventListener('change', () => this.refreshSpeakFoot());
-      list.append(h('li', {}, box, h('label', { for: `speak-check-${i}`, text: line })));
-    });
-    this.els.body.append(list);
-    this.els.body.append(h('p', { class: 'speak-note', text: 'Speaking is recorded as participation, not as a proficiency score. There is no automatic accent or grammar judgement.' }));
-
-    this.els.foot.replaceChildren();
-    this.speakDone = h('button', {
-      class: 'btn btn-primary', type: 'button', onclick: () => this.submitSpeak(item),
-    }, 'I completed the task');
-    this.els.foot.append(this.speakDone);
-    this.refreshSpeakFoot();
-  }
-
-  refreshSpeakFoot() {
-    if (!this.speakDone) return;
-    const boxes = [...this.els.body.querySelectorAll('.checklist input[type="checkbox"]')];
-    const ticked = boxes.filter((b) => b.checked).length;
-    this.speakDone.textContent = boxes.length && ticked < boxes.length
-      ? `I completed the task (${ticked}/${boxes.length} checks)`
-      : 'I completed the task';
-  }
-
-  playModel(text) {
-    const settings = this.getSettings();
-    const ok = speakText(text, { rate: 0.88 });
-    if (!ok) {
-      this.transcriptEl.hidden = false;
-      this.transcriptEl.textContent = text;
-    }
-    if (!settings || settings.sfx !== 0) this.audio.play('click');
-  }
-
-  toggleRecognition(item) {
-    if (!this.recognitionCtor) return;
-    if (this.recognition) {
-      this.stopRecognition();
-      return;
-    }
-    try {
-      const rec = new this.recognitionCtor();
-      rec.lang = 'en-US';
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
-      rec.onresult = (event) => {
-        const text = event.results?.[0]?.[0]?.transcript || '';
-        this.transcriptEl.hidden = false;
-        this.transcriptEl.textContent = text ? `Heard: “${text}”` : 'No speech detected. Try again, a little louder.';
-        this.transcriptValue = text;
-      };
-      rec.onerror = () => {
-        this.transcriptEl.hidden = false;
-        this.transcriptEl.textContent = 'Recording was not available. You can still complete the task aloud.';
-      };
-      rec.onend = () => {
-        this.recognition = null;
-        this.recordBtn?.classList.remove('is-recording');
-        if (this.recordBtn) this.recordBtn.textContent = '● Record again';
-      };
-      this.recognition = rec;
-      this.recordBtn?.classList.add('is-recording');
-      if (this.recordBtn) this.recordBtn.textContent = '■ Stop recording';
-      rec.start();
-      this.audio.play('open');
-    } catch {
-      this.recognition = null;
-      this.transcriptEl.hidden = false;
-      this.transcriptEl.textContent = 'Recording could not start in this browser.';
-    }
-  }
-
-  stopRecognition() {
-    if (this.recognition) {
-      try { this.recognition.stop(); } catch { /* ignore */ }
-      this.recognition = null;
-    }
-    this.recordBtn?.classList.remove('is-recording');
-  }
-
-  submitSpeak(item) {
-    if (this.answered) return;
-    this.answered = true;
-    this.stopRecognition();
-    const checked = [...this.els.body.querySelectorAll('.checklist input[type="checkbox"]')].filter((b) => b.checked).length;
-    this.finishAnswer(item, null, { transcript: this.transcriptValue || '', checked }, {
-      participation: true,
-      prefix: 'Speaking task completed.',
-    });
-  }
-
-  /* ------------------------------------------------------------- listening */
-  renderAudio(script) {
-    const playBtn = h('button', {
-      class: 'btn audio-btn', type: 'button', onclick: () => {
-        const ok = speakText(script, { rate: 0.9 });
-        if (!ok) this.transcriptEl.hidden = false;
-      },
-    }, '▶ Play audio');
-    const wrap = h('div', { class: 'audio-row' }, playBtn,
-      h('span', { class: 'speaker-pulse', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
-    );
-    this.els.body.append(wrap);
-
-    const transcript = h('p', { class: 'transcript', hidden: true, text: script });
-    this.transcriptEl = transcript;
-    const toggle = h('button', {
-      class: 'transcript-toggle', type: 'button',
-      onclick: () => {
-        transcript.hidden = !transcript.hidden;
-        toggle.textContent = transcript.hidden ? 'Show transcript' : 'Hide transcript';
-      },
-    }, 'Show transcript');
-    this.els.body.append(toggle, transcript);
-    if (!canSpeak()) {
-      transcript.hidden = false;
-      toggle.textContent = 'Hide transcript';
-      this.els.body.append(h('p', { class: 'speak-note', text: 'No English speech voice was detected, so the transcript is shown automatically.' }));
-    }
-  }
-
   /* -------------------------------------------------------------- fallback */
   renderFallback(item) {
     this.els.body.append(h('p', { class: 'muted', text: 'This exercise type is not available in this version.' }));
@@ -532,7 +369,6 @@ export class ActivityRunner {
   }
 
   advance() {
-    stopSpeech();
     if (this.index >= this.config.items.length - 1) {
       const cfg = this.config;
       const summary = this.summarise();
@@ -552,7 +388,6 @@ export class ActivityRunner {
       correct,
       total: graded.length,
       percent: graded.length ? Math.round((correct / graded.length) * 100) : null,
-      speaking: this.answers.some((a) => a.item.type === 'speak'),
     };
   }
 }

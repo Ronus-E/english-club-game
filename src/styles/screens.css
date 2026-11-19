@@ -642,25 +642,6 @@ body.hide-touch .touch-controls { display: none; }
 .feedback .why { color: var(--text); margin-top: 4px; }
 .feedback .fr-hint { display: block; margin-top: 6px; color: var(--text-mute); font-size: 12px; font-style: italic; }
 
-.audio-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.audio-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  min-height: 46px;
-}
-.speaker-pulse { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
-.speaker-pulse i { width: 3px; background: var(--sky); height: 4px; animation: eq 1s infinite; }
-.speaker-pulse i:nth-child(2) { animation-delay: .15s; }
-.speaker-pulse i:nth-child(3) { animation-delay: .3s; }
-@keyframes eq { 50% { height: 14px; } }
-.transcript {
-  font-family: var(--font-ui); font-size: 12px;
-  color: var(--text-mute);
-  border-left: 2px solid var(--line);
-  padding-left: 10px;
-  line-height: 1.6;
-}
-.transcript-toggle { background: none; border: 0; color: var(--sky); font-family: var(--font-ui); font-size: 11px; text-decoration: underline; padding: 4px 0; min-height: 40px; }
-
 /* match game */
 .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .match-cell {
@@ -693,24 +674,6 @@ body.hide-touch .touch-controls { display: none; }
   background: #0a1024;
 }
 .answer-line .word-chip { background: #1d2a5c; border-color: var(--sky); }
-
-/* speaking */
-.speak-target {
-  font-family: var(--font-ui); font-size: clamp(16px, 2.3vw, 22px);
-  padding: 16px;
-  border-radius: 4px;
-  background: #0a1024;
-  border: 1px solid var(--line);
-  color: #fff3d0;
-}
-.speak-target .speak-hint { display: block; margin-top: 6px; font-size: 12px; color: var(--text-mute); font-family: var(--font-body); }
-.mic-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.mic-btn.is-recording { background: radial-gradient(circle at 50% 30%, #ff9a9a, #d63c4c); border-color: #ffd0d0; color: #fff; animation: recPulse 1.2s infinite; }
-@keyframes recPulse { 50% { box-shadow: 0 0 0 8px rgba(255,107,107,.15); } }
-.checklist { display: grid; gap: 8px; padding: 0; list-style: none; }
-.checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text-dim); }
-.checklist input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--mint); }
-.speak-note { font-size: 12px; color: var(--text-mute); }
 
 /* final challenge flavour */
 .activity-panel.is-final { border-color: var(--coral); box-shadow: 0 0 0 1px rgba(255,107,107,.25), 0 30px 90px rgba(0,0,0,.75); }

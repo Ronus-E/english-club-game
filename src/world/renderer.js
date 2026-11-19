@@ -311,7 +311,7 @@ export class CampusRenderer {
 
   stationIcon(id) {
     const map = {
-      hub: 'flag', vocabulary: 'tree', grammar: 'book', listening: 'globe', speaking: 'flag',
+      hub: 'flag', vocabulary: 'tree', grammar: 'book',
       reading: 'book', writing: 'pencil', culture: 'globe', arena: 'trophy', achievement: 'trophy',
     };
     return map[id] || 'flag';
