@@ -3,6 +3,7 @@
  * the mission controller and every navigation path. No dependencies.
  */
 import { ProfileStore } from './core/storage.js';
+import { demoPreset } from './core/demo.js';
 import { AudioEngine } from './core/audio.js';
 import { UI, formatClock } from './ui/screens.js';
 import { AmbientField, drawLogo, drawAvatarPreview } from './ui/decor.js';
@@ -234,6 +235,25 @@ function boot() {
     ui.showScreen('menu');
     ui.updateProfile();
     if (logoRaf) { cancelAnimationFrame(logoRaf); logoRaf = null; }
+  });
+
+  ui.el.demoBtn?.addEventListener('click', () => {
+    audio.ensure();
+    audio.play('fanfare');
+    const preset = demoPreset();
+    store.reset();
+    store.patch({
+      name: preset.name, avatar: preset.avatar, level: preset.level,
+      settings: preset.settings,
+    });
+    if (ui.el.playerNameInput) ui.el.playerNameInput.value = preset.name;
+    ui.syncSettingsInputs();
+    ui.applyA11yClasses();
+    ui.updateProfile();
+    ui.setBootStatus('Exhibition demo ready.');
+    mission.start(preset.level);
+    lastResult = null;
+    ui.toast('Exhibition demo · Level A1 · Fresh progress', { ms: 3600 });
   });
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });

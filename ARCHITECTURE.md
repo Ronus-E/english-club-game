@@ -8,6 +8,7 @@ Technical map of **Mission: English Club** (v3.1). The project uses browser stan
 index.html
    └── src/main.js  ── boot + all navigation/wiring
         ├── core/storage.js      ProfileStore (localStorage)
+        ├── core/demo.js         one-click exhibition preset
         ├── core/audio.js        AudioEngine (Web Audio tones only)
         ├── ui/screens.js        UI: screens, overlays, HUD, results, settings
         ├── ui/decor.js          logo, ambient particles, avatar, badge
@@ -38,6 +39,10 @@ src/content/index.js       bank registry, placement check, buildMissionPlan()
 6. Create `InputController`; inject `worldAxis()` and `reset()` into the mission.
 7. Bind buttons, settings, PWA events and visibility handlers.
 8. Expose `window.__ENGLISH_CLUB__` for diagnostics and tests.
+
+## Exhibition demo
+
+`src/core/demo.js` exports a pure `demoPreset()`: A1, name `Guest`, default avatar, `highContrast: true`, French hints off, motion preserved. The menu button `demoBtn` in `src/main.js` resets the local profile, applies that preset, synchronises the settings inputs and accessibility classes, then calls `mission.start('A1')` directly. The placement and registration screens are skipped; scoring, route and report are untouched. The button label states that local progress is reset.
 
 ## The 3-minute clock
 
@@ -97,13 +102,13 @@ Canvas fixed at **480 × 270 logical pixels**, scaled with CSS `object-fit: cont
 
 ## Offline operation
 
-`sw.js` precaches 32 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v1.1.0`.
+`sw.js` precaches 33 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v1.3.0`.
 
 ## Testing design
 
-- `tests/unit.test.mjs` — 42 pure checks with injected clocks and storage.
+- `tests/unit.test.mjs` — 43 pure checks with injected clocks and storage.
 - `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`; disables HTTP cache and forces service-worker updates.
-- `tests/e2e.mjs` — 27 browser steps: real keyboard and pointer events, every exercise type, offline reload, seven viewports.
+- `tests/e2e.mjs` — 28 browser steps: real keyboard and pointer events, one-click exhibition demo, every exercise type, offline reload, seven viewports.
 
 The test model cannot read screenshots. Visual verification uses measurable proxies: canvas sampling, DOM geometry, overflow checks and tap-target sizes. Human review of `/tmp/opencode/ec-shots/e2e/` remains part of the pre-exhibition checklist.
 

@@ -14,6 +14,8 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 >
 > This is **Mission: English Club**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
 
+*[At a busy stand, press **★ EXHIBITION DEMO · 1 CLICK** instead: A1, readable display, fresh progress, no setup. Then jump to 1:15.]*
+
 *[Press **START MISSION**. Gesture at the splash animation.]*
 
 > "That logo, the campus, the characters — all generated locally by the browser."

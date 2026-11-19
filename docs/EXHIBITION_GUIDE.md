@@ -10,14 +10,16 @@ Use this at the American Corner stand. The whole game runs locally; the internet
    cd english-club-game
    node tools/serve.mjs --port 8080
    ```
-3. Open **http://127.0.0.1:8080/** in Chromium once. This lets the service worker cache all 32 files.
+3. Open **http://127.0.0.1:8080/** in Chromium once. This lets the service worker cache all 33 files.
 4. Optional: browser menu → **Install app / Add to Home Screen**, then launch once.
 5. Turn off Wi-Fi, reload. The offline banner appears and the game still starts. Allow a few seconds for the cached modules to load.
-6. Reset the demo profile before each presentation: menu → **Settings** → **Reset local progress** → confirm.
+6. For the fastest stand demo, press **★ EXHIBITION DEMO · 1 CLICK** on the menu: it resets progress, applies a readable A1 preset and starts immediately. For a guided visitor session, reset manually: menu → **Settings** → **Reset local progress** → confirm.
 
 There is no audio setup, microphone permission or voice check to perform — the game has no listening or speaking mode.
 
 ## Suggested five-minute demonstration
+
+For a quick stand demonstration, use the **Exhibition demo** button: one click, A1, readable display, fresh progress. The table below shows the full visitor journey; skip the placement check and registration when using the one-click button.
 
 | Time | Action | What to say |
 |---|---|---|

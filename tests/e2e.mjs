@@ -844,6 +844,40 @@ try {
     return { ...controlled, ...offline };
   });
 
+  /* ====================================================== 13. EXHIBITION DEMO */
+  await step('exhibition demo starts a clean A1 mission in one click', async () => {
+    const out = await ev(async () => {
+      const g = window.__ENGLISH_CLUB__;
+      g.store.patch({ xp: 999, missions: 7, best: { A1: 88, A2: 77, B1: 66 } });
+      document.getElementById('demoBtn').click();
+      await new Promise((r) => setTimeout(r, 400));
+      const profile = g.store.get();
+      const result = {
+        game: document.querySelector('#screen-game').classList.contains('is-active'),
+        state: g.mission.state,
+        level: g.mission.level,
+        name: profile.name,
+        xp: profile.xp,
+        missions: profile.missions,
+        bestA1: profile.best.A1,
+        highContrast: document.documentElement.classList.contains('high-contrast'),
+        routeChips: document.querySelectorAll('#routeBar .route-chip').length,
+        answers: Object.values(g.mission.plan.stations).reduce((n, list) => n + list.length, 0),
+        timerRunning: g.mission.timer.running,
+      };
+      g.mission.abandon();
+      await new Promise((r) => setTimeout(r, 120));
+      return result;
+    });
+    if (!out.game || out.state !== 'playing') throw new Error(`demo did not start: ${JSON.stringify(out)}`);
+    if (out.level !== 'A1' || out.name !== 'Guest') throw new Error(`preset not applied: ${JSON.stringify(out)}`);
+    if (out.xp !== 0 || out.missions !== 0 || out.bestA1 !== 0) throw new Error(`progress not reset: ${JSON.stringify(out)}`);
+    if (!out.highContrast) throw new Error('readable preset not applied');
+    if (out.routeChips !== 4 || out.answers < 9 || !out.timerRunning) throw new Error(`mission plan invalid: ${JSON.stringify(out)}`);
+    return out;
+  });
+  await shot('13-exhibition-demo.png');
+
   /* ============================================================== 13. SUMMARY */
   log('\n--- CONSOLE ---');
   log('errors:', JSON.stringify(client.consoleErrors, null, 1));
