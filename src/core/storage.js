@@ -215,7 +215,8 @@ export function weekKey(iso = todayIso()) {
 /** Pure selector for the comeback queue: most repeated first, newest tie-break. */
 export function selectComeback(mistakes, limit = 3) {
   if (!Array.isArray(mistakes)) return [];
-  const n = Math.max(0, Math.min(10, Math.round(Number(limit) || 3)));
+  const value = Number(limit);
+  const n = Number.isFinite(value) ? Math.max(0, Math.min(10, Math.round(value))) : 3;
   return mistakes
     .filter((entry) => entry && typeof entry.id === 'string' && entry.id.length > 0 && entry.id.length <= 64)
     .slice()
