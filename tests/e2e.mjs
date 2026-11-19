@@ -240,7 +240,7 @@ try {
       throw new Error(`welcome message missing: ${JSON.stringify(out.welcome)}`);
     }
     if (!/Stage 1 of 10/.test(out.welcome.kicker) || !/5 questions/.test(out.welcome.lead)
-      || !/Start stage 1/.test(out.welcome.button)) {
+      || !/CONTINUE → STAGE 1/.test(out.welcome.button)) {
       throw new Error(`welcome content invalid: ${JSON.stringify(out.welcome)}`);
     }
     if (!out.welcomeClosed) throw new Error('welcome overlay stayed open');
@@ -496,7 +496,7 @@ try {
       };
     });
     if (!out.welcome.open || !/Welcome to stage 1/.test(out.welcome.title)
-      || !/Play stage 1 again/.test(out.welcome.button)) {
+      || !/CONTINUE → STAGE 1/.test(out.welcome.button)) {
       throw new Error(`replay welcome invalid: ${JSON.stringify(out.welcome)}`);
     }
     if (!out.reopened.active || out.reopened.level !== 'A2' || out.reopened.stage !== 1 || out.reopened.answers !== 0) {
