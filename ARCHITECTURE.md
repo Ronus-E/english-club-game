@@ -119,16 +119,16 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.5`.
+`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.6`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
 ## Testing design
 
-- `tests/unit.test.mjs` — 65 pure checks with injected storage and seeds.
+- `tests/unit.test.mjs` — 66 pure checks with injected storage and seeds.
 - `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`.
 - `tools/smoke.mjs` — quick real-browser boot check up to the first question.
-- `tests/e2e.mjs` — 25 browser steps: real clicks, stage welcome and Next level, every exercise type, silent quiz with no leaked corrections, compact report, practice, placement, settings, achievements, seven viewports, offline reload, English-only interface with translation blocked, and assertions that campus elements are absent.
+- `tests/e2e.mjs` — 26 browser steps: real clicks, stage welcome and Next level, every exercise type, silent quiz with no leaked corrections, compact report, practice, placement, settings, achievements, seven viewports, offline reload, English-only interface with translation blocked, and assertions that campus elements are absent.
 
 The test model cannot judge aesthetics. Visual verification uses measurable proxies: DOM geometry, overflow, tap-target sizes and computed styles. Human review of `/tmp/opencode/ec-shots/e2e/` remains part of the pre-exhibition checklist.
 

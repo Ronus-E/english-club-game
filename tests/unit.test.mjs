@@ -13,7 +13,7 @@ import { evaluateAchievements, achievementProgress, ACHIEVEMENTS } from '../src/
 import {
   ProfileStore, defaultProfile, levelFromXp, STORAGE_KEY, LEVEL_XP,
   sanitizeSettings, sanitizeMistakes, sanitizeHistory, sanitizeStages,
-  weekKey, EXPORT_APP, STAGE_COUNT, STAGE_PASS_PERCENT,
+  weekKey, EXPORT_APP, STAGE_COUNT, STAGE_PASS_PERCENT, selectComeback,
 } from '../src/core/storage.js';
 import { createRng, shuffle, sample, normalizeText, todayIso } from '../src/core/util.js';
 import {
@@ -852,4 +852,17 @@ test('the quiz is silent, locked until the end and produces a full review', () =
   assert.equal(typeof ended.review[0].prompt, 'string');
   assert.ok(ended.review[0].expected.length > 0);
   assert.equal(store.getMistakes().length, stageQuestionCount(3));
+});
+
+test('selectComeback keeps the three most relevant saved mistakes', () => {
+  const mistakes = [
+    { id: 'a', count: 2, last: '2026-11-01', skill: 'grammar', level: 'A1' },
+    { id: 'b', count: 5, last: '2026-11-03', skill: 'reading', level: 'A2' },
+    { id: 'c', count: 1, last: '2026-11-05', skill: 'writing', level: 'B1' },
+    { id: 'd', count: 5, last: '2026-11-02', skill: 'vocabulary', level: 'A1' },
+    { id: '', count: 9, last: '2026-11-06' },
+  ];
+  assert.deepEqual(selectComeback(mistakes, 3).map((entry) => entry.id), ['b', 'd', 'a']);
+  assert.deepEqual(selectComeback(mistakes, 0), []);
+  assert.deepEqual(selectComeback(null), []);
 });

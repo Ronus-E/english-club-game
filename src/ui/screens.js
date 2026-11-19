@@ -22,8 +22,9 @@ export class UI {
     this.audio = audio;
     this.el = {};
     const ids = [
-      'app', 'offlineBanner', 'bootBtn', 'bootStatus',
+      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'resumeBtn', 'guestBtn',
       'playBtn', 'practiceBtn', 'dailyBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
+      'comebackCard', 'comebackCount', 'comebackBtn',
       'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
       'profileName', 'profileStats', 'profileAvatar', 'storageBadge',
       'levelGrid', 'levelContinueBtn', 'placementBtn', 'playerNameInput',
@@ -32,7 +33,7 @@ export class UI {
       'resultScore', 'resultMax', 'resultGrade', 'resultXp', 'newBest',
       'resultCorrect', 'resultWrong', 'resultsBadgeCanvas', 'skillReport',
       'answerReview', 'recommendations', 'sessionAchievements', 'resultsTitle', 'resultsSubtitle',
-      'replayBtn', 'nextStageBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn',
+      'replayBtn', 'nextStageBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn', 'shareCardBtn',
       'stageWelcomeKicker', 'stageWelcomeTitle', 'stageWelcomeLead', 'stageWelcomeNum',
       'stageStartBtn', 'stageBackBtn',
       'practiceLevel', 'practiceSummary', 'practiceTag', 'practiceTagBtn', 'skillGrid',
@@ -109,6 +110,8 @@ export class UI {
 
   /* -------------------------------------------------------------- profile */
   updateProfile() {
+    this.renderComeback();
+    this.renderSplashShortcuts();
     const p = this.store.get();
     const info = levelFromXp(p.xp);
     const best = Math.max(0, ...Object.values(p.best));
@@ -133,6 +136,27 @@ export class UI {
       this.el.levelProgressBar.style.width = `${Math.round(info.ratio * 100)}%`;
     }
     if (this.el.bestScore) this.el.bestScore.textContent = best ? `${best}%` : '—';
+  }
+
+  renderComeback() {
+    if (!this.el.comebackCard) return;
+    const items = this.store.getComeback(3);
+    this.el.comebackCard.hidden = items.length === 0;
+    if (this.el.comebackCount) this.el.comebackCount.textContent = String(items.length);
+  }
+
+  renderSplashShortcuts() {
+    const p = this.store.get();
+    const state = this.store.stageState(p.level);
+    const hasProgress = p.missions > 0 || state.cleared > 0 || Object.keys(p.mistakes || {}).length > 0;
+    if (this.el.resumeBtn) {
+      this.el.resumeBtn.hidden = !hasProgress;
+      this.el.resumeBtn.textContent = `▶ CONTINUE STAGE ${state.current} · ${p.level}`;
+    }
+    if (this.el.guestBtn) {
+      this.el.guestBtn.hidden = hasProgress;
+      this.el.guestBtn.textContent = `CONTINUE AS GUEST → STAGE ${state.current}`;
+    }
   }
 
   /* ---------------------------------------------------------- level cards */

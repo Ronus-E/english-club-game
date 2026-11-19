@@ -180,3 +180,61 @@ export function drawResultsBadge(canvas, { grade = 'C', percent = 0 }) {
   ctx.font = `${Math.round(w / 12)}px monospace`;
   ctx.fillText(`${percent}%`, cx, h - u * 4);
 }
+
+/** Local, offline result card. No external image or font is used. */
+export function drawShareCard(canvas, { result = {}, name = 'Explorer' } = {}) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#0a1024';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#2e3d75';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(16, 16, w - 32, h - 32);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#f2e8d0';
+  ctx.font = 'bold 64px Georgia, "DejaVu Serif", serif';
+  ctx.fillText('ENGLISH CLUB QUIZ', w / 2, 140);
+  ctx.fillStyle = '#a9b4d8';
+  ctx.font = '30px "DejaVu Sans", system-ui, sans-serif';
+  ctx.fillText(String(name || 'Explorer').slice(0, 16), w / 2, 200);
+  ctx.fillStyle = '#d23b32';
+  ctx.font = 'bold 200px Georgia, serif';
+  ctx.fillText(String(result.grade || 'C'), w / 2, 430);
+  ctx.fillStyle = '#eef2ff';
+  ctx.font = 'bold 80px "DejaVu Sans", sans-serif';
+  ctx.fillText(`${result.score ?? 0} / ${result.maxScore ?? 0}`, w / 2, 560);
+  ctx.fillStyle = '#5ce1a6';
+  ctx.font = 'bold 52px "DejaVu Sans", sans-serif';
+  ctx.fillText(`${result.percent ?? 0}% · Level ${result.level || 'A1'} · Stage ${result.stage || 1}`, w / 2, 640);
+
+  let y = 720;
+  for (const [key, stat] of Object.entries(result.skills || {}).slice(0, 5)) {
+    const pct = Math.max(0, Math.min(100, Number(stat.percent) || 0));
+    ctx.fillStyle = '#a9b4d8';
+    ctx.font = '28px "DejaVu Sans", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(String(stat.name || key).toUpperCase(), 120, y);
+    ctx.fillStyle = '#121a38';
+    ctx.fillRect(120, y + 16, w - 240, 24);
+    ctx.fillStyle = '#6f93e8';
+    ctx.fillRect(120, y + 16, Math.round((w - 240) * pct / 100), 24);
+    ctx.fillStyle = '#eef2ff';
+    ctx.font = 'bold 26px "DejaVu Sans", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${pct}%`, w - 120, y);
+    y += 80;
+  }
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f2e8d0';
+  ctx.font = 'bold 34px Georgia, serif';
+  ctx.fillText('No ads · No trackers · Works offline', w / 2, h - 190);
+  ctx.fillStyle = '#a9b4d8';
+  ctx.font = '26px "DejaVu Sans", sans-serif';
+  ctx.fillText('Developed by RONUS Eldo', w / 2, h - 130);
+  ctx.fillText('Game Develloper : Ronus Eldo', w / 2, h - 82);
+}

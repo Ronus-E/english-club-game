@@ -212,6 +212,25 @@ export function weekKey(iso = todayIso()) {
   return date.toISOString().slice(0, 10);
 }
 
+/** Pure selector for the comeback queue: most repeated first, newest tie-break. */
+export function selectComeback(mistakes, limit = 3) {
+  if (!Array.isArray(mistakes)) return [];
+  const n = Math.max(0, Math.min(10, Math.round(Number(limit) || 3)));
+  return mistakes
+    .filter((entry) => entry && typeof entry.id === 'string' && entry.id.length > 0 && entry.id.length <= 64)
+    .slice()
+    .sort((a, b) => (Number(b.count) || 1) - (Number(a.count) || 1)
+      || String(b.last || '').localeCompare(String(a.last || '')))
+    .slice(0, n)
+    .map((entry) => ({
+      id: entry.id,
+      count: Number(entry.count) || 1,
+      skill: typeof entry.skill === 'string' ? entry.skill : '',
+      level: typeof entry.level === 'string' ? entry.level : '',
+      last: typeof entry.last === 'string' ? entry.last : '',
+    }));
+}
+
 /**
  * Versioned localStorage profile. Accepts an injected storage object so the
  * unit tests can run without a browser.
@@ -352,6 +371,11 @@ export class ProfileStore {
     return Object.entries(this.profile.mistakes)
       .map(([id, data]) => ({ id, ...data }))
       .sort((a, b) => b.count - a.count || String(b.last).localeCompare(String(a.last)));
+  }
+
+  /** A short, bounded queue of the most relevant saved mistakes. */
+  getComeback(limit = 3) {
+    return selectComeback(this.getMistakes(), limit);
   }
 
   clearMistake(id) {

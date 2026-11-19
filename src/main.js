@@ -5,7 +5,7 @@
 import { ProfileStore } from './core/storage.js';
 import { AudioEngine } from './core/audio.js';
 import { UI } from './ui/screens.js';
-import { AmbientField, drawLogo } from './ui/decor.js';
+import { AmbientField, drawLogo, drawShareCard } from './ui/decor.js';
 import { ActivityRunner } from './ui/activities.js';
 import { Quiz } from './game/quiz.js';
 import {
@@ -224,15 +224,31 @@ function boot() {
   };
 
   /* -------------------------------------------------------------- screens */
-  ui.el.bootBtn?.addEventListener('click', () => {
+  const quickBoot = () => {
     audio.ensure();
     audio.play('fanfare');
     try { localStorage.setItem('ec.visited', '1'); } catch { /* private mode */ }
-    ui.showScreen('menu');
-    ui.updateProfile();
     if (logoRaf) { cancelAnimationFrame(logoRaf); logoRaf = null; }
     audio.startMusic();
+  };
+
+  const startFromSplash = (asGuest = false) => {
+    quickBoot();
+    if (asGuest) store.setName('Explorer');
+    const level = store.get().level;
+    const stage = store.stageState(level).current;
+    ui.showScreen('menu');
+    ui.updateProfile();
+    startQuiz(level, null, stage, asGuest ? 'Guest run' : null);
+  };
+
+  ui.el.bootBtn?.addEventListener('click', () => {
+    quickBoot();
+    ui.showScreen('menu');
+    ui.updateProfile();
   });
+  ui.el.resumeBtn?.addEventListener('click', () => startFromSplash(false));
+  ui.el.guestBtn?.addEventListener('click', () => startFromSplash(true));
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
   ui.el.levelContinueBtn?.addEventListener('click', () => {
@@ -390,6 +406,52 @@ function boot() {
         ui.showScreen('results');
       },
     });
+  });
+  ui.el.comebackBtn?.addEventListener('click', () => {
+    audio.play('click');
+    const queue = store.getComeback(3);
+    const items = queue.map((entry) => getExerciseById(entry.id)).filter(Boolean);
+    if (!items.length) {
+      ui.toast('Your comeback queue is empty.', { warn: true });
+      return;
+    }
+    const fixed = [];
+    runItems({
+      title: 'Comeback queue',
+      kicker: `${items.length} saved item${items.length === 1 ? '' : 's'}`,
+      icon: '📌',
+      skill: null,
+      items,
+      finishLabel: 'Finish comeback',
+      onAnswer: ({ item, correct }) => { if (correct === true) fixed.push(item.id); },
+      onQuit: () => { activities.close(); ui.showScreen('menu'); ui.updateProfile(); },
+      onFinish: (summary) => {
+        const cleared = fixed.reduce((count, id) => count + (store.clearMistake(id) ? 1 : 0), 0);
+        const remaining = store.getMistakes().length;
+        ui.updateProfile();
+        ui.toast(`Comeback complete: ${summary.correct}/${summary.total} correct. ${cleared} fixed, ${remaining} still saved.`, { ms: 4200 });
+        ui.showScreen('menu');
+      },
+    });
+  });
+  ui.el.shareCardBtn?.addEventListener('click', () => {
+    if (!lastResult) return;
+    audio.play('click');
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1350;
+    drawShareCard(canvas, { result: lastResult, name: store.get().name });
+    try {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `english-club-${lastResult.level}-stage-${lastResult.stage || 1}.png`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      ui.toast('Result card saved as a PNG on this device.', { ms: 3600 });
+    } catch {
+      ui.toast('This browser cannot save the result card.', { warn: true, ms: 3600 });
+    }
   });
   ui.el.resultsMenuBtn?.addEventListener('click', () => {
     audio.play('close');

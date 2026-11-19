@@ -48,8 +48,11 @@
         <p class="game-subtitle">The A1 · A2 · B1 quiz</p>
         <div class="splash-actions">
           <button id="bootBtn" class="btn btn-primary btn-lg" type="button">START</button>
+          <button id="resumeBtn" class="btn btn-secondary" type="button" hidden>▶ CONTINUE STAGE 1</button>
+          <button id="guestBtn" class="btn btn-ghost" type="button" hidden>CONTINUE AS GUEST → STAGE 1</button>
           <p id="bootStatus" class="boot-status" role="status">Loading&hellip;</p>
         </div>
+        <p class="splash-credit">No ads · No account · Works offline</p>
         <p class="splash-credit">10 progressive stages · 5–9 questions · Five skills</p>
         <p class="splash-credit">Game developed by Ronus ELDO</p>
       </div>
@@ -84,6 +87,13 @@
               <button id="dailyBtn" class="btn" type="button">Daily challenge</button>
               <button id="howBtn" class="btn btn-ghost" type="button">How it works</button>
             </div>
+          </div>
+
+          <div id="comebackCard" class="panel comeback-card" hidden>
+            <p class="kicker">Comeback queue</p>
+            <h3><span id="comebackCount">3</span> saved item(s) are waiting</h3>
+            <p class="muted">Three mistakes from your recent runs. Clear them to shrink the queue.</p>
+            <button id="comebackBtn" class="btn btn-secondary" type="button">▶ START COMEBACK</button>
           </div>
 
           <nav class="menu-grid" aria-label="Main menu options">
@@ -228,6 +238,7 @@
             <div class="results-more">
               <button id="reviewMistakesBtn" class="btn btn-secondary" type="button">Review mistakes</button>
               <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
+              <button id="shareCardBtn" class="btn btn-secondary" type="button">Save result card</button>
             </div>
           </div>
 

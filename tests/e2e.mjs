@@ -137,9 +137,12 @@ try {
       menu: document.getElementById('screen-menu').classList.contains('is-active'),
       title: document.getElementById('mainMenu').textContent.trim(),
       buttons: document.querySelectorAll('#screen-menu button').length,
+      resumeHidden: document.getElementById('resumeBtn').hidden,
+      guestHidden: document.getElementById('guestBtn').hidden,
     }));
     if (!menu.menu) throw new Error('menu not shown');
     if (!/QUIZ/i.test(menu.title)) throw new Error(`wrong title: ${menu.title}`);
+    if (menu.resumeHidden === menu.guestHidden) throw new Error(`splash shortcut missing: ${JSON.stringify(menu)}`);
     await ev(() => document.getElementById('playBtn').click());
     await sleep(200);
     const level = await ev(() => ({
@@ -327,6 +330,8 @@ try {
         best: g.store.get().best.A2,
         stageUnlocked: stage.unlocked,
         stageBest: stage.best[1],
+        comebackCount: document.getElementById('comebackCount').textContent,
+        comebackVisible: !document.getElementById('comebackCard').hidden,
         achievements: Object.keys(g.store.get().achievements),
       };
     });
@@ -345,9 +350,24 @@ try {
     if (out.missions !== 1 || out.best !== 80) throw new Error(`profile not updated: ${JSON.stringify(out)}`);
     if (out.stageUnlocked !== 2 || out.stageBest !== 80) throw new Error(`stage progress not saved: ${JSON.stringify(out)}`);
     if (!out.achievements.includes('first_mission')) throw new Error('first quiz badge missing');
+    if (!out.comebackVisible || out.comebackCount !== '1') throw new Error(`comeback queue missing: ${JSON.stringify(out)}`);
     return out;
   });
   await shot('05-results.png');
+
+  await step('the result card can be saved locally as a PNG', async () => {
+    const out = await ev(async () => {
+      document.getElementById('shareCardBtn').click();
+      await new Promise((r) => setTimeout(r, 150));
+      return {
+        toast: document.getElementById('toast').textContent,
+        results: document.getElementById('screen-results').classList.contains('is-active'),
+      };
+    });
+    if (!/Result card saved/.test(out.toast)) throw new Error(`share card failed: ${JSON.stringify(out)}`);
+    if (!out.results) throw new Error('share card left the results screen');
+    return out;
+  });
 
   /* ==================================================== 5. NEXT LEVEL */
   await step('a cleared stage offers a Next level button that announces stage 2', async () => {
