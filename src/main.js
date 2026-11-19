@@ -84,6 +84,7 @@ function boot() {
     const total = quiz.total || session.answers.length || 1;
     ui.setQuizStatus(Math.min(session.answers.length + 1, total), total);
     ui.renderQuizPips(session.skills);
+    audio.setMusicProgress(Math.min(1, session.answers.length / total));
   };
   quiz.onQuit = () => {
     ui.showScreen('menu');
@@ -122,6 +123,7 @@ function boot() {
     ui.showScreen('quiz');
     lastResult = null;
     pendingStage = null;
+    audio.setMusicStage(chosenStage);
     quiz.start(level, seed ?? Date.now(), chosenStage);
   };
 

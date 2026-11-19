@@ -23,7 +23,7 @@ The display uses an English editorial style: serif titles, red / blue / parchmen
 
 | Time | Action | What to say |
 |---|---|---|
-| 0:00–0:25 | Splash → menu | "Ten progressive stages, five–nine questions each. Calm music, no clock. Everything is drawn and played in code." |
+| 0:00–0:25 | Splash → menu | "Ten progressive stages, five–nine questions each. Upbeat music, no clock. Everything is drawn and played in code." |
 | 0:25–0:50 | **Find my level** (or skip) | "Six questions suggest A1, A2 or B1. A learner can change it any time." |
 | 0:50–1:15 | Choose A1 → enter a name → start | "A welcome panel names the stage. One name, stored on this device only. Nothing is uploaded." |
 | 1:15–1:45 | First question: match or choice | "Answers stay neutral during the stage. Corrections and reasons arrive together in the final dashboard." |

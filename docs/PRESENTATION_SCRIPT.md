@@ -10,7 +10,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Stand by the screen. Splash screen visible. Wait two seconds, then begin.]*
 
-> "Ten progressive stages, five–nine questions each. No clock, no pressure, just calm music. And one question: can you show what you know in English?
+> "Ten progressive stages, five–nine questions each. No clock, no pressure, just music that keeps you going. And one question: can you show what you know in English?
 >
 > This is **English Club Quiz**. I built it for you — and everything you see and hear is generated in code. No photos, no downloads, no internet."
 

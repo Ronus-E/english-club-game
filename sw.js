@@ -4,7 +4,7 @@
    Bump CACHE_VERSION whenever a precached file changes.
    ============================================================ */
 
-const CACHE_VERSION = 'ec-v2.0.3';
+const CACHE_VERSION = 'ec-v2.0.4';
 const PRECACHE = [
   './',
   './index.html',

@@ -76,7 +76,7 @@ The level cards are A1, A2 and B1. Questions change with the level; the quiz for
 - **order** — word chips, duplicate-aware; the learner rebuilds the sentence, then confirms.
 - **short** — normalised text compared with a list of accepted variants.
 
-In the scored quiz, answers stay neutral: no tick, no cross and no explanation until the stage ends. Practice mode keeps immediate feedback and a short explanation, then an explicit Continue button. No French gloss, dialogue or NPC is involved. `AudioEngine` synthesises the interface sounds, the calm background loop, a reward melody per cleared stage and a fanfare per completed CEFR level; no audio file is fetched.
+In the scored quiz, answers stay neutral: no tick, no cross and no explanation until the stage ends. Practice mode keeps immediate feedback and a short explanation, then an explicit Continue button. No French gloss, dialogue or NPC is involved. `AudioEngine` synthesises the interface sounds, an upbeat four-bar loop (lead, bass, pad and soft percussion), a reward melody per cleared stage and a fanfare per completed CEFR level; no audio file is fetched. `setMusicStage(stage)` and `setMusicProgress(fraction)` add layers as a run advances — progress only, never correctness.
 
 `activities.open()` filters invalid items and calls `onFinish` with an empty summary instead of throwing.
 
@@ -119,7 +119,7 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.3`.
+`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.4`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
