@@ -22,7 +22,7 @@ export class UI {
     this.audio = audio;
     this.el = {};
     const ids = [
-      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'resumeBtn', 'guestBtn',
+      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'resumeBtn', 'startGuestHint',
       'playBtn', 'practiceBtn', 'dailyBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
       'comebackCard', 'comebackCount', 'comebackBtn',
       'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
@@ -153,9 +153,9 @@ export class UI {
       this.el.resumeBtn.hidden = !hasProgress;
       this.el.resumeBtn.textContent = `▶ CONTINUE STAGE ${state.current} · ${p.level}`;
     }
-    if (this.el.guestBtn) {
-      this.el.guestBtn.hidden = hasProgress;
-      this.el.guestBtn.textContent = `CONTINUE AS GUEST → STAGE ${state.current}`;
+    if (this.el.startGuestHint) {
+      this.el.startGuestHint.hidden = hasProgress;
+      this.el.startGuestHint.textContent = `CONTINUE AS GUEST → STAGE ${state.current}`;
     }
   }
 

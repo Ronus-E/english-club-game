@@ -243,12 +243,18 @@ function boot() {
   };
 
   ui.el.bootBtn?.addEventListener('click', () => {
-    quickBoot();
-    ui.showScreen('menu');
-    ui.updateProfile();
+    const p = store.get();
+    const hasProgress = p.missions > 0 || p.stages[p.level]?.cleared > 0
+      || Object.keys(p.mistakes || {}).length > 0 || store.stageState(p.level).cleared > 0;
+    if (hasProgress) {
+      quickBoot();
+      ui.showScreen('menu');
+      ui.updateProfile();
+      return;
+    }
+    startFromSplash(true);
   });
   ui.el.resumeBtn?.addEventListener('click', () => startFromSplash(false));
-  ui.el.guestBtn?.addEventListener('click', () => startFromSplash(true));
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
   ui.el.levelContinueBtn?.addEventListener('click', () => {

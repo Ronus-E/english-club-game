@@ -61,6 +61,12 @@
 #screen-splash .kicker { margin-top: 14px; }
 .splash-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 22px; }
 .splash-actions .btn { min-width: 260px; }
+.start-main { display: block; }
+.start-guest-hint {
+  display: block; margin-top: 6px; font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; line-height: 1.2; opacity: .88;
+}
+.start-guest-hint[hidden] { display: none; }
 .comeback-card { margin-top: 16px; padding: 18px 20px; border-left: 4px solid var(--english-red); }
 .comeback-card h3 { margin: 6px 0; }
 .comeback-card .btn { margin-top: 10px; }

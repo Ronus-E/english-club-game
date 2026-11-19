@@ -133,16 +133,22 @@ try {
   await step('splash → menu → level selection with real clicks', async () => {
     await ev(() => document.getElementById('bootBtn').click());
     await sleep(200);
+    await ev(() => {
+      if (!document.getElementById('overlay-stage').hidden) document.getElementById('stageBackBtn').click();
+    });
+    await sleep(120);
     const menu = await ev(() => ({
       menu: document.getElementById('screen-menu').classList.contains('is-active'),
       title: document.getElementById('mainMenu').textContent.trim(),
       buttons: document.querySelectorAll('#screen-menu button').length,
       resumeHidden: document.getElementById('resumeBtn').hidden,
-      guestHidden: document.getElementById('guestBtn').hidden,
+      guestHidden: document.getElementById('startGuestHint').hidden,
+      guestText: document.getElementById('startGuestHint').textContent.trim(),
     }));
     if (!menu.menu) throw new Error('menu not shown');
     if (!/QUIZ/i.test(menu.title)) throw new Error(`wrong title: ${menu.title}`);
     if (menu.resumeHidden === menu.guestHidden) throw new Error(`splash shortcut missing: ${JSON.stringify(menu)}`);
+    if (!/CONTINUE AS GUEST/i.test(menu.guestText)) throw new Error(`guest action missing inside START: ${JSON.stringify(menu)}`);
     await ev(() => document.getElementById('playBtn').click());
     await sleep(200);
     const level = await ev(() => ({
