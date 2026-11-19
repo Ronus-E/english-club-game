@@ -133,22 +133,25 @@ try {
   await step('splash → menu → level selection with real clicks', async () => {
     await ev(() => document.getElementById('bootBtn').click());
     await sleep(200);
-    await ev(() => {
-      if (!document.getElementById('overlay-stage').hidden) document.getElementById('stageBackBtn').click();
-    });
+    const fresh = await ev(() => ({
+      open: !document.getElementById('overlay-stage').hidden,
+      continueText: document.getElementById('stageContinueBtn').textContent.trim(),
+      restartHidden: document.getElementById('stageRestartBtn').hidden,
+      splashText: document.getElementById('bootBtn').textContent.trim(),
+    }));
+    if (!fresh.open || !/CONTINUE → STAGE 1/.test(fresh.continueText) || !fresh.restartHidden) {
+      throw new Error(`START did not open stage 1: ${JSON.stringify(fresh)}`);
+    }
+    if (fresh.splashText !== 'START') throw new Error(`splash should show START only: ${JSON.stringify(fresh)}`);
+    await ev(() => document.getElementById('stageBackBtn').click());
     await sleep(120);
     const menu = await ev(() => ({
       menu: document.getElementById('screen-menu').classList.contains('is-active'),
       title: document.getElementById('mainMenu').textContent.trim(),
       buttons: document.querySelectorAll('#screen-menu button').length,
-      resumeHidden: document.getElementById('resumeBtn').hidden,
-      guestHidden: document.getElementById('startGuestHint').hidden,
-      guestText: document.getElementById('startGuestHint').textContent.trim(),
     }));
     if (!menu.menu) throw new Error('menu not shown');
     if (!/QUIZ/i.test(menu.title)) throw new Error(`wrong title: ${menu.title}`);
-    if (menu.resumeHidden === menu.guestHidden) throw new Error(`splash shortcut missing: ${JSON.stringify(menu)}`);
-    if (!/CONTINUE AS GUEST/i.test(menu.guestText)) throw new Error(`guest action missing inside START: ${JSON.stringify(menu)}`);
     await ev(() => document.getElementById('playBtn').click());
     await sleep(200);
     const level = await ev(() => ({
@@ -209,9 +212,9 @@ try {
         title: document.getElementById('stageWelcomeTitle').textContent,
         kicker: document.getElementById('stageWelcomeKicker').textContent,
         lead: document.getElementById('stageWelcomeLead').textContent,
-        button: document.getElementById('stageStartBtn').textContent,
+        button: document.getElementById('stageContinueBtn').textContent,
       };
-      document.getElementById('stageStartBtn').click();
+      document.getElementById('stageContinueBtn').click();
       await new Promise((r) => setTimeout(r, 300));
       const g = window.__ENGLISH_CLUB__;
       const items = g.quiz.session ? g.activities.config.items : [];
@@ -361,6 +364,41 @@ try {
   });
   await shot('05-results.png');
 
+  await step('START reopens the current stage with CONTINUE and a RESTART choice', async () => {
+    const out = await ev(async () => {
+      document.getElementById('resultsMenuBtn').click();
+      await new Promise((r) => setTimeout(r, 120));
+      document.getElementById('bootBtn').click();
+      await new Promise((r) => setTimeout(r, 200));
+      const welcome = {
+        open: !document.getElementById('overlay-stage').hidden,
+        kicker: document.getElementById('stageWelcomeKicker').textContent.trim(),
+        continueText: document.getElementById('stageContinueBtn').textContent.trim(),
+        restartHidden: document.getElementById('stageRestartBtn').hidden,
+        restartText: document.getElementById('stageRestartBtn').textContent.trim(),
+      };
+      document.getElementById('stageRestartBtn').click();
+      await new Promise((r) => setTimeout(r, 200));
+      const fresh = {
+        kicker: document.getElementById('stageWelcomeKicker').textContent.trim(),
+        continueText: document.getElementById('stageContinueBtn').textContent.trim(),
+        restartHidden: document.getElementById('stageRestartBtn').hidden,
+      };
+      document.getElementById('stageBackBtn').click();
+      return { welcome, fresh };
+    });
+    if (!out.welcome.open || !/Continue run/.test(out.welcome.kicker)) {
+      throw new Error(`CONTINUE not proposed on the open stage: ${JSON.stringify(out)}`);
+    }
+    if (out.welcome.restartHidden || !/RESTART FROM STAGE 1/.test(out.welcome.restartText)) {
+      throw new Error(`RESTART choice missing: ${JSON.stringify(out)}`);
+    }
+    if (!/Fresh run/.test(out.fresh.kicker) || !out.fresh.restartHidden) {
+      throw new Error(`RESTART did not return to stage 1: ${JSON.stringify(out)}`);
+    }
+    return out;
+  });
+
   await step('the result card can be saved locally as a PNG', async () => {
     const out = await ev(async () => {
       document.getElementById('shareCardBtn').click();
@@ -423,9 +461,9 @@ try {
       const welcome = {
         open: !document.getElementById('overlay-stage').hidden,
         title: document.getElementById('stageWelcomeTitle').textContent,
-        button: document.getElementById('stageStartBtn').textContent,
+        button: document.getElementById('stageContinueBtn').textContent,
       };
-      document.getElementById('stageStartBtn').click();
+      document.getElementById('stageContinueBtn').click();
       await new Promise((r) => setTimeout(r, 250));
       const g = window.__ENGLISH_CLUB__;
       const quit = document.getElementById('activityQuit');
@@ -502,7 +540,7 @@ try {
         title: document.getElementById('stageWelcomeTitle').textContent,
         lead: document.getElementById('stageWelcomeLead').textContent,
       };
-      document.getElementById('stageStartBtn').click();
+      document.getElementById('stageContinueBtn').click();
       await new Promise((r) => setTimeout(r, 300));
       const g = window.__ENGLISH_CLUB__;
       const played = {
@@ -645,7 +683,7 @@ try {
       title: document.getElementById('stageWelcomeTitle').textContent,
       kicker: document.getElementById('stageWelcomeKicker').textContent,
     }));
-    await ev(() => document.getElementById('stageStartBtn').click());
+    await ev(() => document.getElementById('stageContinueBtn').click());
     await sleep(250);
     const daily = await ev(() => {
       const g = window.__ENGLISH_CLUB__;

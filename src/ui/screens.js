@@ -22,7 +22,7 @@ export class UI {
     this.audio = audio;
     this.el = {};
     const ids = [
-      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'resumeBtn', 'startGuestHint',
+      'app', 'offlineBanner', 'bootBtn', 'bootStatus',
       'playBtn', 'practiceBtn', 'dailyBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
       'comebackCard', 'comebackCount', 'comebackBtn',
       'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
@@ -34,8 +34,8 @@ export class UI {
       'resultCorrect', 'resultWrong', 'resultsBadgeCanvas', 'skillReport',
       'answerReview', 'recommendations', 'sessionAchievements', 'resultsTitle', 'resultsSubtitle',
       'replayBtn', 'nextStageBtn', 'reviewMistakesBtn', 'practiceWeakBtn', 'resultsMenuBtn', 'shareCardBtn',
-      'stageWelcomeKicker', 'stageWelcomeTitle', 'stageWelcomeLead', 'stageWelcomeNum',
-      'stageStartBtn', 'stageBackBtn',
+      'stageWelcomeTitle', 'stageWelcomeLead', 'stageWelcomeNum',
+      'stageWelcomeKicker', 'stageContinueBtn', 'stageRestartBtn', 'stageBackBtn',
       'practiceLevel', 'practiceSummary', 'practiceTag', 'practiceTagBtn', 'skillGrid',
       'progressContent',
       'achievementLevel', 'achievementName', 'achievementXp',
@@ -111,7 +111,6 @@ export class UI {
   /* -------------------------------------------------------------- profile */
   updateProfile() {
     this.renderComeback();
-    this.renderSplashShortcuts();
     const p = this.store.get();
     const info = levelFromXp(p.xp);
     const best = Math.max(0, ...Object.values(p.best));
@@ -143,20 +142,6 @@ export class UI {
     const items = this.store.getComeback(3);
     this.el.comebackCard.hidden = items.length === 0;
     if (this.el.comebackCount) this.el.comebackCount.textContent = String(items.length);
-  }
-
-  renderSplashShortcuts() {
-    const p = this.store.get();
-    const state = this.store.stageState(p.level);
-    const hasProgress = p.missions > 0 || state.cleared > 0 || Object.keys(p.mistakes || {}).length > 0;
-    if (this.el.resumeBtn) {
-      this.el.resumeBtn.hidden = !hasProgress;
-      this.el.resumeBtn.textContent = `▶ CONTINUE STAGE ${state.current} · ${p.level}`;
-    }
-    if (this.el.startGuestHint) {
-      this.el.startGuestHint.hidden = hasProgress;
-      this.el.startGuestHint.textContent = `CONTINUE AS GUEST → STAGE ${state.current}`;
-    }
   }
 
   /* ---------------------------------------------------------- level cards */
@@ -276,8 +261,12 @@ export class UI {
         : `Score 60% or more to unlock stage ${nextStage === stage ? 'the next level' : nextStage}.`);
       this.el.stageWelcomeLead.textContent = parts.join(' ');
     }
-    if (this.el.stageStartBtn) {
-      this.el.stageStartBtn.textContent = best >= 60 ? `Play stage ${stage} again →` : `Start stage ${stage} →`;
+    if (this.el.stageContinueBtn) {
+      this.el.stageContinueBtn.textContent = best >= 60 ? `CONTINUE → STAGE ${stage} · ${level}` : `CONTINUE → STAGE ${stage}`;
+    }
+    if (this.el.stageRestartBtn) {
+      this.el.stageRestartBtn.hidden = stage === 1;
+      this.el.stageRestartBtn.textContent = `RESTART FROM STAGE 1 · ${level}`;
     }
   }
 

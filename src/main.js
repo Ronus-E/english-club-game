@@ -232,29 +232,16 @@ function boot() {
     audio.startMusic();
   };
 
-  const startFromSplash = (asGuest = false) => {
+  const openCurrentStage = (fresh = false) => {
     quickBoot();
-    if (asGuest) store.setName('Explorer');
     const level = store.get().level;
-    const stage = store.stageState(level).current;
+    const stage = fresh ? 1 : store.stageState(level).current;
     ui.showScreen('menu');
     ui.updateProfile();
-    startQuiz(level, null, stage, asGuest ? 'Guest run' : null);
+    startQuiz(level, null, stage, fresh ? 'Fresh run' : 'Continue run');
   };
 
-  ui.el.bootBtn?.addEventListener('click', () => {
-    const p = store.get();
-    const hasProgress = p.missions > 0 || p.stages[p.level]?.cleared > 0
-      || Object.keys(p.mistakes || {}).length > 0 || store.stageState(p.level).cleared > 0;
-    if (hasProgress) {
-      quickBoot();
-      ui.showScreen('menu');
-      ui.updateProfile();
-      return;
-    }
-    startFromSplash(true);
-  });
-  ui.el.resumeBtn?.addEventListener('click', () => startFromSplash(false));
+  ui.el.bootBtn?.addEventListener('click', () => openCurrentStage(false));
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
   ui.el.levelContinueBtn?.addEventListener('click', () => {
@@ -362,12 +349,13 @@ function boot() {
   });
 
   /* ------------------------------------------------------- stage welcome */
-  ui.el.stageStartBtn?.addEventListener('click', () => {
+  ui.el.stageContinueBtn?.addEventListener('click', () => {
     if (!pendingStage) { ui.closeOverlay('stage'); return; }
     audio.play('fanfare');
     const { level, seed, stage, label } = pendingStage;
     launchStage(level, seed, stage, label);
   });
+  ui.el.stageRestartBtn?.addEventListener('click', () => openCurrentStage(true));
   ui.el.stageBackBtn?.addEventListener('click', () => {
     audio.play('close');
     pendingStage = null;

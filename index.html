@@ -47,11 +47,7 @@
         </h1>
         <p class="game-subtitle">The A1 · A2 · B1 quiz</p>
         <div class="splash-actions">
-          <button id="bootBtn" class="btn btn-primary btn-lg" type="button">
-            <span class="start-main">START</span>
-            <small id="startGuestHint" class="start-guest-hint">CONTINUE AS GUEST → STAGE 1</small>
-          </button>
-          <button id="resumeBtn" class="btn btn-secondary" type="button" hidden>▶ CONTINUE STAGE 1</button>
+          <button id="bootBtn" class="btn btn-primary btn-lg" type="button">START</button>
           <p id="bootStatus" class="boot-status" role="status">Loading&hellip;</p>
         </div>
         <p class="splash-credit">No ads · No account · Works offline</p>
@@ -504,7 +500,8 @@
         </div>
         <p class="muted" id="stageWelcomeLead">Five questions across five skills. Score 60% or more to unlock the next stage.</p>
         <div class="overlay-actions row">
-          <button id="stageStartBtn" class="btn btn-primary btn-lg" type="button">Start stage 1 →</button>
+          <button id="stageContinueBtn" class="btn btn-primary btn-lg" type="button">CONTINUE → STAGE 1</button>
+          <button id="stageRestartBtn" class="btn btn-secondary" type="button" hidden>RESTART FROM STAGE 1</button>
           <button id="stageBackBtn" class="btn btn-ghost" type="button">Not yet</button>
         </div>
       </div>
