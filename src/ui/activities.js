@@ -107,9 +107,6 @@ export class ActivityRunner {
     }
     if (item.instruction) {
       this.els.body.append(h('p', { class: 'micro muted', text: item.instruction }));
-      if (this.getSettings().frenchHints && item.instructionFr) {
-        this.els.body.append(h('p', { class: 'micro muted', style: 'font-style:italic', text: item.instructionFr }));
-      }
     }
     if (item.passage) {
       this.els.body.append(h('div', { class: 'passage' },
@@ -344,7 +341,6 @@ export class ActivityRunner {
   }
 
   finishAnswer(item, correct, response, extra = {}) {
-    const settings = this.getSettings();
     const good = correct === true;
     this.audio.play(good ? 'correct' : correct === false ? 'wrong' : 'pickup');
     this.lastAnswer = { item, correct, response };
@@ -354,7 +350,6 @@ export class ActivityRunner {
       extra.prefix ? h('p', { text: extra.prefix }) : null,
       extra.expected ? h('p', { class: 'why', text: `Model answer: ${extra.expected}` }) : null,
       h('p', { class: 'why', text: item.explanation || '' }),
-      settings.frenchHints && item.fr ? h('span', { class: 'fr-hint', text: item.fr }) : null,
     ));
     this.els.body.scrollTop = this.els.body.scrollHeight;
     this.config.onAnswer?.(this.lastAnswer);

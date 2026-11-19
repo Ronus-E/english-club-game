@@ -1,18 +1,24 @@
 {
-  "name": "Mission: English Club — The 180-Second English Challenge",
+  "name": "English Club Quiz — A1 · A2 · B1",
   "short_name": "English Club",
-  "description": "A 180-second pixel-art English mission for American Corner clubs: vocabulary, grammar, reading, writing and American culture.",
+  "description": "A free offline CEFR quiz for A1, A2 and B1 learners: vocabulary, grammar, reading, writing and American culture.",
   "id": "/english-club-game/",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
-  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "fullscreen"
+  ],
   "orientation": "any",
   "background_color": "#060a18",
   "theme_color": "#0b1026",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["education", "games"],
+  "categories": [
+    "education"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

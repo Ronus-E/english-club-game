@@ -9,7 +9,6 @@ export const grammar = {
       prompt: 'She ___ a student at the English Club.',
       options: ['am', 'is', 'are', 'be'], answer: 1,
       explanation: 'With he, she and it we use “is”: She is a student.',
-      fr: 'Avec he/she/it, “be” devient “is”.',
     }),
     g({
       id: 'gra-a1-02', level: 'A1', objective: 'Use “have” with plural subjects.',

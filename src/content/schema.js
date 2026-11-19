@@ -1,6 +1,6 @@
 /**
  * Content schema, builders and validation.
- * Every exercise in src/content is plain data: easy to audit, test and translate.
+ * Every exercise is plain data: easy to audit, test and translate.
  */
 import { normalizeText, createRng, hashString } from '../core/util.js';
 
@@ -30,24 +30,11 @@ export const LEVEL_INFO = {
 };
 
 export const SKILL_INFO = {
-  vocabulary: { name: 'Vocabulary', icon: '📚', color: '#5ce1a6', blurb: 'Words, pictures and meaning in context.' },
-  grammar: { name: 'Grammar', icon: '🧩', color: '#63c5ff', blurb: 'Forms, accuracy and sentence building.' },
-  reading: { name: 'Reading', icon: '📖', color: '#ffc857', blurb: 'Short texts, notices and details.' },
-  writing: { name: 'Writing', icon: '✍', color: '#ff6b6b', blurb: 'Sentence order, register and short messages.' },
-  culture: { name: 'American culture', icon: '🇺🇸', color: '#ffd166', blurb: 'Geography, landmarks, traditions and education.' },
-};
-
-/**
- * French help: the task instructions only, translated once and attached to
- * every exercise. Item-level glosses (`fr`) stay optional and specific.
- */
-export const FR_INSTRUCTIONS = {
-  'Choose the best answer.': 'Choisissez la meilleure réponse.',
-  'Choose the best option for the situation.': 'Choisissez la meilleure option pour la situation.',
-  'Choose the correct option to complete the sentence.': 'Choisissez l’option correcte pour compléter la phrase.',
-  'Read the text, then choose the best answer.': 'Lisez le texte, puis choisissez la meilleure réponse.',
-  'Tap the words in the correct order to build the sentence.': 'Touchez les mots dans le bon ordre pour construire la phrase.',
-  'Match each word with the correct picture.': 'Associez chaque mot à la bonne image.',
+  vocabulary: { name: 'Vocabulary', icon: '📚', color: '#5ce1a6', blurb: 'Words and meanings' },
+  grammar: { name: 'Grammar', icon: '🧩', color: '#63c5ff', blurb: 'Tenses and structures' },
+  reading: { name: 'Reading', icon: '📖', color: '#ffc857', blurb: 'Short texts and notices' },
+  writing: { name: 'Writing', icon: '✍', color: '#ff6b6b', blurb: 'Build a sentence' },
+  culture: { name: 'American culture', icon: '🇺🇸', color: '#ffd166', blurb: 'Verified cultural facts' },
 };
 
 /**
@@ -69,58 +56,40 @@ export function arrangeOptions(id, options, answer) {
   };
 }
 
-/** Explicit translation wins; otherwise fall back to the shared table. */
-export const frInstruction = (instruction, explicit = '') => {
-  const given = typeof explicit === 'string' ? explicit.trim() : '';
-  return given || FR_INSTRUCTIONS[instruction] || '';
-};
-
 const base = (data) => ({
   type: 'choice',
   passage: null,
-  fr: '',
-  instructionFr: '',
   ...data,
 });
 
 /** Multiple-choice question. answer = index of the correct option. */
-export function choice({ id, skill, level, prompt, options, answer, explanation, objective, instruction, passage = null, fr = '', instructionFr = '', tags = [] }) {
+export function choice({ id, skill, level, prompt, options, answer, explanation, objective, instruction, passage = null, tags = [] }) {
   const arranged = arrangeOptions(id, options, answer);
-  return base({ id, skill, level, type: 'choice', prompt, options: arranged.options, answer: arranged.answer, explanation, objective, instruction, passage, fr, instructionFr: frInstruction(instruction, instructionFr), tags });
+  return base({ id, skill, level, type: 'choice', prompt, options: arranged.options, answer: arranged.answer, explanation, objective, instruction, passage, tags });
 }
 
 /** Word ↔ picture matching set. */
-export function match({ id, skill = 'vocabulary', level, pairs, explanation, objective, instruction = 'Match each word with the correct picture.', prompt = 'Tap a word, then tap its picture.', fr = '', instructionFr = '' }) {
-  return {
-    id, skill, level, type: 'match', pairs, explanation, objective, instruction, prompt, fr,
-    instructionFr: frInstruction(instruction, instructionFr),
-  };
+export function match({ id, skill = 'vocabulary', level, pairs, explanation, objective, instruction = 'Match each word with the correct picture.', prompt = 'Tap a word, then tap its picture.' }) {
+  return { id, skill, level, type: 'match', pairs, explanation, objective, instruction, prompt };
 }
 
 /** Word-order / sentence building. */
-export function order({ id, skill, level, prompt, words, answerText, explanation, objective, instruction, fr = '', instructionFr = '', accepted = [] }) {
-  return {
-    id, skill, level, type: 'order', prompt, words, answerText, accepted, explanation, objective, instruction, fr,
-    instructionFr: frInstruction(instruction, instructionFr),
-  };
+export function order({ id, skill, level, prompt, words, answerText, explanation, objective, instruction, accepted = [] }) {
+  return { id, skill, level, type: 'order', prompt, words, answerText, accepted, explanation, objective, instruction };
 }
 
 /** Short written answer with accepted variants. */
-export function short({ id, skill = 'writing', level, prompt, accepted, explanation, objective, instruction, fr = '', instructionFr = '', hint = '' }) {
-  return {
-    id, skill, level, type: 'short', prompt, accepted, explanation, objective, instruction, fr,
-    instructionFr: frInstruction(instruction, instructionFr), hint,
-  };
+export function short({ id, skill = 'writing', level, prompt, accepted, explanation, objective, instruction, hint = '' }) {
+  return { id, skill, level, type: 'short', prompt, accepted, explanation, objective, instruction, hint };
 }
 
 /** American culture question. `fact` marks verified factual content. */
-export function culture({ id, level, prompt, options, answer, explanation, objective, instruction = 'Choose the best answer.', fact = true, note = '', region = '', fr = '', instructionFr = '' }) {
+export function culture({ id, level, prompt, options, answer, explanation, objective, instruction = 'Choose the best answer.', fact = true, note = '', region = '' }) {
   const arranged = arrangeOptions(id, options, answer);
   return base({
     id, skill: 'culture', level, type: 'choice', prompt,
     options: arranged.options, answer: arranged.answer,
-    explanation, objective, instruction, fr, instructionFr: frInstruction(instruction, instructionFr),
-    tags: [], fact, note, region,
+    explanation, objective, instruction, tags: [], fact, note, region,
   });
 }
 
@@ -128,15 +97,10 @@ export function normalizeOrder(item, words) {
   return normalizeText(words.join(' '));
 }
 
-/**
- * Check a graded exercise answer.
- * Returns { correct: boolean|null, expected?: string }.
- */
+/** Check a graded exercise answer. */
 export function checkAnswer(item, response) {
   if (!item) return { correct: null };
-  if (item.type === 'choice') {
-    return { correct: Number(response) === item.answer };
-  }
+  if (item.type === 'choice') return { correct: Number(response) === item.answer };
   if (item.type === 'order') {
     const expected = normalizeText(item.answerText);
     const given = Array.isArray(response) ? normalizeText(response.join(' ')) : normalizeText(response);
@@ -150,16 +114,12 @@ export function checkAnswer(item, response) {
   return { correct: null };
 }
 
-/**
- * Validate a full content bank. Throws with a readable report on error.
- * Used by the unit test suite and by the content audit script.
- */
+/** Validate the whole bank. Throws with a readable report on error. */
 export function validateBank(banks, { perSkillLevel = 10 } = {}) {
   const problems = [];
   const ids = new Set();
   const counts = {};
   const flat = [];
-
   for (const [skillKey, levels] of Object.entries(banks)) {
     if (!ALL_SKILLS.includes(skillKey)) problems.push(`Unknown skill key: ${skillKey}`);
     for (const [level, items] of Object.entries(levels)) {
@@ -182,17 +142,13 @@ export function validateBank(banks, { perSkillLevel = 10 } = {}) {
           if (new Set(item.options.map(normalizeText)).size !== item.options.length) problems.push(`${item.id}: duplicate options`);
         } else if (item.type === 'match') {
           if (!Array.isArray(item.pairs) || item.pairs.length < 3) problems.push(`${item.id}: match needs 3+ pairs`);
-          for (const pair of item.pairs || []) {
-            if (!pair.term || !pair.icon) problems.push(`${item.id}: pair missing term or icon`);
-          }
+          for (const pair of item.pairs || []) if (!pair.term || !pair.icon) problems.push(`${item.id}: pair missing term or icon`);
         } else if (item.type === 'order') {
           if (!Array.isArray(item.words) || item.words.length < 3) problems.push(`${item.id}: order needs 3+ words`);
           if (!item.answerText) problems.push(`${item.id}: order missing answerText`);
           else {
             const tokenKey = (text) => normalizeText(text).split(' ').sort().join(' ');
-            if (tokenKey(item.words.join(' ')) !== tokenKey(item.answerText)) {
-              problems.push(`${item.id}: answerText is not a permutation of words`);
-            }
+            if (tokenKey(item.words.join(' ')) !== tokenKey(item.answerText)) problems.push(`${item.id}: answerText is not a permutation of words`);
           }
         } else if (item.type === 'short') {
           if (!Array.isArray(item.accepted) || !item.accepted.length) problems.push(`${item.id}: short needs accepted answers`);
@@ -201,13 +157,9 @@ export function validateBank(banks, { perSkillLevel = 10 } = {}) {
         }
         if (skillKey === 'reading' && !item.passage) problems.push(`${item.id}: reading item missing passage`);
       }
-      if (perSkillLevel && items.length < perSkillLevel) {
-        problems.push(`${skillKey}/${level}: only ${items.length} exercises (need ${perSkillLevel})`);
-      }
+      if (perSkillLevel && items.length < perSkillLevel) problems.push(`${skillKey}/${level}: only ${items.length} exercises (need ${perSkillLevel})`);
     }
   }
-  if (problems.length) {
-    throw new Error(`Content validation failed (${problems.length} problems):\n- ${problems.join('\n- ')}`);
-  }
+  if (problems.length) throw new Error(`Content validation failed (${problems.length} problems):\n- ${problems.join('\n- ')}`);
   return { total: flat.length, counts };
 }

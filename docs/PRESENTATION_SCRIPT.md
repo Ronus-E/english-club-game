@@ -1,6 +1,6 @@
 # Five-minute presentation script
 
-For the American Corner English Clubs exhibition. English only; speak slowly, smile, and let the game speak for itself. Bracketed text is a **stage direction**, not something to read aloud.
+For the American Corner English Clubs exhibition. English only; speak slowly, smile, and let the quiz speak for itself. Bracketed text is a **stage direction**, not something to read aloud.
 
 Total: **5:00**. Timings are cumulative. If you run long, use the short versions marked *[cut]*.
 
@@ -10,13 +10,13 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Stand by the screen. Splash screen visible. Wait two seconds, then begin.]*
 
-> "Three minutes. One campus. Eight places to visit. And one question: can you finish an English mission before the clock runs out?
+> "Fifteen questions. Five skills. One level. No clock, no pressure. And one question: can you show what you know in English?
 >
-> This is **Mission: English Club**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
+> This is **English Club Quiz**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
 
-*[Press **START MISSION**. Gesture at the splash animation.]*
+*[Press **START**. Gesture at the emblem.]*
 
-> "That logo, the campus, the characters — all generated locally by the browser."
+> "That logo, the background, the badge at the end — all generated locally by the browser."
 
 ---
 
@@ -26,93 +26,77 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 > "A learner starts with six quick questions. They suggest A1, A2 or B1 — but the learner always has the final say."
 
-*[Click **Check my level** if time allows; otherwise click **PLAY** → A1. *[cut]* Skip the check and go straight to A1.]*
+*[Click **Find my level** if time allows; otherwise click **START A QUIZ** → A1. *[cut]* Skip the check and go straight to A1.]*
 
-> "Today I'll show A1, beginner level. Pick a name, pick a face — nothing is uploaded. It stays on this machine."
+> "Today I'll show A1, beginner level. I type a name — nothing is uploaded. It stays on this machine."
 
-*[Type a name, choose an avatar, click **START MISSION**.]*
-
----
-
-## 1:15 — The campus
-
-*[Campus appears. Move with **WASD** for a few seconds. Let the audience see the camera follow.]*
-
-> "Here is the English Club campus. I walk with the keyboard — or with a joystick on a phone. The glowing tile tells me where to go next."
-
-*[Walk to Miss Rivera and press **E**.]*
-
-> "Six club members give hints. Listen to the guide..."
-
-*[Let the dialogue appear for three seconds, then advance and close it.]*
-
-> "...then it's to work."
+*[Type a name, click **START THE 15-QUESTION QUIZ**.]*
 
 ---
 
-## 1:45 — Vocabulary Garden
+## 1:15 — The first question
 
-*[Enter the Vocabulary Garden with **E**. Solve the match task by clicking, then the choice task.]*
+*[Question panel opens. Answer the first item slowly; let the audience read the explanation.]*
 
-> "First stop: vocabulary. Match the word to the picture. Then use a word in a sentence.
+> "Here is the question panel. Tap a word and its picture, or choose an option — the task changes, but the rhythm does not.
 >
-> Notice what happens after every answer — the game tells you immediately if you were right, and *why*. No red cross with no explanation."
+> Notice what happens after every answer: the correct answer and a short explanation appear immediately. No red cross with no reason."
 
-*[Point at the explanation line. *[cut]* Answer only the first item and continue.]*
+*[Point at the explanation line. Click **Continue ▸**. *[cut]* Answer only the first item and continue.]*
 
-> "Three tasks here. Each correct answer gives three seconds back — but only up to a limit. Speed never earns points."
-
----
-
-## 2:30 — Grammar and Culture
-
-*[Finish vocabulary. Go to the Grammar Classroom; answer two items.]*
-
-> "Grammar: two decisions about real sentences, not abstract rules."
-
-*[Complete Culture — two questions about the United States.]*
-
-> "Then culture: verified facts, tied to places and dates. Nine graded answers make the whole mission."
+> "There is no timer. Accuracy is the only thing that counts."
 
 ---
 
-## 3:10 — Bonus stations
+## 1:45 — Five skills
 
-*[Visit the Writing Office, or the Reading Library if the route is crowded. *[cut]* Skip entirely.]*
+*[Point at the five pips when they appear. Answer one grammar, one reading and one writing question.]*
 
-> "Two optional stations. Rebuild a sentence here, or read a short text there. No penalty for skipping them — they are extra practice, not extra pressure."
-
----
-
-## 3:40 — Final Challenge Arena
-
-*[Enter the arena. Solve the two mixed questions. Let the results screen appear. Pause.]*
-
-> "The arena mixes grammar and reading. Two questions, then the report."
+> "Three questions in each area: vocabulary, grammar, reading, writing and American culture. The pips fill as you go, so you always know where you are.
+>
+> Sometimes you type a short answer. Sometimes you rebuild a sentence. Every task checks understanding, not speed."
 
 ---
 
-## 4:10 — Results
+## 2:30 — Culture and the final questions
+
+*[Finish the culture items. Let the last explanation appear, then click **See my report**.]*
+
+> "Culture items are checked facts, with sources kept in the documentation. Fifteen answers, then the report."
+
+---
+
+## 3:30 — Results
 
 *[Point at each region of the report in turn: grade, numbers, skill rows, recommendations.]*
 
-> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer.
+> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer, out of 150.
 >
-> A breakdown across five areas: vocabulary, grammar, reading, writing and American culture. Two recommendations that point at the weakest area.
+> A breakdown across five areas. Two recommendations that point at the weakest skills.
 >
 > XP, a personal best, and badges — ten of them. Everything saved locally, in this browser only."
 
 ---
 
+## 4:10 — Practice and achievements
+
+*[Click **Practice weak skill**, answer one question, then open **Achievements** from the menu.]*
+
+> "The report leads straight to focused practice: ten exercises per skill and level, still with immediate explanations.
+>
+> The badges reward real behaviour — finishing a quiz, mastering a skill, beating your own best. No speed ranking."
+
+---
+
 ## 4:35 — Closing
 
-*[Open **Achievements** from the menu; show the badges. Then open **Settings** and switch on **French help**. Return to a task and show a translated instruction. *[cut]* Show the badge screen only.]*
+*[Open **Settings**; show **Reduce motion** and **High contrast**. Close it. *[cut]* Show the badge screen only.]*
 
-> "Instructions can appear in French. Reduced motion, high contrast, forced touch controls — all in settings."
+> "Reduced motion, high contrast, adjustable sound — all in settings. The interface is English on every device: no translation layer, no hidden menu."
 
 *[If Wi-Fi is on, turn it off now and reload. Let the offline banner appear; wait a few seconds.]*
 
-> "And one last thing. We are now offline. Reload — it still works. The whole game is cached after one visit.
+> "And one last thing. We are now offline. Reload — it still works. The whole quiz is cached after one visit.
 >
 > No account. No analytics. No server. No microphone. Just English practice that works anywhere."
 
@@ -124,8 +108,8 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 | Problem | Say / do |
 |---|---|
-| Time running out | Skip placement, skip the NPC, answer one item per station, jump to results. |
-| French text missing | Settings → French help; glosses appear after answering. |
+| Running out of time | Skip the placement check and the practice detour; answer one item per skill and go to the report. |
+| French text appears | Not expected: hard reload to discard an older cached build. |
 | Wi-Fi can't be disabled | Show DevTools → Application → Service Workers: "registered and controlling". |
 | Offline reload seems stuck | Wait a few seconds for cached ES modules, then say "cached modules take a moment." |
 | Page goes blank | Hard reload; if still blank, start `node tools/serve.mjs --port 8080` from the project root. |
@@ -134,5 +118,6 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 - Do **not** read the script word for word. Use the bold phrases as anchors.
 - Leave two seconds of silence after each screen change; the audience needs time to look.
-- Never apologise for the pixel art. Call it **deliberate**: it loads fast and works offline.
+- Call the visual style **editorial**: it loads fast and stays readable.
+- Do not apologise for the absence of a game world. Say the quiz is **deliberate**: less distraction, more practice.
 - End on the offline reload if possible. It is the most memorable claim, and it is verifiable.

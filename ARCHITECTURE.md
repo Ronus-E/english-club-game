@@ -1,120 +1,143 @@
 # Architecture
 
-Technical map of **Mission: English Club** (v3.1). The project uses browser standards only: ES modules, Canvas 2D, CSS, Web Audio, `localStorage` and a service worker. No build step, no runtime dependency, no audio input or output beyond short synthesized tones.
+Technical map of **English Club Quiz** (v4.0). The project uses browser standards only: ES modules, CSS, Canvas 2D for decoration, Web Audio for short interface tones, `localStorage` and a service worker. No build step, no runtime dependency, no audio input or speech output.
 
 ## Runtime shape
 
 ```
 index.html
    └── src/main.js  ── boot + all navigation/wiring
-        ├── core/storage.js      ProfileStore (localStorage)
-        ├── core/audio.js        AudioEngine (Web Audio tones only)
-        ├── ui/screens.js        UI: screens, overlays, HUD, results, settings
-        ├── ui/decor.js          logo, ambient particles, avatar, badge
-        ├── ui/activities.js     ActivityRunner: 4 exercise renderers
-        ├── ui/dialogue.js       DialogueRunner: NPC conversations
-        ├── game/input.js        keyboard + joystick → world axis
-        ├── game/mission.js      Mission: loop, movement, stations, clock, report
-        ├── world/campus.js      8 stations, 6 NPCs, collision, route
-        └── world/renderer.js    isometric canvas renderer
+        ├── core/storage.js       ProfileStore (localStorage)
+        ├── core/audio.js         AudioEngine (synthesised tones only)
+        ├── core/scoring.js       pure session scoring and recommendations
+        ├── core/achievements.js  ten quiz-based badges
+        ├── core/util.js          RNG, normalisation, storage guard, debounce
+        ├── ui/screens.js         UI: screens, overlays, results, settings
+        ├── ui/decor.js           ambient field, logo, results badge
+        ├── ui/activities.js      ActivityRunner: four exercise renderers
+        ├── ui/icons.js           procedural icons for matching exercises
+        └── game/quiz.js          Quiz: 15-question controller
 ```
 
 Content is data, separate from logic:
 
 ```
-src/content/schema.js      builders, answer checking, validation, French table
+src/content/schema.js      LEVEL_INFO, SKILL_INFO, builders, checkAnswer(),
+                           validateBank(), arrangeOptions()
 src/content/{skill}.js     5 banks × 3 levels × 10 exercises = 150
-src/content/dialogues.js   6 NPC scripts
-src/content/index.js       bank registry, placement check, buildMissionPlan()
+src/content/index.js       bank registry, placement check, buildQuiz()
 ```
+
+There is no `world/`, no `dialogue.js`, no `mission.js`, no `input.js` and no timer module.
 
 ## Boot sequence
 
 1. `DOMContentLoaded` → `boot()` in `src/main.js`.
-2. Build `ProfileStore`, `AudioEngine`, `UI`.
-3. Start ambient canvas and splash animation.
-4. Create `ActivityRunner` and `DialogueRunner` with callbacks into the mission.
-5. Create `Mission`, which builds the `CampusRenderer` and places NPCs.
-6. Create `InputController`; inject `worldAxis()` and `reset()` into the mission.
-7. Bind buttons, settings, PWA events and visibility handlers.
-8. Expose `window.__ENGLISH_CLUB__` for diagnostics and tests.
+2. Build `ProfileStore`, `AudioEngine` and `UI`.
+3. Start the ambient Canvas field and the animated splash logo; both stop or slow down with reduced-motion settings.
+4. Create `ActivityRunner` with callbacks into `Quiz`.
+5. Create `Quiz` with `onEnd`, `onProgress` and `onQuit` handlers.
+6. Bind buttons, settings, keyboard closing, PWA events and online/offline events.
+7. Expose `window.__ENGLISH_CLUB__` for diagnostics and tests.
+8. Mark `document.body` with `is-booted` and enable the START button.
 
-## The 3-minute clock
+The splash screen does not load a game world. It only waits for the modules and the local profile.
 
-`MissionTimer` derives time from a monotonic clock (`performance.now`), not from accumulated frames. Pausing banks elapsed time. `extend(seconds)` adds an accuracy credit capped at 210 s. The clock is independent of frame rate and background throttling.
+## No clock
 
-It runs during exercises and stops for pause, progress, settings, help, about, confirmation overlays, `visibilitychange` and `beforeunload`.
+There is no mission timer, no 180-second limit and no time bonus. A quiz ends when the fifteenth answer has been received and the learner confirms the last explanation. Leaving a quiz discards that run; only finished quizzes change the profile.
 
-## Mission data flow
+## Quiz data flow
 
 ```
-buildMissionPlan(level)
-    ↓  vocabulary(3) grammar(2) culture(2) writing(1 bonus) final(2)
-Mission.openStation(id)
-    ↓  planKeyFor(id)        // world 'arena' ↔ plan 'final'
-    ↓  ActivityRunner.open(items)
-    ↓  onAnswer → recordAnswer → timer.extend(+3)
-    ↓  onFinish → completeStation → next station, renderer highlight
-Mission.end()
-    ↓  computeResults → evaluateAchievements → store.recordSession()
-    ↓  UI.renderResults → results screen
+startQuiz(level)
+    ↓  buildQuiz(level, seed)
+    ↓  Quiz.start(level) → activities.open({ items: 15 })
+    ↓  onAnswer → recordAnswer(session, { skill, correct, response })
+    ↓  onProgress → setQuizStatus(n, 15) + renderQuizPips(session.skills)
+    ↓  onFinish → Quiz.finish()
+    ↓  computeResults(session, previousBest)
+    ↓  evaluateAchievements({ session, result, profile })
+    ↓  store.recordSession(result) + store.unlock(badge)
+    ↓  UI.renderResults() → results screen
 ```
 
-`MISSION_ROUTE` uses the **world** id `arena`; the plan calls the same stop `final`. `PLAN_KEY` / `planKeyFor()` in `campus.js` are the single translation point.
+`buildQuiz()` samples three exercises from each of the five skills and interleaves them into three rounds of five questions. The seed makes a run reproducible in tests; the browser uses `Date.now()`.
 
-The route has four required stops: `vocabulary → grammar → culture → arena`. Reading supplies one of the two final questions; Writing is optional. Total: **9 graded answers**.
+The level cards are A1, A2 and B1. Questions change with the level; the quiz format never changes.
 
 ## Exercise engine
 
 `ActivityRunner` renders four types from a common contract (`id`, `skill`, `level`, `objective`, `instruction`, `prompt`, `explanation`):
 
-- **choice** — deterministic seeded option shuffle at build time (`arrangeOptions()` in `schema.js`); the correct answer stays consistent with options and explanations, and is never always A.
-- **match** — word ↔ icon grid drawn with `drawIcon()`; mistakes counted.
-- **order** — word chips, duplicate-aware; `answerText` must be a permutation of `words`.
-- **short** — normalised text against accepted variants.
+- **choice** — multiple-choice options reordered by `arrangeOptions(id, options, answer)`. The order is deterministic and seeded by the item id; `options[answer]` remains the correct answer, so “A” is not predictable.
+- **match** — word ↔ picture grid; the learner taps a word then its icon.
+- **order** — word chips, duplicate-aware; the learner rebuilds the sentence, then confirms.
+- **short** — normalised text compared with a list of accepted variants.
 
-After each answer: feedback, explanation, optional French gloss, then an explicit Continue button. There is no speaking renderer, audio player, transcript toggle, microphone or speech recognition. `AudioEngine` only produces short Web Audio envelopes for interface feedback and background music.
+After each answer: immediate feedback, a short explanation, then an explicit Continue button. No French gloss, dialogue or NPC is involved. `AudioEngine` only produces short Web Audio envelopes for interface feedback and optional background music.
 
 `activities.open()` filters invalid items and calls `onFinish` with an empty summary instead of throwing.
 
-## French help
+## Skills and levels
 
-`FR_INSTRUCTIONS` in `schema.js` maps the distinct instruction strings to French. Each builder uses `frInstruction(instruction, explicit)` as the default for `instructionFr`, so all 150 exercises have a translated instruction. Item-level `fr` glosses remain optional data. The UI shows both only when `frenchHints` is enabled.
+| Constant | Values |
+|---|---|
+| `LEVELS` | `A1`, `A2`, `B1` |
+| `SKILLS` | `vocabulary`, `grammar`, `reading`, `writing` |
+| `ALL_SKILLS` | the four skills above plus `culture` |
+| `QUESTIONS_PER_QUIZ` | 15 |
+| `QUESTIONS_PER_SKILL` | 3 |
 
-## Input and isometric movement
+`LEVEL_INFO` and `SKILL_INFO` hold the labels, descriptions, icons and colours used by the level cards, pips, practice screen and skill report. Culture is authored with `fact = true` and optional `note` / `region` fields so classroom simplifications stay distinguishable from verified facts.
 
-`InputController` normalises keyboard and joystick axes to screen space (length ≤ 1) and converts to isometric world direction (`wx = x + y`, `wy = y - x`, then normalise). Typing targets are excluded. `E`, `Enter`, `Space` interact; `Escape` resolves nested overlays in order (confirm → dialogue → activity → pause → info).
+## Input
 
-Collision samples five points around the player; movement is axis-separated so sliding along walls works.
+Click and tap are the primary inputs. `Tab` and `Enter` work on every native control; `Escape` closes the topmost overlay in order (confirm → help/about/settings → activity). Text inputs are excluded from global shortcuts. There is no keyboard movement, joystick, action button, collision detection or camera.
 
 ## Rendering
 
-Campus signs use the `SIGN_LABELS` table in `renderer.js`: short English names (`VOCAB`, `GRAMMAR`, `FINAL`) drawn beside the procedural icon. Titles use a local serif stack (`Georgia` / `DejaVu Serif`); no web font is fetched.
+The DOM handles all text and controls. Canvas is used only for:
 
-Canvas fixed at **480 × 270 logical pixels**, scaled with CSS `object-fit: contain` to preserve the pixel grid. `CampusRenderer` draws tiles, buildings, paths, NPCs, player, smooth camera and highlighted next station. Reduced-graphics mode lowers animation work. Sprites and icons are procedural. DOM handles all text and controls; the canvas handles the world.
+- the ambient starfield behind the interface;
+- the splash emblem;
+- the procedural results badge;
+- procedural icons used by matching exercises.
+
+Everything is generated locally. Titles use a local serif stack (`Georgia` / `DejaVu Serif`); no web font is fetched.
 
 ## Storage and settings
 
-`ProfileStore` uses versioned key `ec.profile.v3`. `mergeProfile()` repairs missing fields; `sanitizeSettings()` clamps volumes to 0–100 and coerces booleans because `localStorage` is user-editable. `reset()` clears everything after confirmation.
+`ProfileStore` uses versioned key `ec.profile.v3`. `mergeProfile()` repairs missing fields; `sanitizeSettings()` clamps volumes to 0–100 and coerces booleans because `localStorage` is user-editable. Names are trimmed to 16 characters.
+
+Stored profile fields include `xp`, `missions`, `best`, `achievements`, `skills`, `lastSession` and `settings`. Fields from the campus era (`frenchHints`, `forceTouch`, `usedSeconds`, `stationsVisited`) are gone.
+
+Settings: music volume, effects volume, background music, reduced graphics, reduce motion, high contrast. **Reset local progress** clears everything after an explicit confirmation.
+
+Badge ids from the old profile are preserved so stored progress survives; only the campus exploration badge was replaced by `all_skills` (“Every Skill”).
 
 ## Offline operation
 
-`sw.js` precaches 32 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v1.3.0`.
+`sw.js` precaches 25 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.1`.
+
+After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
 ## Testing design
 
-- `tests/unit.test.mjs` — 42 pure checks with injected clocks and storage.
-- `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`; disables HTTP cache and forces service-worker updates.
-- `tests/e2e.mjs` — 27 browser steps: real keyboard and pointer events, every exercise type, offline reload, seven viewports.
+- `tests/unit.test.mjs` — 45 pure checks with injected storage and seeds.
+- `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`.
+- `tools/smoke.mjs` — quick real-browser boot check up to the first question.
+- `tests/e2e.mjs` — 20 browser steps: real clicks, every exercise type, immediate correction, full report, practice, placement, settings, achievements, seven viewports, offline reload, and assertions that French UI and campus elements are absent.
 
-The test model cannot read screenshots. Visual verification uses measurable proxies: canvas sampling, DOM geometry, overflow checks and tap-target sizes. Human review of `/tmp/opencode/ec-shots/e2e/` remains part of the pre-exhibition checklist.
+The test model cannot judge aesthetics. Visual verification uses measurable proxies: DOM geometry, overflow, tap-target sizes and computed styles. Human review of `/tmp/opencode/ec-shots/e2e/` remains part of the pre-exhibition checklist.
 
 ## Design invariants
 
-1. Speed never earns points; only accuracy does.
-2. No audio dependency: no microphone, no speech synthesis, no transcript.
-3. No external request of any kind at runtime.
-4. No destructive action without explicit confirmation.
-5. A missing or malformed DOM node degrades gracefully rather than throwing.
-6. Overlay visibility is mirrored to `#overlayRoot` from one place.
-7. Dialogue completion callbacks fire exactly once.
+1. Accuracy earns points; speed, stations and exploration never do.
+2. Every quiz has exactly 15 questions: three per skill.
+3. The interface is 100 % English; no French content or hint layer remains.
+4. Option order is deterministic and the correct answer is not always A.
+5. The correct answer and an explanation follow every response immediately.
+6. No external request of any kind at runtime.
+7. No destructive action without explicit confirmation.
+8. A missing or malformed DOM node degrades gracefully rather than throwing.

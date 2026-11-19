@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b1026">
-  <meta name="description" content="Mission: English Club — a 180-second educational pixel-art adventure for English learners. Vocabulary, grammar, reading, writing and American culture.">
+  <meta name="description" content="English Club Quiz — a free, offline CEFR quiz for A1, A2 and B1 learners. Vocabulary, grammar, reading, writing and American culture.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="English Club">
-  <title>Mission: English Club — The 180-Second English Challenge</title>
+  <meta name="apple-mobile-web-app-title" content="English Club Quiz">
+  <title>English Club Quiz — A1 · A2 · B1</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icons/icon-192.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
@@ -23,25 +23,27 @@
     <canvas id="ambientCanvas" class="ambient-canvas" aria-hidden="true"></canvas>
 
     <div id="offlineBanner" class="offline-banner" role="status" hidden>
-      <span aria-hidden="true">◍</span> Offline mode — the full game is cached and playable.
+      <span aria-hidden="true">◍</span> Offline mode — the full quiz is cached and ready.
     </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <!-- ===================== SPLASH ===================== -->
     <section id="screen-splash" class="screen is-active" aria-label="Splash screen">
       <div class="splash-inner">
         <canvas id="logoCanvas" class="logo-canvas" width="192" height="192" role="img"
-                aria-label="Mission English Club pixel-art globe emblem"></canvas>
-        <p class="kicker">American Corner · English Clubs Exhibition</p>
+                aria-label="English Club Quiz emblem"></canvas>
+        <p class="kicker">American Corner · English Club</p>
         <h1 class="game-title">
-          <span class="game-title-small">EXPLORE:</span>
+          <span class="game-title-small">LEARN:</span>
           <span class="game-title-big">ENGLISH CLUB</span>
         </h1>
-        <p class="game-subtitle">The 180-Second English Challenge</p>
+        <p class="game-subtitle">The A1 · A2 · B1 quiz</p>
         <div class="splash-actions">
-          <button id="bootBtn" class="btn btn-primary btn-lg" type="button">Explore</button>
-          <p id="bootStatus" class="boot-status" role="status">Waitting&hellip;</p>
+          <button id="bootBtn" class="btn btn-primary btn-lg" type="button">START</button>
+          <p id="bootStatus" class="boot-status" role="status">Loading&hellip;</p>
         </div>
-        <p class="splash-credit">Pixel art · Educational · Any device</p>
+        <p class="splash-credit">Fifteen questions · Five skills · Any device</p>
       </div>
     </section>
 
@@ -51,8 +53,8 @@
         <header class="menu-brand">
           <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
           <div>
-            <h2 id="mainMenu" class="brand-title">MISSION: ENGLISH CLUB</h2>
-            <p class="brand-sub">The 180-second English challenge</p>
+            <h2 id="mainMenu" class="brand-title">ENGLISH CLUB QUIZ</h2>
+            <p class="brand-sub">A1 · A2 · B1 · completely offline</p>
           </div>
           <div class="profile-chip" id="profileChip">
             <span class="profile-avatar" id="profileAvatar" aria-hidden="true">★</span>
@@ -65,13 +67,13 @@
 
         <div class="menu-main">
           <div class="menu-card menu-card-feature">
-            <p class="kicker">Ready for the exhibition?</p>
-            <h3>Enter the campus</h3>
-            <p class="muted">One player. Three minutes. Seven stations. Talk to the club guide, collect knowledge and reach the Final Challenge Arena.</p>
-            <button id="playBtn" class="btn btn-primary btn-lg" type="button">▶ PLAY 3-MINUTE MISSION</button>
+            <p class="kicker">Ready to learn?</p>
+            <h3>Choose your level and play</h3>
+            <p class="muted">Fifteen questions per quiz: three each in vocabulary, grammar, reading, writing and American culture. Answers are corrected immediately, with an explanation.</p>
+            <button id="playBtn" class="btn btn-primary btn-lg" type="button">▶ START A QUIZ</button>
             <div class="mode-row">
-              <button id="practiceBtn" class="btn" type="button">Practice mode</button>
-              <button id="howBtn" class="btn btn-ghost" type="button">How to play</button>
+              <button id="practiceBtn" class="btn" type="button">Free practice</button>
+              <button id="howBtn" class="btn btn-ghost" type="button">How it works</button>
             </div>
           </div>
 
@@ -84,7 +86,7 @@
             <button class="menu-tile" id="settingsBtn" type="button">
               <span class="tile-icon" aria-hidden="true">⚙</span>
               <strong>Settings</strong>
-              <small>Motion, language &amp; data</small>
+              <small>Sound, display &amp; data</small>
             </button>
             <button class="menu-tile" id="aboutBtn" type="button">
               <span class="tile-icon" aria-hidden="true">ⓘ</span>
@@ -101,7 +103,7 @@
 
         <footer class="menu-footer">
           <span id="storageBadge">Progress saved on this device</span>
-          <span>v3.0 · Original pixel art · No external assets</span>
+          <span>v4.0 · No external assets · No internet needed</span>
         </footer>
       </div>
     </section>
@@ -116,122 +118,44 @@
             <h2>Level selection</h2>
           </div>
         </header>
-        <p class="muted page-lead">The mission adapts to your level. You can change it before every session — the questions, not the challenge, are what change.</p>
+        <p class="muted page-lead">Pick A1, A2 or B1. The questions change with your level — the quiz format stays the same.</p>
 
         <div class="level-grid" id="levelGrid" role="list"></div>
 
+        <label class="field name-field">
+          <span>Your name (stored on this device only)</span>
+          <input id="playerNameInput" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Explorer">
+        </label>
+
         <div class="row gap wrap">
-          <button id="levelContinueBtn" class="btn btn-primary btn-lg" type="button">Continue to registration →</button>
+          <button id="levelContinueBtn" class="btn btn-primary btn-lg" type="button">START THE 15-QUESTION QUIZ →</button>
         </div>
 
         <div class="placement-card">
           <div>
-            <h3>Not sure? Take the 60-second placement check</h3>
-            <p class="muted">Six questions across the club skills give a recommended starting level.</p>
+            <h3>Not sure? Take the short placement check</h3>
+            <p class="muted">Six questions across the skills suggest a starting level.</p>
           </div>
           <button id="placementBtn" class="btn btn-secondary" type="button">Find my level</button>
         </div>
       </div>
     </section>
 
-    <!-- ===================== CHARACTER INTRO ===================== -->
-    <section id="screen-intro" class="screen" aria-label="Character introduction">
-      <div class="page intro-page">
+    <!-- ===================== QUIZ ===================== -->
+    <section id="screen-quiz" class="screen" aria-label="Quiz">
+      <div class="page quiz-page">
         <header class="page-head">
-          <button class="btn btn-ghost btn-icon" data-back="level" type="button" aria-label="Back to levels">←</button>
+          <button id="quizQuitBtn" class="btn btn-ghost btn-icon" type="button" aria-label="Leave the quiz">←</button>
           <div>
-            <p class="kicker">Club member registration</p>
-            <h2>Who is entering campus?</h2>
+            <p class="kicker" id="quizKicker">A1 · 15 questions</p>
+            <h2 id="quizTitle">Quiz in progress</h2>
           </div>
         </header>
-
-        <div class="intro-grid">
-          <div class="panel character-panel">
-            <div class="avatar-stage">
-              <canvas id="avatarCanvas" width="160" height="160" role="img" aria-label="Selected character preview"></canvas>
-            </div>
-            <label class="field">
-              <span>Club name</span>
-              <input id="playerNameInput" maxlength="12" autocomplete="off" spellcheck="false" placeholder="Explorer">
-            </label>
-            <div class="avatar-picker" id="avatarPicker" role="radiogroup" aria-label="Choose character colours"></div>
-            <p class="micro muted">Your name and progress stay in this browser. Nothing is uploaded.</p>
-          </div>
-
-          <div class="panel briefing-panel">
-            <p class="kicker">Mission briefing</p>
-            <h3>A letter from the Club Director</h3>
-            <blockquote class="briefing">
-              “Welcome to the American Corner English Club. The exhibition opens in three minutes.
-              Visit each station, prove your English, and reach the Arena before the clock hits zero.
-              Every good answer powers the campus beacon. Good luck — we are all watching.”
-            </blockquote>
-            <ul class="mission-list">
-              <li><span class="dot v"></span><strong>Vocabulary Garden</strong><small>3 word–picture matches</small></li>
-              <li><span class="dot g"></span><strong>Grammar Classroom</strong><small>2 language decisions</small></li>
-              <li><span class="dot c"></span><strong>American Culture Zone</strong><small>2 discovery questions</small></li>
-              <li><span class="dot f"></span><strong>Final Challenge Arena</strong><small>2 rapid questions · results</small></li>
-            </ul>
-            <div class="row gap">
-              <button id="startMissionBtn" class="btn btn-primary btn-lg" type="button">BEGIN · 03:00</button>
-              <button id="introHowBtn" class="btn btn-ghost" type="button">Controls</button>
-            </div>
-            <p class="micro muted">Writing Office is a bonus station. NPC conversations are optional practice.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== CAMPUS GAME ===================== -->
-    <section id="screen-game" class="screen screen-game" aria-label="Campus gameplay">
-      <div class="game-shell">
-        <div class="hud" id="hud">
-          <div class="hud-left">
-            <span class="hud-badge" id="hudLevel">A1</span>
-            <span class="hud-phase" id="hudPhase">Welcome to campus</span>
-          </div>
-          <div class="hud-center">
-            <div class="timer" id="timer" role="timer" aria-live="off"><span id="timerValue">03:00</span></div>
-            <div class="timer-bar"><i id="timerBar"></i></div>
-          </div>
-          <div class="hud-right">
-            <span class="hud-score" title="Session score">★ <b id="hudScore">0</b></span>
-            <button id="muteBtn" class="btn btn-icon hud-btn" type="button" aria-label="Mute audio">🔊</button>
-            <button id="pauseBtn" class="btn btn-icon hud-btn" type="button" aria-label="Pause game">❚❚</button>
-          </div>
-        </div>
-
-        <div class="viewport" id="viewport">
-          <canvas id="gameCanvas" width="480" height="270" role="img"
-                  aria-label="Isometric pixel-art campus. Move with WASD, arrows or the on-screen joystick. Press E to interact."></canvas>
-          <div class="crt-overlay" aria-hidden="true"></div>
-          <div class="scene-fade" id="sceneFade" aria-hidden="true"></div>
-
-          <div class="interaction-hint" id="interactionHint" hidden>
-            <kbd>E</kbd><span id="interactionLabel">Interact</span>
-          </div>
-
-          <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-          <div class="route-bar" id="routeBar" aria-label="Mission stations"></div>
-
-          <div class="touch-controls" id="touchControls">
-            <div class="joystick" id="joystick" aria-label="Virtual joystick">
-              <div class="joystick-ring"></div>
-              <div class="joystick-knob" id="joystickKnob"></div>
-              <span class="joystick-label">MOVE</span>
-            </div>
-            <button id="actionBtn" class="action-btn" type="button" aria-label="Interact">
-              <span class="action-key">E</span>
-              <span class="action-text">TALK</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="game-foot">
-          <span id="locationLabel">English Club Hub</span>
-          <span class="foot-hint">WASD / arrows · E interact · Esc pause</span>
-          <span id="npcHint">Tip: talk to the guide</span>
+        <div class="panel quiz-card">
+          <p class="muted" id="quizLead">Answer each question in the panel. Feedback and an explanation appear straight away.</p>
+          <p class="quiz-status" id="quizStatus" role="status" aria-live="polite">Question 1 of 15</p>
+          <div class="skill-pips" id="quizPips" aria-label="Skills covered"></div>
+          <button id="quizOpenBtn" class="btn btn-primary btn-lg" type="button">OPEN THE QUESTION PANEL →</button>
         </div>
       </div>
     </section>
@@ -240,8 +164,8 @@
     <section id="screen-results" class="screen" aria-label="Results">
       <div class="page results-page">
         <header class="results-head">
-          <p class="kicker">Mission report</p>
-          <h2 id="resultsTitle">English Club Agent</h2>
+          <p class="kicker">Quiz report</p>
+          <h2 id="resultsTitle">Well done</h2>
           <p class="muted" id="resultsSubtitle">Session complete</p>
         </header>
 
@@ -253,9 +177,8 @@
             <div class="score-chips">
               <span>✔ <b id="resultCorrect">0</b> correct</span>
               <span>✘ <b id="resultWrong">0</b> to review</span>
-              <span>⏱ <b id="resultTime">0:00</b> used</span>
             </div>
-            <canvas id="resultsBadgeCanvas" width="128" height="128" class="result-badge" role="img" aria-label="Mission badge"></canvas>
+            <canvas id="resultsBadgeCanvas" width="128" height="128" class="result-badge" role="img" aria-label="Quiz badge"></canvas>
           </div>
 
           <div class="panel skill-panel">
@@ -267,7 +190,7 @@
             <h3>What to improve next</h3>
             <ul id="recommendations" class="recommendations"></ul>
             <div class="row gap wrap">
-              <button id="replayBtn" class="btn btn-primary" type="button">↻ Replay mission</button>
+              <button id="replayBtn" class="btn btn-primary" type="button">↻ Replay quiz</button>
               <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
               <button id="resultsMenuBtn" class="btn btn-ghost" type="button">Main menu</button>
             </div>
@@ -282,13 +205,13 @@
     </section>
 
     <!-- ===================== PRACTICE ===================== -->
-    <section id="screen-practice" class="screen" aria-label="Practice mode">
+    <section id="screen-practice" class="screen" aria-label="Free practice">
       <div class="page">
         <header class="page-head">
           <button class="btn btn-ghost btn-icon" data-back="menu" type="button" aria-label="Back to menu">←</button>
           <div>
             <p class="kicker">No timer · no pressure</p>
-            <h2>Practice skills</h2>
+            <h2>Free practice</h2>
           </div>
         </header>
         <div class="practice-controls panel">
@@ -300,8 +223,7 @@
               <option value="B1">B1 · Intermediate</option>
             </select>
           </label>
-          <p class="muted" id="practiceSummary">10 exercises per skill and level.</p>
-          <button id="practiceCampusBtn" class="btn btn-secondary" type="button">Explore campus freely</button>
+          <p class="muted" id="practiceSummary">Ten exercises per skill and level.</p>
         </div>
         <div class="skill-grid" id="skillGrid"></div>
       </div>
@@ -322,7 +244,7 @@
             <span class="level-badge" id="achievementLevel">1</span>
             <div>
               <strong id="achievementName">Explorer</strong>
-              <p class="muted" id="achievementXp">0 XP · 0 missions</p>
+              <p class="muted" id="achievementXp">0 XP · 0 quizzes</p>
             </div>
           </div>
           <div class="level-track"><i id="levelProgressBar"></i></div>
@@ -335,34 +257,6 @@
 
   <!-- ===================== OVERLAYS ===================== -->
   <div id="overlayRoot" class="overlay-root" hidden>
-    <!-- Pause -->
-    <div class="overlay" id="overlay-pause" hidden>
-      <div class="overlay-panel panel" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
-        <p class="kicker">Mission paused</p>
-        <h2 id="pauseTitle">Catch your breath</h2>
-        <p class="muted">The clock is stopped. Your progress is safe.</p>
-        <div class="overlay-actions">
-          <button id="resumeBtn" class="btn btn-primary btn-lg" type="button">▶ Resume</button>
-          <button id="progressBtn" class="btn" type="button">Mission progress</button>
-          <button id="pauseSettingsBtn" class="btn" type="button">Settings</button>
-          <button id="pauseRestartBtn" class="btn btn-ghost" type="button">Restart mission</button>
-          <button id="quitBtn" class="btn btn-ghost" type="button">Abandon &amp; results</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mission progress -->
-    <div class="overlay" id="overlay-progress" hidden>
-      <div class="overlay-panel panel panel-wide" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
-        <p class="kicker">Live mission map</p>
-        <h2 id="progressTitle">Stations &amp; score</h2>
-        <div id="progressList" class="progress-list"></div>
-        <div class="overlay-actions">
-          <button class="btn btn-primary" data-close-overlay type="button">Back to mission</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Settings -->
     <div class="overlay" id="overlay-settings" hidden>
       <div class="overlay-panel panel panel-wide" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
@@ -388,27 +282,17 @@
           </label>
           <label class="setting toggle-row">
             <span>Reduced graphics</span>
-            <small class="muted">Faster on modest devices</small>
+            <small class="muted">Calmer animation on modest devices</small>
             <input type="checkbox" id="reducedGraphics">
           </label>
           <label class="setting toggle-row">
             <span>Reduce motion</span>
-            <small class="muted">Calmer transitions and camera</small>
+            <small class="muted">Fewer transitions</small>
             <input type="checkbox" id="reduceMotion">
           </label>
           <label class="setting toggle-row">
             <span>High contrast UI</span>
             <input type="checkbox" id="highContrast">
-          </label>
-          <label class="setting toggle-row">
-            <span>French instructions</span>
-            <small class="muted">Gameplay stays in English</small>
-            <input type="checkbox" id="frenchHints">
-          </label>
-          <label class="setting toggle-row">
-            <span>Show touch controls</span>
-            <small class="muted">Also available on desktop</small>
-            <input type="checkbox" id="forceTouch">
           </label>
         </div>
         <div class="panel-inline danger-zone">
@@ -427,27 +311,25 @@
     <!-- Help -->
     <div class="overlay" id="overlay-help" hidden>
       <div class="overlay-panel panel panel-wide" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-        <p class="kicker">Field manual</p>
-        <h2 id="helpTitle">How to play</h2>
+        <p class="kicker">Quick guide</p>
+        <h2 id="helpTitle">How the quiz works</h2>
         <div class="help-grid">
           <div>
-            <h3>Move</h3>
-            <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys. On touch, drag the joystick.</p>
-            <h3>Interact</h3>
-            <p><kbd>E</kbd> or <kbd>Enter</kbd>, or the round ACTION button. Stand on a glowing station pad and interact.</p>
-            <h3>Pause</h3>
-            <p><kbd>Esc</kbd> opens the pause menu and stops the timer.</p>
+            <h3>One quiz</h3>
+            <p>Choose A1, A2 or B1. You answer fifteen questions: three each in vocabulary, grammar, reading, writing and American culture.</p>
+            <h3>Answer</h3>
+            <p>Tap an option, type a short answer or put words in order. The correct answer and a short explanation appear immediately.</p>
           </div>
           <div>
-            <h3>The 3-minute route</h3>
+            <h3>Five skills</h3>
             <ol class="mini-route">
-              <li>00:00 Welcome &amp; guide</li>
-              <li>00:20 Vocabulary Garden</li>
-              <li>01:00 Grammar Classroom</li>
-              <li>02:20 American Culture Zone</li>
-              <li>02:50 Final Challenge Arena → results</li>
+              <li>Vocabulary — words and meanings</li>
+              <li>Grammar — tenses and structures</li>
+              <li>Reading — short texts and notices</li>
+              <li>Writing — build or complete a sentence</li>
+              <li>American culture — verified facts</li>
             </ol>
-            <p class="muted">The timer is a challenge, not a punishment: every correct answer is banked immediately, and unfinished stations still appear in your skill report.</p>
+            <p class="muted">There is no clock. Your report shows a grade per skill and two suggestions for what to practise next.</p>
           </div>
         </div>
         <div class="overlay-actions">
@@ -460,16 +342,16 @@
     <div class="overlay" id="overlay-about" hidden>
       <div class="overlay-panel panel panel-wide" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
         <p class="kicker">About this project</p>
-        <h2 id="aboutTitle">Mission: English Club</h2>
+        <h2 id="aboutTitle">English Club Quiz</h2>
         <div class="about-copy">
-          <p>An original educational game built for the American Corner English Clubs Exhibition. All pixel art is generated in code, all audio is synthesized live, and the whole game is cached locally after the first visit.</p>
+          <p>An offline educational quiz for the American Corner English Club. All artwork is generated in code, all sounds are synthesised live, and the whole quiz is cached locally after the first visit.</p>
           <ul>
             <li><strong>CEFR content:</strong> A1, A2 and B1 exercises across four skills plus American culture.</li>
-            <li><strong>Accessibility:</strong> keyboard and touch controls, reduced motion, high contrast, screen-reader labels.</li>
+            <li><strong>Accessibility:</strong> keyboard and touch support, reduced motion, high contrast, screen-reader labels.</li>
             <li><strong>Privacy:</strong> no accounts, no trackers, no external requests. Progress lives in <code>localStorage</code> on this device.</li>
             <li><strong>Factual care:</strong> culture items distinguish verified facts from simplified classroom explanations; sources are listed in the documentation.</li>
           </ul>
-          <p class="micro muted">Version 3.1 · Made for learners, not for data collection.</p>
+          <p class="micro muted">Version 4.0 · Made for learners, not for data collection.</p>
         </div>
         <div class="overlay-actions">
           <button class="btn btn-primary" data-close-overlay type="button">Close</button>
@@ -477,35 +359,21 @@
       </div>
     </div>
 
-    <!-- Dialogue -->
-    <div class="overlay" id="overlay-dialogue" hidden>
-      <div class="dialogue-panel" role="dialog" aria-modal="true" aria-labelledby="dialogueName">
-        <div class="dialogue-portrait"><canvas id="dialoguePortrait" width="96" height="96" aria-hidden="true"></canvas></div>
-        <div class="dialogue-body">
-          <p class="dialogue-name" id="dialogueName">Guide</p>
-          <p class="dialogue-text" id="dialogueText"></p>
-          <p class="dialogue-fr" id="dialogueFr" hidden></p>
-          <div class="dialogue-choices" id="dialogueChoices"></div>
-          <button class="dialogue-next" id="dialogueNext" type="button">Continue <span aria-hidden="true">▸</span></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Activity / Final challenge -->
+    <!-- Activity / quiz questions -->
     <div class="overlay" id="overlay-activity" hidden>
       <div class="activity-panel" role="dialog" aria-modal="true" aria-labelledby="activityTitle">
         <header class="activity-head">
-          <div class="activity-station">
-            <span class="station-icon" id="activityIcon" aria-hidden="true">★</span>
+          <div class="activity-identity">
+            <span class="activity-symbol" id="activityIcon" aria-hidden="true">★</span>
             <div>
-              <p class="kicker" id="activityKicker">Vocabulary Garden</p>
-              <h2 id="activityTitle">Warm-up</h2>
+              <p class="kicker" id="activityKicker">A1 quiz</p>
+              <h2 id="activityTitle">Question 1</h2>
             </div>
           </div>
           <div class="activity-meta">
-            <span id="activityCounter">1 / 3</span>
+            <span id="activityCounter">1 / 15</span>
             <span id="activitySkill" class="pill">Vocabulary</span>
-            <button id="activityQuit" class="btn btn-icon" type="button" aria-label="Leave activity">✕</button>
+            <button id="activityQuit" class="btn btn-icon" type="button" aria-label="Leave quiz">✕</button>
           </div>
         </header>
         <div class="activity-body" id="activityBody"></div>
@@ -527,7 +395,7 @@
   </div>
 
   <noscript>
-    <div class="noscript">This game needs JavaScript enabled. It runs entirely on your device — no internet connection is required after the first load.</div>
+    <div class="noscript">This quiz needs JavaScript enabled. It runs entirely on your device — no internet connection is required after the first load.</div>
   </noscript>
 
   <script type="module" src="src/main.js"></script>

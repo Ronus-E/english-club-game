@@ -10,8 +10,6 @@ export const DEFAULT_SETTINGS = {
   reducedGraphics: false,
   reduceMotion: false,
   highContrast: false,
-  frenchHints: false,
-  forceTouch: false,
 };
 
 export function defaultProfile() {
@@ -44,7 +42,7 @@ export function sanitizeSettings(raw, base = DEFAULT_SETTINGS) {
     const value = Number(raw[key]);
     if (Number.isFinite(value)) out[key] = Math.min(100, Math.max(0, Math.round(value)));
   }
-  for (const key of ['musicOn', 'reducedGraphics', 'reduceMotion', 'highContrast', 'frenchHints', 'forceTouch']) {
+  for (const key of ['musicOn', 'reducedGraphics', 'reduceMotion', 'highContrast']) {
     if (key in raw) out[key] = Boolean(raw[key]);
   }
   return out;
@@ -121,7 +119,7 @@ export class ProfileStore {
   }
 
   setName(name) {
-    const clean = String(name || '').trim().slice(0, 12);
+    const clean = String(name || '').trim().slice(0, 16);
     this.profile.name = clean || 'Explorer';
     return this.save();
   }
@@ -137,8 +135,8 @@ export class ProfileStore {
   }
 
   /**
-   * Persist a finished session. Returns { xpGained, newBest, best }.
-   * XP rewards correct answers and completed stations, never speed.
+   * Persist a finished quiz. Returns { xpGained, newBest, best }.
+   * XP rewards correct answers only; no timer is involved.
    */
   recordSession(result) {
     const p = this.profile;
@@ -155,7 +153,6 @@ export class ProfileStore {
       maxScore: result.maxScore,
       correct: result.correct,
       wrong: result.wrong,
-      usedSeconds: result.usedSeconds,
     };
     for (const [skill, stat] of Object.entries(result.skills || {})) {
       if (!stat || !stat.total) continue;

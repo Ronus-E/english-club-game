@@ -10,28 +10,24 @@ export const vocabulary = {
       objective: 'Recognise three classroom objects in English.',
       pairs: [{ term: 'book', icon: 'book' }, { term: 'pencil', icon: 'pencil' }, { term: 'clock', icon: 'clock' }],
       explanation: 'A book is for reading, a pencil is for writing and a clock shows the time.',
-      fr: 'book = livre, pencil = crayon, clock = horloge.',
     }),
     match({
       id: 'voc-a1-02', level: 'A1',
       objective: 'Recognise three common food and drink words.',
       pairs: [{ term: 'apple', icon: 'apple' }, { term: 'sandwich', icon: 'sandwich' }, { term: 'water', icon: 'water' }],
       explanation: 'An apple is a fruit, a sandwich is bread with food inside, and water is a drink.',
-      fr: 'apple = pomme, sandwich = sandwich, water = eau.',
     }),
     match({
       id: 'voc-a1-03', level: 'A1',
       objective: 'Recognise places in a town.',
       pairs: [{ term: 'house', icon: 'house' }, { term: 'school', icon: 'school' }, { term: 'park', icon: 'tree' }],
       explanation: 'A house is a home, a school is a place for lessons, and a park is an open green space.',
-      fr: 'house = maison, school = école, park = parc.',
     }),
     match({
       id: 'voc-a1-04', level: 'A1',
       objective: 'Recognise three means of transport.',
       pairs: [{ term: 'bus', icon: 'bus' }, { term: 'bicycle', icon: 'bicycle' }, { term: 'airplane', icon: 'airplane' }],
       explanation: 'A bus and a bicycle travel on roads; an airplane flies in the sky.',
-      fr: 'bus = bus, bicycle = vélo, airplane = avion.',
     }),
     choice({
       id: 'voc-a1-05', level: 'A1', skill: 'vocabulary', objective: O, instruction: I,
@@ -76,21 +72,18 @@ export const vocabulary = {
       objective: 'Use travel vocabulary for a trip.',
       pairs: [{ term: 'passport', icon: 'passport' }, { term: 'ticket', icon: 'ticket' }, { term: 'suitcase', icon: 'suitcase' }],
       explanation: 'You show a passport at a border, a ticket lets you travel, and a suitcase carries your clothes.',
-      fr: 'passport = passeport, ticket = billet, suitcase = valise.',
     }),
     match({
       id: 'voc-a2-02', level: 'A2',
       objective: 'Describe the weather with three nouns.',
       pairs: [{ term: 'sun', icon: 'sun' }, { term: 'umbrella', icon: 'umbrella' }, { term: 'snow', icon: 'snowflake' }],
       explanation: 'The sun gives light, an umbrella protects you from rain, and snow falls in cold weather.',
-      fr: 'sun = soleil, umbrella = parapluie, snow = neige.',
     }),
     match({
       id: 'voc-a2-03', level: 'A2',
       objective: 'Name three jobs.',
       pairs: [{ term: 'chef', icon: 'chef' }, { term: 'engineer', icon: 'laptop' }, { term: 'nurse', icon: 'hospital' }],
       explanation: 'A chef cooks, an engineer designs or builds systems, and a nurse cares for patients.',
-      fr: 'chef = chef cuisinier, engineer = ingénieur, nurse = infirmier/ère.',
     }),
     choice({
       id: 'voc-a2-04', level: 'A2', skill: 'vocabulary', objective: O, instruction: I,
@@ -141,7 +134,6 @@ export const vocabulary = {
       objective: 'Use environmental vocabulary accurately.',
       pairs: [{ term: 'recycling', icon: 'recycle' }, { term: 'pollution', icon: 'factory' }, { term: 'traffic', icon: 'car' }],
       explanation: 'Recycling reuses materials, pollution damages the environment, and traffic is the movement of vehicles.',
-      fr: 'recycling = recyclage, pollution = pollution, traffic = circulation.',
     }),
     choice({
       id: 'voc-b1-02', level: 'B1', skill: 'vocabulary', objective: O, instruction: I,

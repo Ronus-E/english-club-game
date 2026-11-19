@@ -2,7 +2,6 @@
  * Small canvas decorations: splash logo, ambient starfield, avatar preview and
  * the results badge. All drawn procedurally, no image files.
  */
-import { drawPortrait, AVATARS } from '../world/sprites.js';
 import { hashString } from '../core/util.js';
 
 export function drawLogo(canvas, time = 0) {
@@ -141,11 +140,6 @@ export class AmbientField {
   }
 
   setReduced(reduced) { this.reduced = Boolean(reduced); }
-}
-
-export function drawAvatarPreview(canvas, avatarIndex) {
-  const palette = AVATARS[Math.max(0, Math.min(AVATARS.length - 1, avatarIndex))] || AVATARS[0];
-  drawPortrait(canvas.getContext('2d'), canvas.width, canvas.height, palette, { accent: '#0a1024' });
 }
 
 export function drawResultsBadge(canvas, { grade = 'C', percent = 0 }) {

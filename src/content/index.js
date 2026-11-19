@@ -34,42 +34,24 @@ export function countExercises() {
 }
 
 /**
- * Build the exercise sets for one 3-minute mission.
- * Kept deliberately small: 9 required interactions, plus optional bonus stations.
+ * Build one 15-question quiz: three exercises from each of the five skills,
+ * interleaved so the same skill never appears three times in a row. The seed
+ * makes a session reproducible in tests while remaining varied for learners.
  */
-export function buildMissionPlan(level, seed = Date.now()) {
+export const QUIZ_SKILLS = [...SKILLS, 'culture'];
+export const QUIZ_PER_SKILL = 3;
+
+export function buildQuiz(level, seed = Date.now()) {
+  if (!LEVELS.includes(level)) throw new Error(`Unknown level: ${level}`);
   const rng = createRng(seed);
-  const vocab = getExercises('vocabulary', level);
-  const grammar = getExercises('grammar', level);
-  const culture = getExercises('culture', level);
-  const readingItems = getExercises('reading', level);
-  const writingItems = getExercises('writing', level);
-
-  const matchItems = vocab.filter((item) => item.type === 'match');
-  const choiceItems = vocab.filter((item) => item.type === 'choice');
-  const vocabSet = [
-    ...sample(matchItems, 1, rng),
-    ...sample(choiceItems, 2, rng),
-  ];
-  const grammarSet = sample(grammar, 2, rng);
-  const cultureSet = sample(culture, 2, rng);
-  const writingSet = sample(writingItems.filter((i) => i.type === 'order'), 1, rng);
-  const finalSet = shuffle([
-    ...sample(grammar.filter((i) => !grammarSet.includes(i)), 1, rng),
-    ...sample(readingItems, 1, rng),
-  ], rng);
-
-  return {
-    level,
-    seed,
-    stations: {
-      vocabulary: vocabSet,
-      grammar: grammarSet,
-      writing: writingSet,
-      culture: cultureSet,
-      final: finalSet,
-    },
-  };
+  const groups = QUIZ_SKILLS.map((skill) => sample(getExercises(skill, level), QUIZ_PER_SKILL, rng));
+  const rounds = [];
+  for (let i = 0; i < QUIZ_PER_SKILL; i++) {
+    const round = [];
+    for (const group of groups) if (group[i]) round.push(group[i]);
+    rounds.push(shuffle(round, rng));
+  }
+  return rounds.flat();
 }
 
 /** Six-question placement check, deliberately spread across skills and levels. */

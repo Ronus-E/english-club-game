@@ -1,10 +1,10 @@
 /* ============================================================
-   Mission: English Club — service worker
+   English Club Quiz — service worker
    Offline-first app shell. No external assets, no network APIs.
    Bump CACHE_VERSION whenever a precached file changes.
    ============================================================ */
 
-const CACHE_VERSION = 'ec-v1.3.0';
+const CACHE_VERSION = 'ec-v2.0.1';
 const PRECACHE = [
   './',
   './index.html',
@@ -17,27 +17,20 @@ const PRECACHE = [
   './src/styles/screens.css',
   './src/core/util.js',
   './src/core/storage.js',
-  './src/core/timer.js',
   './src/core/scoring.js',
   './src/core/achievements.js',
   './src/core/audio.js',
-  './src/game/input.js',
-  './src/game/mission.js',
+  './src/game/quiz.js',
   './src/ui/activities.js',
   './src/ui/decor.js',
-  './src/ui/dialogue.js',
   './src/ui/icons.js',
   './src/ui/screens.js',
-  './src/world/campus.js',
-  './src/world/renderer.js',
-  './src/world/sprites.js',
   './src/content/schema.js',
   './src/content/vocabulary.js',
   './src/content/grammar.js',
   './src/content/reading.js',
   './src/content/writing.js',
   './src/content/culture.js',
-  './src/content/dialogues.js',
   './src/content/index.js',
 ];
 

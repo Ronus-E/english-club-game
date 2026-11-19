@@ -1,16 +1,17 @@
 /**
- * Entry point: builds the store, audio engine, UI, activity/dialogue runners,
- * the mission controller and every navigation path. No dependencies.
+ * Entry point: builds the store, audio engine, UI, activity runner and quiz
+ * controller, then wires every navigation path. No third-party dependencies.
  */
 import { ProfileStore } from './core/storage.js';
 import { AudioEngine } from './core/audio.js';
-import { UI, formatClock } from './ui/screens.js';
-import { AmbientField, drawLogo, drawAvatarPreview } from './ui/decor.js';
+import { UI } from './ui/screens.js';
+import { AmbientField, drawLogo } from './ui/decor.js';
 import { ActivityRunner } from './ui/activities.js';
-import { DialogueRunner } from './ui/dialogue.js';
-import { Mission } from './game/mission.js';
-import { InputController } from './game/input.js';
-import { getExercises, getPlacementQuestions, LEVELS, SKILLS, SKILL_INFO } from './content/index.js';
+import { Quiz } from './game/quiz.js';
+import {
+  getExercises, getPlacementQuestions, countExercises,
+  LEVELS, SKILLS, SKILL_INFO,
+} from './content/index.js';
 import { shuffle } from './core/util.js';
 
 function boot() {
@@ -50,63 +51,35 @@ function boot() {
     syncRoot: () => ui.syncOverlayRoot(),
   });
 
-  const dialogue = new DialogueRunner({
-    overlay: ui.el['overlay-dialogue'],
-    elements: {
-      name: ui.el.dialogueName,
-      text: ui.el.dialogueText,
-      fr: ui.el.dialogueFr,
-      choices: ui.el.dialogueChoices,
-      next: ui.el.dialogueNext,
-      portrait: ui.el.dialoguePortrait,
-    },
-    audio,
-    getSettings: () => store.getSettings(),
-    syncRoot: () => ui.syncOverlayRoot(),
-    onComplete: (info) => mission.onDialogueComplete(info),
-  });
-
-  const mission = new Mission({
-    ui,
-    store,
-    audio,
-    activities,
-    dialogue,
-    callbacks: {
-      onEnd: ({ result }) => { lastResult = result; },
-    },
-  });
-
   let lastResult = null;
   let placementCorrect = 0;
   let muted = false;
   let deferredPrompt = null;
+  const TOTAL_QUESTIONS = 15;
 
-  const input = new InputController({
-    joystick: ui.el.joystick,
-    knob: ui.el.joystickKnob,
-    actionBtn: ui.el.actionBtn,
-    isEnabled: () => mission.isPlaying,
-    onAction: () => {
-      if (ui.isOverlayOpen('dialogue')) { dialogue.advance(); return; }
-      if (ui.isOverlayOpen('activity')) return;
-      if (ui.anyOverlayOpen()) return;
-      mission.interact();
+  const quiz = new Quiz({
+    store,
+    activities,
+    onEnd: ({ result, unlocked }) => {
+      lastResult = result;
+      ui.renderResults(result, { unlocked });
+      ui.showScreen('results');
     },
-    onPause: () => handlePause(),
   });
-  mission.setInput(() => input.worldAxis(), () => input.reset());
-
-  /* ------------------------------------------------------------- helpers */
-  const closeOverlayNode = (node) => {
-    node.hidden = true;
-    ui.syncOverlayRoot();
+  quiz.onProgress = (session) => {
+    ui.setQuizStatus(Math.min(session.answers.length + 1, TOTAL_QUESTIONS), TOTAL_QUESTIONS);
+    ui.renderQuizPips(session.skills);
+  };
+  quiz.onQuit = () => {
+    ui.showScreen('menu');
+    ui.updateProfile();
+    ui.toast('Quiz left. Your progress in this run was not saved.', { warn: true });
   };
 
+  /* ------------------------------------------------------------- helpers */
   const applyGraphicsSettings = (settings) => {
     ui.applyA11yClasses();
     const reduced = Boolean(settings.reduceMotion || settings.reducedGraphics);
-    mission.renderer.reduced = reduced;
     ambient.setReduced(reduced);
     if (logoRaf) {
       cancelAnimationFrame(logoRaf);
@@ -115,58 +88,30 @@ function boot() {
     if (!reduced) animateLogo();
   };
 
-  const syncAvatar = () => {
-    const p = store.get();
-    drawAvatarPreview(ui.el.avatarCanvas, p.avatar);
-    if (ui.el.playerNameInput && document.activeElement !== ui.el.playerNameInput) {
-      ui.el.playerNameInput.value = p.name;
-    }
-  };
-
-  const updateMuteButton = () => {
-    if (!ui.el.muteBtn) return;
-    ui.el.muteBtn.textContent = muted ? '🔇' : '🔊';
-    ui.el.muteBtn.setAttribute('aria-label', muted ? 'Unmute audio' : 'Mute audio');
-  };
-
-  const toggleMute = () => {
-    muted = !muted;
-    audio.setMuted(muted);
-    updateMuteButton();
-    if (!muted) audio.play('click');
-  };
-
   const openLevelSelect = () => {
-    ui.renderLevelGrid({
-      selected: store.get().level,
-      onPick: () => ui.updateProfile(),
-    });
+    ui.renderLevelGrid({ selected: store.get().level });
     ui.updateProfile();
     ui.showScreen('level');
   };
 
-  const openIntro = () => {
-    ui.renderAvatarPicker({ onPick: () => syncAvatar() });
-    syncAvatar();
-    ui.updateProfile();
-    ui.showScreen('intro');
-  };
-
-  const startMission = () => {
+  const startQuiz = (level) => {
     const name = ui.el.playerNameInput?.value || store.get().name;
     store.setName(name);
-    store.setAvatar(store.get().avatar);
+    store.setLevel(level);
     ui.closeAllOverlays();
-    ui.setBootStatus('Campus ready.');
-    mission.start(store.get().level);
+    ui.setQuizHeader(level, TOTAL_QUESTIONS);
+    ui.showScreen('quiz');
     lastResult = null;
+    quiz.start(level);
   };
 
   const runPractice = (skill, level) => {
     const items = shuffle(getExercises(skill, level));
-    if (!items.length) { ui.toast('No exercises available for this selection.', { warn: true }); return; }
+    if (!items.length) {
+      ui.toast('No exercises available for this selection.', { warn: true });
+      return;
+    }
     activities.open({
-      stationId: `practice:${skill}`,
       title: `${SKILL_INFO[skill]?.name || skill} practice`,
       kicker: `Practice · level ${level}`,
       icon: SKILL_INFO[skill]?.icon || '★',
@@ -192,7 +137,6 @@ function boot() {
     placementCorrect = 0;
     const items = getPlacementQuestions();
     activities.open({
-      stationId: 'placement',
       title: 'Placement check',
       kicker: 'Six questions · about one minute',
       icon: '🧭',
@@ -213,17 +157,18 @@ function boot() {
     });
   };
 
-  const handlePause = () => {
-    if (ui.isOverlayOpen('confirm')) return;
-    if (ui.isOverlayOpen('dialogue')) { dialogue.close(false); return; }
-    if (ui.isOverlayOpen('activity')) { activities.requestQuit(); return; }
-    if (ui.isOverlayOpen('pause')) { mission.resume(); return; }
-    if (ui.isOverlayOpen('help') || ui.isOverlayOpen('about') || ui.isOverlayOpen('settings') || ui.isOverlayOpen('progress')) {
-      for (const id of ['help', 'about', 'settings', 'progress']) if (ui.isOverlayOpen(id)) ui.closeOverlay(id);
-      if (mission.state === 'paused' && !ui.anyOverlayOpen()) ui.openOverlay('pause');
-      return;
+  const closeTopOverlay = () => {
+    for (const id of ['confirm', 'help', 'about', 'settings']) {
+      if (ui.isOverlayOpen(id)) {
+        ui.closeOverlay(id);
+        return true;
+      }
     }
-    if (ui.currentScreen === 'game' && mission.isPlaying) mission.pause();
+    if (ui.isOverlayOpen('activity')) {
+      activities.requestQuit();
+      return true;
+    }
+    return false;
   };
 
   /* -------------------------------------------------------------- screens */
@@ -237,15 +182,16 @@ function boot() {
   });
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
-  ui.el.levelContinueBtn?.addEventListener('click', () => { audio.play('select'); openIntro(); });
-  ui.el.startMissionBtn?.addEventListener('click', () => { audio.play('fanfare'); startMission(); });
+  ui.el.levelContinueBtn?.addEventListener('click', () => {
+    audio.play('fanfare');
+    startQuiz(store.get().level);
+  });
   ui.el.practiceBtn?.addEventListener('click', () => {
     audio.play('click');
     ui.el.practiceLevel.value = store.get().level;
     ui.renderPractice();
     ui.showScreen('practice');
   });
-  ui.el.practiceCampusBtn?.addEventListener('click', () => { audio.play('click'); startMission(); });
   ui.el.achievementsBtn?.addEventListener('click', () => {
     audio.play('click');
     ui.renderAchievements();
@@ -255,13 +201,9 @@ function boot() {
   ui.el.settingsBtn?.addEventListener('click', () => { audio.play('open'); ui.syncSettingsInputs(); ui.openOverlay('settings'); });
   ui.el.aboutBtn?.addEventListener('click', () => { audio.play('open'); ui.openOverlay('about'); });
   ui.el.howBtn?.addEventListener('click', () => { audio.play('open'); ui.openOverlay('help'); });
-  ui.el.introHowBtn?.addEventListener('click', () => { audio.play('open'); ui.openOverlay('help'); });
   ui.el.placementBtn?.addEventListener('click', () => { audio.play('click'); startPlacement(); });
 
-  ui.el.practiceLevel?.addEventListener('change', () => {
-    ui.renderPractice();
-  });
-
+  ui.el.practiceLevel?.addEventListener('change', () => ui.renderPractice());
   ui.onPracticeSkill = (skill, level) => {
     audio.play('select');
     runPractice(skill, level);
@@ -269,19 +211,16 @@ function boot() {
 
   for (const btn of document.querySelectorAll('[data-back]')) {
     btn.addEventListener('click', () => {
-      const target = btn.getAttribute('data-back');
-      if (target === 'level') openLevelSelect();
-      else ui.showScreen(target);
+      ui.showScreen(btn.getAttribute('data-back'));
       audio.play('close');
     });
   }
-
   for (const btn of document.querySelectorAll('[data-close-overlay]')) {
     btn.addEventListener('click', () => {
       const overlay = btn.closest('.overlay');
-      if (overlay) closeOverlayNode(overlay);
-      if (overlay?.id === 'overlay-progress' && mission.state === 'paused' && !ui.anyOverlayOpen()) {
-        ui.openOverlay('pause');
+      if (overlay) {
+        overlay.hidden = true;
+        ui.syncOverlayRoot();
       }
       audio.play('close');
     });
@@ -290,40 +229,31 @@ function boot() {
   ui.el.playerNameInput?.addEventListener('input', (event) => {
     store.setName(event.target.value);
     ui.updateProfile();
-    syncAvatar();
   });
 
-  /* ---------------------------------------------------------------- game */
-  ui.el.pauseBtn?.addEventListener('click', () => mission.pause());
-  ui.el.muteBtn?.addEventListener('click', toggleMute);
-
-  ui.el.resumeBtn?.addEventListener('click', () => mission.resume());
-  ui.el.progressBtn?.addEventListener('click', () => {
-    ui.closeOverlay('pause');
-    mission.showMissionProgress();
-  });
-  ui.el.pauseSettingsBtn?.addEventListener('click', () => {
-    ui.syncSettingsInputs();
-    ui.openOverlay('settings');
-  });
-  ui.el.pauseRestartBtn?.addEventListener('click', () => {
+  /* ----------------------------------------------------------------- quiz */
+  ui.el.quizQuitBtn?.addEventListener('click', () => {
+    audio.play('close');
     ui.confirm({
-      title: 'Restart the mission?',
-      text: 'The clock and all answers for this mission will be reset.',
-      yes: 'Restart',
-    }, () => mission.restart());
+      title: 'Leave this quiz?',
+      text: 'Answers already given in this run will not be saved.',
+      yes: 'Leave quiz',
+    }, () => quiz.abandon());
   });
-  ui.el.quitBtn?.addEventListener('click', () => {
-    ui.confirm({
-      title: 'End this mission?',
-      text: 'You will see the report for the answers given so far.',
-      yes: 'End mission',
-    }, () => mission.abandon());
+  ui.el.quizOpenBtn?.addEventListener('click', () => {
+    if (quiz.session) ui.openOverlay('activity');
   });
 
   /* ------------------------------------------------------------- results */
-  ui.el.replayBtn?.addEventListener('click', () => { audio.play('click'); mission.start(store.get().level); });
-  ui.el.resultsMenuBtn?.addEventListener('click', () => { audio.play('close'); ui.showScreen('menu'); ui.updateProfile(); });
+  ui.el.replayBtn?.addEventListener('click', () => {
+    audio.play('click');
+    startQuiz(lastResult?.level || store.get().level);
+  });
+  ui.el.resultsMenuBtn?.addEventListener('click', () => {
+    audio.play('close');
+    ui.showScreen('menu');
+    ui.updateProfile();
+  });
   ui.el.practiceWeakBtn?.addEventListener('click', () => {
     const result = lastResult;
     if (!result) { ui.showScreen('practice'); return; }
@@ -334,7 +264,7 @@ function boot() {
     ui.el.practiceLevel.value = result.level;
     ui.renderPractice();
     ui.showScreen('practice');
-    ui.toast(`Weakest skill this mission: ${SKILL_INFO[weakest]?.name || weakest}. Starting focused practice.`, { ms: 3000 });
+    ui.toast(`Weakest skill: ${SKILL_INFO[weakest]?.name || weakest}. Starting focused practice.`, { ms: 3000 });
     runPractice(weakest, result.level);
   });
 
@@ -343,17 +273,13 @@ function boot() {
     onChange: (key, value, settings) => {
       audio.applySettings(settings);
       applyGraphicsSettings(settings);
-      if (key === 'musicOn') {
-        if (value && mission.isPlaying && !ui.anyOverlayOpen()) audio.startMusic();
-        if (!value) audio.stopMusic();
-      }
+      if (key === 'musicOn' && value) audio.startMusic();
+      if (key === 'musicOn' && !value) audio.stopMusic();
       if (key === 'music' || key === 'sfx') audio.play('select');
     },
   });
   ui.syncSettingsInputs();
-  ui.applyA11yClasses();
   applyGraphicsSettings(store.getSettings());
-  updateMuteButton();
 
   ui.el.resetProgressBtn?.addEventListener('click', () => {
     ui.confirm({
@@ -363,12 +289,15 @@ function boot() {
     }, () => {
       store.reset();
       ui.syncSettingsInputs();
-      ui.applyA11yClasses();
       applyGraphicsSettings(store.getSettings());
       audio.applySettings(store.getSettings());
       ui.updateProfile();
       ui.toast('Local progress reset.', { warn: true });
     });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && closeTopOverlay()) event.preventDefault();
   });
 
   /* ----------------------------------------------------------------- PWA */
@@ -384,9 +313,8 @@ function boot() {
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredPrompt = event;
-    if (ui.el.installHint) ui.el.installHint.textContent = 'Install this game on your device';
+    if (ui.el.installHint) ui.el.installHint.textContent = 'Install this quiz on your device';
   });
-
   ui.el.installBtn?.addEventListener('click', async () => {
     if (!deferredPrompt) {
       ui.toast('Use your browser menu → “Install app” or “Add to Home Screen”.', { ms: 4200 });
@@ -401,7 +329,6 @@ function boot() {
     }
     deferredPrompt = null;
   });
-
   window.addEventListener('appinstalled', () => {
     ui.toast('English Club installed. It works offline.');
     if (ui.el.installHint) ui.el.installHint.textContent = 'Installed';
@@ -410,33 +337,30 @@ function boot() {
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(() => {
-        /* offline caching is optional; the game still runs */
+        /* offline caching is optional; the quiz still runs */
       });
     });
   }
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && mission.isPlaying) mission.pause();
-  });
-
-  window.addEventListener('beforeunload', () => {
-    if (mission.isPlaying) mission.timer?.pause();
-  });
-
   /* ---------------------------------------------------------------- boot */
   drawLogo(logoCanvas, 0);
   ui.updateProfile();
-  syncAvatar();
-  ui.setBootStatus('Campus ready · press START MISSION');
+  ui.setBootStatus('Quiz ready · press START');
   ui.el.bootBtn?.removeAttribute('disabled');
   document.body.classList.add('is-booted');
-  window.__ENGLISH_CLUB__ = { store, ui, mission, activities, dialogue, audio, formatClock };
+  window.__ENGLISH_CLUB__ = {
+    store, ui, quiz, activities, audio,
+    LEVELS, SKILLS, countExercises, getExercises,
+  };
   console.info('[English Club] ready', {
     screens: ui.screens.size,
     levels: LEVELS,
     skills: [...SKILLS, 'culture'],
-    exercises: LEVELS.reduce((sum, level) => sum + [...SKILLS, 'culture']
-      .reduce((n, skill) => n + getExercises(skill, level).length, 0), 0),
+    exercises: LEVELS.reduce(
+      (sum, level) => sum + [...SKILLS, 'culture']
+        .reduce((n, skill) => n + getExercises(skill, level).length, 0),
+      0,
+    ),
   });
 }
 
