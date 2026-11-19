@@ -1,0 +1,193 @@
+import { choice } from './schema.js';
+
+const g = (data) => choice({ skill: 'grammar', instruction: 'Choose the correct option to complete the sentence.', ...data });
+
+export const grammar = {
+  A1: [
+    g({
+      id: 'gra-a1-01', level: 'A1', objective: 'Use the verb “be” with he, she and it.',
+      prompt: 'She ___ a student at the English Club.',
+      options: ['am', 'is', 'are', 'be'], answer: 1,
+      explanation: 'With he, she and it we use “is”: She is a student.',
+      fr: 'Avec he/she/it, “be” devient “is”.',
+    }),
+    g({
+      id: 'gra-a1-02', level: 'A1', objective: 'Use “have” with plural subjects.',
+      prompt: 'They ___ two dogs and a cat.',
+      options: ['has', 'have', 'is', 'are'], answer: 1,
+      explanation: 'With I, you, we and they we use “have”. “Has” is for he, she and it.',
+    }),
+    g({
+      id: 'gra-a1-03', level: 'A1', objective: 'Form the present simple for he/she/it.',
+      prompt: 'He ___ English every day.',
+      options: ['study', 'studies', 'studying', 'studied'], answer: 1,
+      explanation: 'In the present simple, verbs add -s with he, she and it: study → studies (y → ies).',
+    }),
+    g({
+      id: 'gra-a1-04', level: 'A1', objective: 'Choose the correct indefinite article.',
+      prompt: 'I need ___ umbrella because it is raining.',
+      options: ['a', 'an', 'the', '—'], answer: 1,
+      explanation: 'We use “an” before a vowel sound: an umbrella, an apple, an hour.',
+    }),
+    g({
+      id: 'gra-a1-05', level: 'A1', objective: 'Use an irregular plural noun.',
+      prompt: 'There are three ___ in the garden.',
+      options: ['childs', 'children', 'childes', 'child'], answer: 1,
+      explanation: 'The plural of “child” is “children”, an irregular form.',
+    }),
+    g({
+      id: 'gra-a1-06', level: 'A1', objective: 'Ask a present simple question with “do”.',
+      prompt: '___ you like coffee?',
+      options: ['Do', 'Does', 'Are', 'Is'], answer: 0,
+      explanation: 'Questions in the present simple start with Do/Does. With “you”, use “Do”.',
+    }),
+    g({
+      id: 'gra-a1-07', level: 'A1', objective: 'Express possession with ’s.',
+      prompt: 'This is ___ book. (Maria)',
+      options: ['Maria', "Maria's", 'Marias', 'of Maria'], answer: 1,
+      explanation: 'Add ’s to a person to show possession: Maria’s book.',
+    }),
+    g({
+      id: 'gra-a1-08', level: 'A1', objective: 'Use prepositions of time.',
+      prompt: 'The class starts ___ nine o’clock.',
+      options: ['in', 'on', 'at', 'to'], answer: 2,
+      explanation: 'We use “at” for clock times: at nine o’clock. “In” is for months and years, “on” for days.',
+    }),
+    g({
+      id: 'gra-a1-09', level: 'A1', objective: 'Form a present simple negative.',
+      prompt: 'I ___ like fish, but I love vegetables.',
+      options: ['not', "don't", "doesn't", "am not"], answer: 1,
+      explanation: 'The negative of “like” with I is “do not / don’t like”.',
+    }),
+    g({
+      id: 'gra-a1-10', level: 'A1', objective: 'Use the correct subject pronoun.',
+      prompt: 'Tom is my friend. ___ is from Boston.',
+      options: ['She', 'He', 'It', 'They'], answer: 1,
+      explanation: 'Tom is a man or boy, so we use “he”.',
+    }),
+  ],
+  A2: [
+    g({
+      id: 'gra-a2-01', level: 'A2', objective: 'Use the past simple of an irregular verb.',
+      prompt: 'Yesterday we ___ to the museum.',
+      options: ['go', 'went', 'gone', 'going'], answer: 1,
+      explanation: '“Go” is irregular: go → went → gone. The past simple here is “went”.',
+    }),
+    g({
+      id: 'gra-a2-02', level: 'A2', objective: 'Form a past simple negative.',
+      prompt: 'She ___ come to the party because she was ill.',
+      options: ["doesn't", "didn't", "isn't", "wasn't"], answer: 1,
+      explanation: 'For a past simple negative we use “did not / didn’t” + base verb: didn’t come.',
+    }),
+    g({
+      id: 'gra-a2-03', level: 'A2', objective: 'Use a comparative adjective.',
+      prompt: 'This bag is ___ than that one.',
+      options: ['heavy', 'heavier', 'heaviest', 'more heavy'], answer: 1,
+      explanation: 'Short adjectives form the comparative with -er: heavy → heavier (y → ier).',
+    }),
+    g({
+      id: 'gra-a2-04', level: 'A2', objective: 'Use the present continuous for an action happening now.',
+      prompt: 'Look! It ___ outside.',
+      options: ['rains', 'is raining', 'rained', 'rain'], answer: 1,
+      explanation: 'An action happening at the moment of speaking uses the present continuous: is raining.',
+    }),
+    g({
+      id: 'gra-a2-05', level: 'A2', objective: 'Express a future plan with “going to”.',
+      prompt: 'We ___ visit New York next summer.',
+      options: ['are going to', 'going to', 'is going to', 'go to'], answer: 0,
+      explanation: 'Plans use “be going to” + verb. With “we”, the correct form is “are going to”.',
+    }),
+    g({
+      id: 'gra-a2-06', level: 'A2', objective: 'Distinguish countable and uncountable quantities.',
+      prompt: 'How ___ sugar do you want in your tea?',
+      options: ['many', 'much', 'some', 'few'], answer: 1,
+      explanation: '“Much” is used with uncountable nouns such as sugar, water and time.',
+    }),
+    g({
+      id: 'gra-a2-07', level: 'A2', objective: 'Use the present perfect with “before”.',
+      prompt: 'I have ___ this film before.',
+      options: ['saw', 'see', 'seen', 'seeing'], answer: 2,
+      explanation: 'The present perfect is have/has + past participle: have seen.',
+    }),
+    g({
+      id: 'gra-a2-08', level: 'A2', objective: 'Use a question tag.',
+      prompt: 'You are from Canada, ___?',
+      options: ['are you', "aren't you", "isn't it", 'do you'], answer: 1,
+      explanation: 'After a positive statement with “are”, the tag is negative: aren’t you?',
+    }),
+    g({
+      id: 'gra-a2-09', level: 'A2', objective: 'Give advice with “should”.',
+      prompt: 'You look tired. You ___ see a doctor.',
+      options: ['should', 'should to', 'are should', 'must to'], answer: 0,
+      explanation: '“Should” is a modal verb: should + base verb, without “to”.',
+    }),
+    g({
+      id: 'gra-a2-10', level: 'A2', objective: 'Ask about existence with “Is there…?”.',
+      prompt: '___ any milk in the fridge?',
+      options: ['Is there', 'Are there', 'There is', 'Has there'], answer: 0,
+      explanation: 'Milk is uncountable, so we ask “Is there any milk?”.',
+    }),
+  ],
+  B1: [
+    g({
+      id: 'gra-b1-01', level: 'B1', objective: 'Choose between present perfect and past simple.',
+      prompt: 'I ___ my keys. I cannot find them anywhere.',
+      options: ['lost', 'have lost', 'was losing', 'lose'], answer: 1,
+      explanation: 'The present perfect links a past action to the present result: I have lost my keys (so I cannot find them now).',
+    }),
+    g({
+      id: 'gra-b1-02', level: 'B1', objective: 'Use the past simple passive.',
+      prompt: 'The bridge ___ in 1937.',
+      options: ['built', 'was built', 'has built', 'is building'], answer: 1,
+      explanation: 'The bridge receives the action, so we use the passive: was built + date.',
+    }),
+    g({
+      id: 'gra-b1-03', level: 'B1', objective: 'Use the first conditional.',
+      prompt: 'If it rains tomorrow, we ___ inside.',
+      options: ['stay', 'will stay', 'stayed', 'would stay'], answer: 1,
+      explanation: 'First conditional: if + present simple, will + base verb.',
+    }),
+    g({
+      id: 'gra-b1-04', level: 'B1', objective: 'Use the second conditional with “were”.',
+      prompt: 'If I ___ you, I would apologise.',
+      options: ['am', 'was', 'were', 'be'], answer: 2,
+      explanation: 'In the second conditional, “were” is the standard form with all subjects: If I were you…',
+    }),
+    g({
+      id: 'gra-b1-05', level: 'B1', objective: 'Use a relative pronoun for people.',
+      prompt: 'The woman ___ helped me was very kind.',
+      options: ['which', 'who', 'whose', 'where'], answer: 1,
+      explanation: '“Who” refers to people. “Which” refers to things, “where” to places.',
+    }),
+    g({
+      id: 'gra-b1-06', level: 'B1', objective: 'Report a present statement in the past.',
+      prompt: 'She said she ___ tired.',
+      options: ['is', 'was', 'were', 'has been'], answer: 1,
+      explanation: 'In reported speech, present “is” usually shifts back to past “was”.',
+    }),
+    g({
+      id: 'gra-b1-07', level: 'B1', objective: 'Use a gerund after “enjoy”.',
+      prompt: 'I enjoy ___ to music while I study.',
+      options: ['listen', 'to listen', 'listening', 'listened'], answer: 2,
+      explanation: '“Enjoy” is followed by a gerund: enjoy listening.',
+    }),
+    g({
+      id: 'gra-b1-08', level: 'B1', objective: 'Use the past perfect for an earlier past action.',
+      prompt: 'When we arrived, the film ___.',
+      options: ['started', 'has started', 'had started', 'was starting'], answer: 2,
+      explanation: 'The film started before we arrived, so the earlier action uses the past perfect: had started.',
+    }),
+    g({
+      id: 'gra-b1-09', level: 'B1', objective: 'Use a modal of deduction.',
+      prompt: 'He is not answering the phone. He ___ be busy.',
+      options: ['must', 'can', 'should', 'would'], answer: 0,
+      explanation: '“Must” expresses a strong logical deduction: the evidence suggests he is busy.',
+    }),
+    g({
+      id: 'gra-b1-10', level: 'B1', objective: 'Use a contrast linker before a noun phrase.',
+      prompt: '___ the bad weather, the event was a success.',
+      options: ['Although', 'Despite', 'However', 'Because'], answer: 1,
+      explanation: '“Despite” is followed by a noun phrase. “Although” needs a full clause: Although the weather was bad…',
+    }),
+  ],
+};

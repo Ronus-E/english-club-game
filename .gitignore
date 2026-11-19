@@ -1,0 +1,7 @@
+# Build output produced by .github/workflows/pages.yml
+_site/
+
+# Local tooling and OS noise
+node_modules/
+.DS_Store
+*.log

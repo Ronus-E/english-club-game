@@ -1,0 +1,76 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push supersedes an older queued run.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run unit tests
+        run: node --test tests/unit.test.mjs
+
+      - name: Stage a clean site
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          # Copy only runtime files. Tests, tools, docs and the old prototype
+          # must never be published.
+          cp index.html manifest.webmanifest sw.js _site/
+          cp -R assets src _site/
+
+      - name: Verify the offline precache list
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, existsSync } from 'node:fs';
+          const sw = readFileSync('sw.js', 'utf8');
+          const match = sw.match(/const PRECACHE = \[([\s\S]*?)\];/);
+          if (!match) throw new Error('Cannot find PRECACHE in sw.js');
+          const paths = [...match[1].matchAll(/'\.\/(.*?)'/g)]
+            .map((m) => m[1]).filter(Boolean);
+          const missing = paths.filter((p) => !existsSync(`_site/${p}`));
+          if (missing.length) {
+            throw new Error(`Precached files missing from _site/: ${missing.join(', ')}`);
+          }
+          console.log(`Verified ${paths.length} precached files in _site/`);
+          NODE
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

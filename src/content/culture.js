@@ -1,0 +1,196 @@
+import { culture } from './schema.js';
+
+const c = (data) => culture({
+  objective: 'Build accurate background knowledge about the United States.',
+  instruction: 'Choose the best answer.',
+  ...data,
+});
+
+export const cultureBank = {
+  A1: [
+    c({
+      id: 'cul-a1-01', level: 'A1', prompt: 'What is the capital city of the United States?',
+      options: ['Washington, D.C.', 'New York City', 'Los Angeles', 'Chicago'], answer: 0,
+      explanation: 'Washington, D.C. is the capital. New York City is the largest city but not the capital.',
+      note: 'Fact: the capital has been Washington, D.C. since 1800.', region: 'Mid-Atlantic',
+    }),
+    c({
+      id: 'cul-a1-02', level: 'A1', prompt: 'In which city is the Statue of Liberty?',
+      options: ['New York City', 'Boston', 'Philadelphia', 'Miami'], answer: 0,
+      explanation: 'The Statue of Liberty stands in New York Harbor. It was a gift from France, dedicated in 1886.',
+      note: 'Fact: the statue is on Liberty Island, New York Harbor.', region: 'Northeast',
+    }),
+    c({
+      id: 'cul-a1-03', level: 'A1', prompt: 'How many stars are on the United States flag?',
+      options: ['50', '48', '52', '13'], answer: 0,
+      explanation: 'The 50 stars represent the 50 states. The 13 stripes recall the original colonies.',
+      note: 'Fact: the current 50-star flag dates from 1960, after Hawaii became a state.',
+    }),
+    c({
+      id: 'cul-a1-04', level: 'A1', prompt: 'In which month is Thanksgiving celebrated in the United States?',
+      options: ['November', 'October', 'December', 'September'], answer: 0,
+      explanation: 'Thanksgiving is a national holiday on the fourth Thursday of November.',
+      note: 'Fact: the date is set by federal law; it is not celebrated on the same day everywhere in the world.',
+    }),
+    c({
+      id: 'cul-a1-05', level: 'A1', prompt: 'What do Americans celebrate on 4 July?',
+      options: ['Independence Day', 'Thanksgiving', 'Memorial Day', 'New Year'], answer: 0,
+      explanation: 'Independence Day marks the Declaration of Independence in 1776.',
+      note: 'Fact: the Declaration was adopted on 4 July 1776.',
+    }),
+    c({
+      id: 'cul-a1-06', level: 'A1', prompt: 'Which of these is a US state?',
+      options: ['Texas', 'Ontario', 'Queensland', 'Bavaria'], answer: 0,
+      explanation: 'Texas is a US state. Ontario is in Canada, Queensland in Australia and Bavaria in Germany.',
+      note: 'Fact.', region: 'South',
+    }),
+    c({
+      id: 'cul-a1-07', level: 'A1', prompt: 'Where does the US president live and work?',
+      options: ['The White House', 'The Capitol', 'The Pentagon', 'The Smithsonian'], answer: 0,
+      explanation: 'The White House, at 1600 Pennsylvania Avenue in Washington, D.C., is the president’s residence and office.',
+      note: 'Fact: the Capitol is the seat of Congress, not the president’s home.',
+    }),
+    c({
+      id: 'cul-a1-08', level: 'A1', prompt: 'Which currency is used in the United States?',
+      options: ['The US dollar', 'The euro', 'The pound', 'The Canadian dollar'], answer: 0,
+      explanation: 'The US dollar (USD) is the official currency.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-a1-09', level: 'A1', prompt: 'Which food is most commonly associated with American fast food?',
+      options: ['The hamburger', 'Sushi', 'Paella', 'Curry'], answer: 0,
+      explanation: 'The hamburger is strongly associated with American fast food, although similar dishes exist in many countries.',
+      note: 'Cultural association, not a claim that the dish was invented in the United States.',
+    }),
+    c({
+      id: 'cul-a1-10', level: 'A1', prompt: 'When does the school year usually begin in most US schools?',
+      options: ['Late August or early September', 'January', 'March', 'April'], answer: 0,
+      explanation: 'Most US schools start between late August and early September after the summer break.',
+      note: 'Simplified: calendars vary by state, district and school type.',
+    }),
+  ],
+  A2: [
+    c({
+      id: 'cul-a2-01', level: 'A2', prompt: 'In which city is the Golden Gate Bridge?',
+      options: ['San Francisco', 'Seattle', 'San Diego', 'New Orleans'], answer: 0,
+      explanation: 'The Golden Gate Bridge crosses the strait at the entrance to San Francisco Bay.',
+      note: 'Fact.', region: 'West',
+    }),
+    c({
+      id: 'cul-a2-02', level: 'A2', prompt: 'In which state is the Grand Canyon?',
+      options: ['Arizona', 'Nevada', 'Utah', 'Colorado'], answer: 0,
+      explanation: 'The Grand Canyon is in northern Arizona, carved by the Colorado River.',
+      note: 'Fact: the Grand Canyon is a national park in Arizona.', region: 'Southwest',
+    }),
+    c({
+      id: 'cul-a2-03', level: 'A2', prompt: 'Historically, Route 66 connected which two cities?',
+      options: ['Chicago and Los Angeles', 'New York and Miami', 'Boston and Seattle', 'Dallas and Denver'], answer: 0,
+      explanation: 'Route 66 ran from Chicago to Santa Monica, near Los Angeles. It became a symbol of American road travel.',
+      note: 'Fact: the highway was established in 1926 and officially removed from the highway system in 1985.',
+    }),
+    c({
+      id: 'cul-a2-04', level: 'A2', prompt: 'Which was the first US national park?',
+      options: ['Yellowstone', 'Yosemite', 'Grand Canyon', 'Zion'], answer: 0,
+      explanation: 'Yellowstone was established in 1872 and is widely recognised as the world’s first national park.',
+      note: 'Fact: Yellowstone was created by the US Congress in 1872.', region: 'West',
+    }),
+    c({
+      id: 'cul-a2-05', level: 'A2', prompt: 'When is Martin Luther King Jr. Day observed?',
+      options: ['The third Monday in January', 'The fourth Thursday in November', '4 July', 'The first Monday in May'], answer: 0,
+      explanation: 'It is a federal holiday on the third Monday in January, close to Dr King’s birthday on 15 January.',
+      note: 'Fact: it became a federal holiday in 1986.',
+    }),
+    c({
+      id: 'cul-a2-06', level: 'A2', prompt: 'Which ocean borders the east coast of the United States?',
+      options: ['The Atlantic Ocean', 'The Pacific Ocean', 'The Indian Ocean', 'The Arctic Ocean'], answer: 0,
+      explanation: 'The Atlantic borders the east coast; the Pacific borders the west coast.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-a2-07', level: 'A2', prompt: 'How many states are there in the United States?',
+      options: ['50', '48', '51', '52'], answer: 0,
+      explanation: 'There are 50 states. Washington, D.C. is a federal district, not a state.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-a2-08', level: 'A2', prompt: 'What is a US “high school diploma”?',
+      options: ['A qualification awarded after completing secondary school', 'A university degree', 'A driving licence', 'A passport'], answer: 0,
+      explanation: 'A high school diploma is awarded at the end of secondary education, usually around age 18.',
+      note: 'Simplified: graduation requirements vary by state and district.',
+    }),
+    c({
+      id: 'cul-a2-09', level: 'A2', prompt: 'In which city is the Library of Congress?',
+      options: ['Washington, D.C.', 'New York City', 'Philadelphia', 'Boston'], answer: 0,
+      explanation: 'The Library of Congress is in Washington, D.C. and serves as the research library of the US Congress.',
+      note: 'Fact: it is one of the largest libraries in the world by collection size.',
+    }),
+    c({
+      id: 'cul-a2-10', level: 'A2', prompt: 'Which dish is traditionally associated with American Thanksgiving dinner?',
+      options: ['Turkey', 'Pizza', 'Tacos', 'Sushi'], answer: 0,
+      explanation: 'Turkey is the dish most often associated with Thanksgiving, alongside foods such as pumpkin pie.',
+      note: 'Cultural tradition: families vary widely; there is no legal menu.',
+    }),
+  ],
+  B1: [
+    c({
+      id: 'cul-b1-01', level: 'B1', prompt: 'When was the US Constitution signed?',
+      options: ['1787', '1776', '1803', '1865'], answer: 0,
+      explanation: 'The Constitution was signed in Philadelphia on 17 September 1787.',
+      note: 'Fact: it was then ratified by the states and took effect in 1789.',
+    }),
+    c({
+      id: 'cul-b1-02', level: 'B1', prompt: 'What are the first ten amendments to the US Constitution called?',
+      options: ['The Bill of Rights', 'The Declaration of Independence', 'The Federalist Papers', 'The Emancipation Proclamation'], answer: 0,
+      explanation: 'The Bill of Rights is the name given to the first ten amendments, ratified in 1791.',
+      note: 'Fact: they protect freedoms such as speech, religion and assembly.',
+    }),
+    c({
+      id: 'cul-b1-03', level: 'B1', prompt: 'What did the 1803 Louisiana Purchase do?',
+      options: ['It roughly doubled the territory of the United States', 'It ended the Civil War', 'It created the national park system', 'It gave women the right to vote'], answer: 0,
+      explanation: 'The United States bought a vast territory from France in 1803, roughly doubling its size.',
+      note: 'Fact: the purchase price was about 15 million dollars at the time.',
+    }),
+    c({
+      id: 'cul-b1-04', level: 'B1', prompt: 'What was Ellis Island used for between 1892 and 1954?',
+      options: ['As an immigration station', 'As a military base', 'As a national park', 'As a presidential residence'], answer: 0,
+      explanation: 'Ellis Island, in New York Harbor, processed millions of immigrants entering the United States.',
+      note: 'Fact: it is now part of the Statue of Liberty National Monument.',
+    }),
+    c({
+      id: 'cul-b1-05', level: 'B1', prompt: 'How many members does the US Senate have?',
+      options: ['100', '435', '50', '9'], answer: 0,
+      explanation: 'The Senate has 100 members: two from each of the 50 states.',
+      note: 'Fact: the House of Representatives has 435 voting members.',
+    }),
+    c({
+      id: 'cul-b1-06', level: 'B1', prompt: 'How often are US presidential elections held?',
+      options: ['Every four years', 'Every two years', 'Every five years', 'Every six years'], answer: 0,
+      explanation: 'Presidential elections are held every four years.',
+      note: 'Fact: the next election after 2024 is in 2028.',
+    }),
+    c({
+      id: 'cul-b1-07', level: 'B1', prompt: 'In which year did humans first land on the Moon?',
+      options: ['1969', '1959', '1972', '1981'], answer: 0,
+      explanation: 'Apollo 11 landed on the Moon on 20 July 1969.',
+      note: 'Fact: NASA was created in 1958 and led the Apollo programme.',
+    }),
+    c({
+      id: 'cul-b1-08', level: 'B1', prompt: 'What is a US “community college”?',
+      options: ['A two-year institution offering associate degrees and certificates', 'A four-year university', 'A secondary school', 'A private research institute'], answer: 0,
+      explanation: 'Community colleges typically offer two-year programmes, including associate degrees and vocational certificates.',
+      note: 'Simplified: some community colleges also offer selected bachelor’s programmes.',
+    }),
+    c({
+      id: 'cul-b1-09', level: 'B1', prompt: 'When was the US National Park Service created?',
+      options: ['1916', '1872', '1933', '1970'], answer: 0,
+      explanation: 'The National Park Service was created in 1916 to manage national parks and monuments.',
+      note: 'Fact: Yellowstone (1872) predates the agency that now manages it.',
+    }),
+    c({
+      id: 'cul-b1-10', level: 'B1', prompt: 'What does the “melting pot” metaphor describe?',
+      options: ['The blending of cultures in American society', 'A famous American recipe', 'The US Congress', 'A national park'], answer: 0,
+      explanation: 'The melting pot suggests that different cultures blend into one society. The “salad bowl” metaphor instead emphasises distinct cultures living together.',
+      note: 'Concept: both are simplified metaphors, debated by historians and sociologists.',
+    }),
+  ],
+};

@@ -1,0 +1,36 @@
+{
+  "name": "Mission: English Club — The 180-Second English Challenge",
+  "short_name": "English Club",
+  "description": "A 180-second pixel-art English mission for American Corner clubs: vocabulary, grammar, listening, speaking, reading, writing and American culture.",
+  "id": "/english-club-game/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#060a18",
+  "theme_color": "#0b1026",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
