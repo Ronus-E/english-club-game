@@ -119,7 +119,7 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.6`.
+`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.7`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
