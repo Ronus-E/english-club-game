@@ -58,12 +58,14 @@ During the quiz, answers stay neutral: no green tick, no red cross, no explanati
 - **Placement check:** six mixed questions suggest A1, A2 or B1; the learner can override it.
 - **Daily challenge:** one stable seed per calendar day per stage — the same questions for everyone playing that stage that day, no account or leaderboard.
 - **Levels and stages:** A1 (Beginner), A2 (Elementary), B1 (Intermediate) — 3 levels × 10 stages. The 150 authored exercises feed every stage; stage 1 draws from the easiest authored items and stage 10 from the hardest, so difficulty rises while staying inside the chosen CEFR level.
-- **Report:** score out of the stage maximum (50–90), grade, per-skill breakdown, up to two targeted recommendations and a final answer-by-answer dashboard with corrections and explanations.
+- **Stage flow:** a welcome panel names the level, the stage and the question count before every run. Clearing a stage with 60 % or more unlocks the next one and shows a **Next level** button that opens the following stage directly. Closing all ten stages plays a longer level-complete fanfare.
+- **Report:** a compact summary (score out of the stage maximum, grade, correct/wrong, per-skill breakdown and next actions). Corrections, explanations, recommendations and badges sit behind two collapsed sections, so the screen stays short until the learner asks for details.
+- **Audio:** a calm, fully synthesised background loop (soft arpeggio, pad and drone), a short reward melody after each cleared stage, and a longer fanfare per CEFR level; no audio file is downloaded.
 - **Progress:** XP, club levels, best scores per CEFR level, skill totals, 10 achievements, a mistake book, session history and a configurable weekly goal, saved in `localStorage` (key `ec.profile.v3`).
 - **Mistake review:** replay up to ten failed items; a mistake is cleared only when that item is answered correctly.
 - **Data portability:** export and import the whole local profile as JSON, with an app marker, size limit and sanitised values.
 - **Accessibility:** reduced graphics, reduced motion, high contrast, large text, large targets, keyboard navigation and screen-reader labels.
-- **Language:** the interface is 100 % English. There are no French hints and no forced touch-control setting.
+- **Language:** the interface is 100 % English. There are no French hints and no forced touch-control setting. The document is locked with `lang="en"`, `translate="no"`, `dir="ltr"`, `<meta name="google" content="notranslate">` and `Content-Language: en`, so browser and phone translators are asked not to translate the game.
 
 ### Scoring
 
@@ -98,11 +100,12 @@ Text fields accept typing without triggering shortcuts. There are no movement ke
 # import/export, SVG icons
 node --test tests/unit.test.mjs
 
-# 24 real-browser checks: boot, navigation, stage grid and unlocks, all exercise
-# types, silent quiz with no leaked corrections, final dashboard, replay, stage
-# progress, practice, topic revision, placement, progress, daily challenge,
-# settings, achievements, responsive layout, offline reload, absence of French
-# text and campus elements.
+# 25 real-browser checks: boot, navigation, stage grid and unlocks, welcome
+# message before each stage, Next level button, all exercise types, silent quiz
+# with no leaked corrections, final dashboard, replay, stage progress, practice,
+# topic revision, placement, progress, daily challenge, settings, achievements,
+# responsive layout, offline reload, English-only interface with translation
+# blocked, and absence of campus elements.
 node tools/serve.mjs --port 8080   # in another terminal
 node tests/e2e.mjs                 # or: node tests/e2e.mjs http://127.0.0.1:8080/
 ```
@@ -111,14 +114,14 @@ A quick boot-only check is also available: `node tools/smoke.mjs`.
 
 The browser tests use a small built-in CDP client (`tools/cdp.mjs`) and headless Chromium. Reports and screenshots go to `/tmp/opencode/ec-shots/e2e-report.json` and `/tmp/opencode/ec-shots/e2e/`.
 
-Latest verified run: **65/65 unit**, **24/24 browser**, **0 console errors, 0 exceptions, 0 warnings**.
+Latest verified run: **65/65 unit**, **25/25 browser**, **0 console errors, 0 exceptions, 0 warnings**.
 
 ---
 
 ## Project layout
 
 ```
-index.html                 DOM for the nine screens and five overlays
+index.html                 DOM for the nine screens and six overlays
 manifest.webmanifest       PWA metadata
 sw.js                      offline-first service worker (26 files precached)
 assets/icons/              generated PNG icons (192, 512, maskable)

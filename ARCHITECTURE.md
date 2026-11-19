@@ -45,24 +45,25 @@ The splash screen does not load a game world. It only waits for the modules and 
 
 ## No clock
 
-There is no mission timer, no time limit and no time bonus. A quiz ends when the learner finishes all questions in the current stage and confirms the last explanation. Leaving a quiz discards that run; only finished quizzes change the profile.
+There is no mission timer, no time limit and no time bonus. A quiz ends when the learner finishes all questions in the current stage and confirms the last answer. Leaving a quiz discards that run; only finished quizzes change the profile.
 
 ## Quiz data flow
 
 ```
-startQuiz(level)
-    ↓  buildQuiz(level, seed)
-    ↓  Quiz.start(level) → activities.open({ items: 15 })
+startQuiz(level, seed, stage) → stage welcome overlay
+    ↓  launchStage() after the learner confirms
+    ↓  buildStageQuiz(level, stage, seed) → 5–9 questions
+    ↓  Quiz.start(level, seed, stage) → activities.open({ items, silent: true, noQuit: true })
     ↓  onAnswer → recordAnswer(session, { skill, correct, response })
-    ↓  onProgress → setQuizStatus(n, 15) + renderQuizPips(session.skills)
+    ↓  onProgress → setQuizStatus(n, total) + renderQuizPips(session.skills)
     ↓  onFinish → Quiz.finish()
-    ↓  computeResults(session, previousBest)
+    ↓  computeResults(session, previousBest) + store.recordStage()
     ↓  evaluateAchievements({ session, result, profile })
     ↓  store.recordSession(result) + store.unlock(badge)
-    ↓  UI.renderResults() → results screen
+    ↓  UI.renderResults() → compact results screen
 ```
 
-`buildStageQuiz(level, stage, seed)` returns 5–9 questions depending on stage. The seed makes a run reproducible in tests; the browser uses `Date.now()`.
+`buildStageQuiz(level, stage, seed)` returns 5–9 questions depending on stage. The seed makes a run reproducible in tests; the browser uses `Date.now()`. Clearing a stage at 60 % or more unlocks the next one; the results screen then reveals a **Next level** button that calls `startQuiz` for `stage + 1`. Closing stage 10 plays the level-complete fanfare.
 
 The level cards are A1, A2 and B1. Questions change with the level; the quiz format never changes.
 
@@ -75,7 +76,7 @@ The level cards are A1, A2 and B1. Questions change with the level; the quiz for
 - **order** — word chips, duplicate-aware; the learner rebuilds the sentence, then confirms.
 - **short** — normalised text compared with a list of accepted variants.
 
-After each answer: immediate feedback, a short explanation, then an explicit Continue button. No French gloss, dialogue or NPC is involved. `AudioEngine` only produces short Web Audio envelopes for interface feedback and optional background music.
+In the scored quiz, answers stay neutral: no tick, no cross and no explanation until the stage ends. Practice mode keeps immediate feedback and a short explanation, then an explicit Continue button. No French gloss, dialogue or NPC is involved. `AudioEngine` synthesises the interface sounds, the calm background loop, a reward melody per cleared stage and a fanfare per completed CEFR level; no audio file is fetched.
 
 `activities.open()` filters invalid items and calls `onFinish` with an empty summary instead of throwing.
 
@@ -118,16 +119,16 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 25 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.2`.
+`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.3`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 
 ## Testing design
 
-- `tests/unit.test.mjs` — 45 pure checks with injected storage and seeds.
+- `tests/unit.test.mjs` — 65 pure checks with injected storage and seeds.
 - `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`.
 - `tools/smoke.mjs` — quick real-browser boot check up to the first question.
-- `tests/e2e.mjs` — 20 browser steps: real clicks, every exercise type, immediate correction, full report, practice, placement, settings, achievements, seven viewports, offline reload, and assertions that French UI and campus elements are absent.
+- `tests/e2e.mjs` — 25 browser steps: real clicks, stage welcome and Next level, every exercise type, silent quiz with no leaked corrections, compact report, practice, placement, settings, achievements, seven viewports, offline reload, English-only interface with translation blocked, and assertions that campus elements are absent.
 
 The test model cannot judge aesthetics. Visual verification uses measurable proxies: DOM geometry, overflow, tap-target sizes and computed styles. Human review of `/tmp/opencode/ec-shots/e2e/` remains part of the pre-exhibition checklist.
 
@@ -135,9 +136,9 @@ The test model cannot judge aesthetics. Visual verification uses measurable prox
 
 1. Accuracy earns points; speed, stations and exploration never do.
 2. Every level has 10 progressive stages, 5–9 questions per stage, difficulty rising across stages.
-3. The interface is 100 % English; no French content or hint layer remains.
+3. The interface is 100 % English; no French content or hint layer remains, and the document asks translators to leave it untouched (`translate="no"`, `notranslate`).
 4. Option order is deterministic and the correct answer is not always A.
-5. The correct answer and an explanation follow every response immediately.
+5. In the scored quiz, corrections and explanations appear only in the final dashboard, after the last answer; practice keeps immediate feedback.
 6. No external request of any kind at runtime.
 7. No destructive action without explicit confirmation.
 8. A missing or malformed DOM node degrades gracefully rather than throwing.

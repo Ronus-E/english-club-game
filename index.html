@@ -218,36 +218,49 @@
             <canvas id="resultsBadgeCanvas" width="128" height="128" class="result-badge" role="img" aria-label="Quiz badge"></canvas>
           </div>
 
+          <div class="panel results-actions-panel">
+            <h3>Your next step</h3>
+            <div class="results-actions">
+              <button id="nextStageBtn" class="btn btn-primary" type="button" hidden>Next level →</button>
+              <button id="replayBtn" class="btn btn-secondary" type="button">↻ Replay this stage</button>
+              <button id="resultsMenuBtn" class="btn btn-ghost" type="button">Main menu</button>
+            </div>
+            <div class="results-more">
+              <button id="reviewMistakesBtn" class="btn btn-secondary" type="button">Review mistakes</button>
+              <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
+            </div>
+          </div>
+
           <div class="panel skill-panel">
             <h3>Skill report</h3>
             <div id="skillReport" class="skill-report"></div>
           </div>
+        </div>
 
-          <div class="panel review-panel">
+        <details class="panel results-details">
+          <summary>
+            <strong>Corrections and recommendations</strong>
+            <span class="micro muted">Open for the full breakdown</span>
+          </summary>
+          <div class="results-details-body">
             <h3>What to improve next</h3>
             <ul id="recommendations" class="recommendations"></ul>
-            <div class="row gap wrap">
-              <button id="nextStageBtn" class="btn btn-primary" type="button" hidden>Next level →</button>
-              <button id="replayBtn" class="btn btn-secondary" type="button">↻ Replay this stage</button>
-              <button id="reviewMistakesBtn" class="btn btn-secondary" type="button">Review my mistakes</button>
-              <button id="practiceWeakBtn" class="btn btn-secondary" type="button">Practice weak skill</button>
-              <button id="resultsMenuBtn" class="btn btn-ghost" type="button">Main menu</button>
-            </div>
+            <h3>Full correction dashboard</h3>
+            <p class="micro muted">Nothing is revealed while you answer. Every result appears here after the last question.</p>
+            <div id="answerReview" class="answer-review"></div>
           </div>
-        </div>
+        </details>
 
-        <div class="panel answer-review-panel">
-          <h3>Full correction dashboard</h3>
-          <p class="micro muted">Nothing is revealed while you answer. Every result appears here after the last question.</p>
-          <div id="answerReview" class="answer-review"></div>
-          <p class="signature">Developed by RONUS Eldo</p>
-          <p class="signature">Game Develloper : Ronus Eldo</p>
-        </div>
-
-        <div class="panel achievements-strip">
-          <h3>Achievements unlocked</h3>
+        <details class="panel results-details achievements-strip">
+          <summary>
+            <strong>Achievements unlocked</strong>
+            <span class="micro muted">Badges won in this stage</span>
+          </summary>
           <div id="sessionAchievements" class="badge-row"></div>
-        </div>
+        </details>
+
+        <p class="signature">Developed by RONUS Eldo</p>
+        <p class="signature">Game Develloper : Ronus Eldo</p>
       </div>
     </section>
 

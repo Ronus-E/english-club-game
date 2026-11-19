@@ -10,9 +10,9 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Stand by the screen. Splash screen visible. Wait two seconds, then begin.]*
 
-> "Ten progressive stages, five–nine questions each. No clock, no pressure. And one question: can you show what you know in English?
+> "Ten progressive stages, five–nine questions each. No clock, no pressure, just calm music. And one question: can you show what you know in English?
 >
-> This is **English Club Quiz**. I built it for you — and everything you see is drawn in code. No photos, no downloads, no internet."
+> This is **English Club Quiz**. I built it for you — and everything you see and hear is generated in code. No photos, no downloads, no internet."
 
 *[Press **START**. Gesture at the emblem.]*
 
@@ -32,17 +32,21 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Type a name, click **START A STAGE** → A1. *[cut]* Skip the check and go straight to A1.]*
 
+> "Before the questions, the welcome panel names the level, the stage and how many questions await. The learner confirms and begins."
+
+*[Click **Start stage 1**. The question panel opens.]*
+
 ---
 
 ## 1:15 — The first question
 
-*[Question panel opens. Answer the first item slowly; let the audience read the explanation.]*
+*[Question panel opens. Answer the first item slowly; let the audience notice the calm neutrality.]*
 
 > "Here is the question panel. Tap a word and its picture, or choose an option — the task changes, but the rhythm does not.
 >
-> Notice what happens after every answer: the correct answer and a short explanation appear immediately. No red cross with no reason."
+> During the stage, answers stay neutral: no green tick, no red cross, no explanation yet. Everything is revealed together at the end, so the learner is never interrupted."
 
-*[Point at the explanation line. Click **Continue ▸**. *[cut]* Answer only the first item and continue.]*
+*[Click **Continue ▸**. *[cut]* Answer only the first item and continue.]*
 
 > "There is no timer. Accuracy is the only thing that counts."
 
@@ -52,7 +56,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 *[Point at the five pips when they appear. Answer one grammar, one reading and one writing question.]*
 
-> "Three questions in each area: vocabulary, grammar, reading, writing and American culture. The pips fill as you go, so you always know where you are.
+> "Every stage mixes five areas: vocabulary, grammar, reading, writing and American culture. The pips fill as you go, so you always know where you are.
 >
 > Sometimes you type a short answer. Sometimes you rebuild a sentence. Every task checks understanding, not speed."
 
@@ -60,7 +64,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 ## 2:30 — Culture and the final questions
 
-*[Finish the culture items. Let the last explanation appear, then click **See my report**.]*
+*[Finish the culture items. Answer the last question, then click **See my report**.]*
 
 > "Culture items are checked facts, with sources kept in the documentation. Stage answers, not trivia guesses. Five to nine answers per stage."
 
@@ -68,21 +72,23 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 ## 3:30 — Results
 
-*[Point at each region of the report in turn: grade, numbers, skill rows, recommendations.]*
+*[Point at the score, the grade, the three actions, then the folded sections.]*
 
-> "And here is the payoff. A grade — S, A, B, C or D. Ten points per correct answer, per stage.
+> "And here is the payoff — kept short on purpose. A grade from S to D, ten points per correct answer, per stage.
 >
-> A breakdown across five areas. Two recommendations that point at the weakest skills.
+> Five compact skill bars. A clear next step: **Next level**, replay, or main menu.
 >
-> XP, a personal best, and badges — ten of them. Everything saved locally, in this browser only."
+> Every correction, explanation, recommendation and badge is folded below. Open it only when you want the full debrief."
 
 ---
 
-## 4:10 — Practice and achievements
+## 4:10 — Practice, achievements and next level
 
-*[Click **Practice weak skill**, answer one question, then open **Achievements** from the menu.]*
+*[Click **Next level** to show the welcome of stage 2, then close it with **Not yet**. Open **Achievements** from the menu.]*
 
-> "The report leads straight to focused practice: ten exercises per skill and level, still with immediate explanations.
+> "Clearing a stage unlocks the next one, and the Next level button takes the learner straight there.
+>
+> The report also leads to focused practice: ten exercises per skill and level, still with immediate explanations.
 >
 > The badges reward real behaviour — finishing a quiz, mastering a skill, beating your own best. No speed ranking."
 

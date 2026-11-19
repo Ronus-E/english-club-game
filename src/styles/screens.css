@@ -528,6 +528,26 @@
 .recommendations { padding-left: 1.1em; display: grid; gap: 6px; font-size: 13px; color: var(--text-dim); margin-top: 10px; }
 .recommendations li::marker { color: var(--amber); }
 .achievements-strip { display: flex; flex-direction: column; gap: 10px; }
+
+/* Compact results: actions first, full breakdown folded away */
+.results-actions-panel { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.results-actions { display: flex; flex-direction: column; gap: 8px; }
+.results-actions .btn { width: 100%; }
+.results-more { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.results-more .btn { flex: 1 1 auto; min-width: 0; font-size: 12px; }
+.results-details { margin-top: 14px; }
+.results-details > summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  cursor: pointer; list-style: none;
+}
+.results-details > summary::-webkit-details-marker { display: none; }
+.results-details > summary::before {
+  content: '▸'; color: var(--amber); font-size: 12px; margin-right: 6px;
+}
+.results-details[open] > summary::before { content: '▾'; }
+.results-details-body { display: grid; gap: 8px; margin-top: 12px; }
+.results-details-body h3 { margin-top: 8px; }
+.results-details .badge-row { margin-top: 12px; }
 .badge-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .badge {
   display: flex; align-items: center; gap: 8px;
