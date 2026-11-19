@@ -45,6 +45,7 @@ The Reading Library and Writing Office are bonus stations, visited without penal
 - **Placement check:** six mixed questions suggest A1, A2 or B1; the player can override it.
 - **Levels:** A1 (Beginner), A2 (Elementary), B1 (Intermediate).
 - **Five skill areas:** vocabulary, grammar, reading, writing and American culture — 150 exercises total (5 × 3 levels × 10).
+- **Fair choices:** multiple-choice options use a deterministic shuffled order — memorising “A” never works.
 - **French help:** translated instructions for all 150 exercises, plus optional item-specific glosses. Off by default.
 - **Accessibility:** reduced graphics, reduced motion, high contrast, forced touch controls, large targets, keyboard-only play and screen-reader labels.
 - **Progress:** XP, club levels, best scores per CEFR level, skill totals and 10 achievements, saved in `localStorage` (key `ec.profile.v3`).
@@ -73,7 +74,7 @@ Text fields accept typing without triggering game shortcuts.
 ## Tests
 
 ```bash
-# 40 pure-logic checks: timer, scoring, achievements, storage, content, plans
+# 42 pure-logic checks: timer, scoring, achievements, storage, content, plans
 node --test tests/unit.test.mjs
 
 # 27 real-browser checks: navigation, movement, collision, dialogue, every
@@ -84,7 +85,7 @@ node tests/e2e.mjs
 
 The browser test uses a built-in CDP client (`tools/cdp.mjs`) and headless Chromium. Results and screenshots go to `/tmp/opencode/ec-shots/e2e-report.json` and `/tmp/opencode/ec-shots/e2e/`.
 
-Latest verified run: **40/40 unit**, **27/27 browser**, **0 console errors, 0 exceptions, 0 warnings**.
+Latest verified run: **42/42 unit**, **27/27 browser**, **0 console errors, 0 exceptions, 0 warnings**.
 
 ---
 

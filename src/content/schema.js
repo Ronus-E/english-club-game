@@ -2,7 +2,7 @@
  * Content schema, builders and validation.
  * Every exercise in src/content is plain data: easy to audit, test and translate.
  */
-import { normalizeText } from '../core/util.js';
+import { normalizeText, createRng, hashString } from '../core/util.js';
 
 export const LEVELS = ['A1', 'A2', 'B1'];
 export const SKILLS = ['vocabulary', 'grammar', 'reading', 'writing'];
@@ -13,7 +13,7 @@ export const LEVEL_INFO = {
     label: 'A1 · Beginner',
     short: 'Beginner',
     description: 'Everyday words, simple present, short sentences.',
-    bullets: ['Classroom & daily vocabulary', 'be / have / present simple', 'Very short audio and texts'],
+    bullets: ['Classroom & daily vocabulary', 'be / have / present simple', 'Very short texts and notices'],
   },
   A2: {
     label: 'A2 · Elementary',
@@ -25,7 +25,7 @@ export const LEVEL_INFO = {
     label: 'B1 · Intermediate',
     short: 'Intermediate',
     description: 'Opinions, connected ideas, real-world topics.',
-    bullets: ['Abstract and topic vocabulary', 'Perfect tenses, conditionals, passives', 'Longer audio and reading'],
+    bullets: ['Abstract and topic vocabulary', 'Perfect tenses, conditionals, passives', 'Longer texts and articles'],
   },
 };
 
@@ -50,6 +50,25 @@ export const FR_INSTRUCTIONS = {
   'Match each word with the correct picture.': 'Associez chaque mot à la bonne image.',
 };
 
+/**
+ * Deterministic option ordering. Content is authored with the correct answer
+ * first so it stays easy to audit; learners must not be able to exploit that.
+ * The seed is the item id, so the order is stable across sessions and tests.
+ */
+export function arrangeOptions(id, options, answer) {
+  if (!Array.isArray(options) || options.length < 2) return { options, answer };
+  const rng = createRng(hashString(String(id)));
+  const positions = options.map((_, index) => index);
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+  return {
+    options: positions.map((index) => options[index]),
+    answer: positions.indexOf(answer),
+  };
+}
+
 /** Explicit translation wins; otherwise fall back to the shared table. */
 export const frInstruction = (instruction, explicit = '') => {
   const given = typeof explicit === 'string' ? explicit.trim() : '';
@@ -65,8 +84,9 @@ const base = (data) => ({
 });
 
 /** Multiple-choice question. answer = index of the correct option. */
-export function choice({ id, skill, level, prompt, options, answer, explanation, objective, instruction, passage = null, script = '', fr = '', instructionFr = '', tags = [] }) {
-  return base({ id, skill, level, type: 'choice', prompt, options, answer, explanation, objective, instruction, passage, script, fr, instructionFr: frInstruction(instruction, instructionFr), tags });
+export function choice({ id, skill, level, prompt, options, answer, explanation, objective, instruction, passage = null, fr = '', instructionFr = '', tags = [] }) {
+  const arranged = arrangeOptions(id, options, answer);
+  return base({ id, skill, level, type: 'choice', prompt, options: arranged.options, answer: arranged.answer, explanation, objective, instruction, passage, fr, instructionFr: frInstruction(instruction, instructionFr), tags });
 }
 
 /** Word ↔ picture matching set. */
@@ -95,8 +115,10 @@ export function short({ id, skill = 'writing', level, prompt, accepted, explanat
 
 /** American culture question. `fact` marks verified factual content. */
 export function culture({ id, level, prompt, options, answer, explanation, objective, instruction = 'Choose the best answer.', fact = true, note = '', region = '', fr = '', instructionFr = '' }) {
+  const arranged = arrangeOptions(id, options, answer);
   return base({
-    id, skill: 'culture', level, type: 'choice', prompt, options, answer,
+    id, skill: 'culture', level, type: 'choice', prompt,
+    options: arranged.options, answer: arranged.answer,
     explanation, objective, instruction, fr, instructionFr: frInstruction(instruction, instructionFr),
     tags: [], fact, note, region,
   });

@@ -212,7 +212,7 @@ export const writing = {
       id: 'wri-b1-09', level: 'B1', objective: 'Choose a concise professional request.',
       prompt: 'Which sentence is the clearest professional request?',
       options: ['Could you please confirm the date by Friday?', 'Tell me the date now.', 'Date? Thanks.', 'I need the date and I hope you understand that it is urgent.'], answer: 0,
-      explanation: 'The first option is polite, specific and gives a deadline without being abrupt.',
+      explanation: 'A polite, specific request gives a deadline without being abrupt.',
     }),
     o({
       id: 'wri-b1-10', level: 'B1', objective: 'State a policy objective.',

@@ -15,7 +15,7 @@ import { ProfileStore, defaultProfile, levelFromXp, STORAGE_KEY, LEVEL_XP } from
 import { createRng, shuffle, sample, normalizeText, todayIso } from '../src/core/util.js';
 import { validateBank, countExercises, buildMissionPlan, getExercises, getPlacementQuestions, LEVELS, SKILLS } from '../src/content/index.js';
 import { banks } from '../src/content/index.js';
-import { FR_INSTRUCTIONS } from '../src/content/schema.js';
+import { FR_INSTRUCTIONS, arrangeOptions } from '../src/content/schema.js';
 
 /* ------------------------------------------------------------------ helpers */
 function fakeClock(start = 0) {
@@ -436,6 +436,40 @@ test('multiple-choice answers point at a real option', () => {
         assert.ok(Number.isInteger(item.answer), `${item.id} answer index`);
         assert.ok(item.answer >= 0 && item.answer < item.options.length, `${item.id} answer range`);
       }
+    }
+  }
+});
+
+test('option shuffling is deterministic and preserves the correct option', () => {
+  const options = ['alpha', 'beta', 'gamma', 'delta'];
+  const a = arrangeOptions('rea-a1-01', options, 0);
+  const b = arrangeOptions('rea-a1-01', options, 0);
+  assert.deepEqual(a, b, 'same id must produce the same order');
+  assert.notDeepEqual(a.options, options, 'the authored order must not leak to the learner');
+  for (let answer = 0; answer < options.length; answer += 1) {
+    const arranged = arrangeOptions(`item-${answer}`, options, answer);
+    assert.equal(arranged.options[arranged.answer], options[answer]);
+    assert.equal(new Set(arranged.options).size, options.length);
+  }
+});
+
+test('the correct option is not systematically in position A', () => {
+  const choices = [];
+  for (const levels of Object.values(banks)) {
+    for (const items of Object.values(levels)) {
+      for (const item of items) if (item.type === 'choice') choices.push(item);
+    }
+  }
+  assert.ok(choices.length >= 100);
+  const first = choices.filter((item) => item.answer === 0).length;
+  assert.ok(first / choices.length < 0.35, `${first}/${choices.length} answers in position A`);
+  for (const [skill, levels] of Object.entries(banks)) {
+    const group = [];
+    for (const items of Object.values(levels)) {
+      for (const item of items) if (item.type === 'choice') group.push(item);
+    }
+    if (group.length >= 10) {
+      assert.ok(new Set(group.map((item) => item.answer)).size >= 3, `${skill} uses several answer positions`);
     }
   }
 });

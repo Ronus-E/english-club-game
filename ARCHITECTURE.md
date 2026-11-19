@@ -68,7 +68,7 @@ The route has four required stops: `vocabulary → grammar → culture → arena
 
 `ActivityRunner` renders four types from a common contract (`id`, `skill`, `level`, `objective`, `instruction`, `prompt`, `explanation`):
 
-- **choice** — immediate right/wrong highlighting; correct option always revealed.
+- **choice** — deterministic seeded option shuffle at build time (`arrangeOptions()` in `schema.js`); the correct answer stays consistent with options and explanations, and is never always A.
 - **match** — word ↔ icon grid drawn with `drawIcon()`; mistakes counted.
 - **order** — word chips, duplicate-aware; `answerText` must be a permutation of `words`.
 - **short** — normalised text against accepted variants.
@@ -101,7 +101,7 @@ Canvas fixed at **480 × 270 logical pixels**, scaled with CSS `object-fit: cont
 
 ## Testing design
 
-- `tests/unit.test.mjs` — 40 pure checks with injected clocks and storage.
+- `tests/unit.test.mjs` — 42 pure checks with injected clocks and storage.
 - `tools/cdp.mjs` — minimal CDP client over Node's global `WebSocket`; disables HTTP cache and forces service-worker updates.
 - `tests/e2e.mjs` — 27 browser steps: real keyboard and pointer events, every exercise type, offline reload, seven viewports.
 
