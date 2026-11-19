@@ -33,7 +33,7 @@ export class AudioEngine {
       this.master.gain.value = 0.9;
       this.master.connect(this.ctx.destination);
       this.musicGain = this.ctx.createGain();
-      this.musicGain.gain.value = (this.settings.music / 100) * 0.8;
+      this.musicGain.gain.value = (this.settings.music / 100) * 0.5;
       this.musicGain.connect(this.master);
       this.sfxGain = this.ctx.createGain();
       this.sfxGain.gain.value = (this.settings.sfx / 100) * 0.5;
@@ -47,7 +47,7 @@ export class AudioEngine {
     this.settings = { ...this.settings, ...settings };
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    if (this.musicGain) this.musicGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.music / 100) * 0.8, now, 0.05);
+    if (this.musicGain) this.musicGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.music / 100) * 0.5, now, 0.05);
     if (this.sfxGain) this.sfxGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.sfx / 100) * 0.5, now, 0.05);
     if (!this.settings.musicOn) this.stopMusic();
   }
@@ -223,7 +223,7 @@ export class AudioEngine {
       const bar = Math.floor(step / 8) % 4;
       const chord = chords[bar];
       const lift = (this.musicStage - 1) / 9;
-      const drive = Math.max(lift, this.musicProgress * 0.85);
+      const drive = Math.max(lift, this.musicProgress * 0.55);
       const semi = (offset) => base * Math.pow(2, offset / 12);
 
       if (stepInBar === 0 || stepInBar === 4 || (drive > 0.6 && stepInBar === 6)) {
