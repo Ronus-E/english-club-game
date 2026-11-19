@@ -4,7 +4,7 @@
    Bump CACHE_VERSION whenever a precached file changes.
    ============================================================ */
 
-const CACHE_VERSION = 'ec-v1.3.0';
+const CACHE_VERSION = 'ec-v1.2.0';
 const PRECACHE = [
   './',
   './index.html',
@@ -17,7 +17,6 @@ const PRECACHE = [
   './src/styles/screens.css',
   './src/core/util.js',
   './src/core/storage.js',
-  './src/core/demo.js',
   './src/core/timer.js',
   './src/core/scoring.js',
   './src/core/achievements.js',

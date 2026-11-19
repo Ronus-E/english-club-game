@@ -11,8 +11,7 @@ import {
   computeResults, gradeFor, computeXp, percentFor, recommendationsFor,
 } from '../src/core/scoring.js';
 import { evaluateAchievements, achievementProgress, ACHIEVEMENTS } from '../src/core/achievements.js';
-import { ProfileStore, defaultProfile, levelFromXp, STORAGE_KEY, LEVEL_XP, DEFAULT_SETTINGS } from '../src/core/storage.js';
-import { demoPreset } from '../src/core/demo.js';
+import { ProfileStore, defaultProfile, levelFromXp, STORAGE_KEY, LEVEL_XP } from '../src/core/storage.js';
 import { createRng, shuffle, sample, normalizeText, todayIso } from '../src/core/util.js';
 import { validateBank, countExercises, buildMissionPlan, getExercises, getPlacementQuestions, LEVELS, SKILLS } from '../src/content/index.js';
 import { banks } from '../src/content/index.js';
@@ -512,17 +511,4 @@ test('vocabulary practice returns a full set per level', () => {
     assert.equal(getExercises('vocabulary', level).length, 10);
   }
   assert.deepEqual(getExercises('unknown', 'A1'), []);
-});
-
-test('exhibition demo preset is clean, readable and safe to reuse', () => {
-  const preset = demoPreset();
-  assert.equal(preset.level, 'A1');
-  assert.equal(preset.name, 'Guest');
-  assert.equal(preset.avatar, 0);
-  assert.equal(preset.settings.highContrast, true);
-  assert.equal(preset.settings.frenchHints, false);
-  assert.equal(preset.settings.reduceMotion, false);
-  assert.equal(Object.keys(preset.settings).length, Object.keys(DEFAULT_SETTINGS).length);
-  preset.settings.highContrast = false;
-  assert.equal(demoPreset().settings.highContrast, true, 'a caller must not mutate the preset');
 });

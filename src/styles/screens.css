@@ -155,25 +155,6 @@
   color: #fff8e6;
 }
 .menu-card-feature .btn { align-self: flex-start; min-width: min(320px, 100%); }
-.btn-demo {
-  background: linear-gradient(180deg, #ffd166, #ffb703);
-  border-color: #ffe6a8;
-  color: #1a1200;
-  font-weight: 800;
-  letter-spacing: .05em;
-  box-shadow: 0 0 0 2px rgba(255, 209, 102, .25), 0 10px 24px rgba(0, 0, 0, .35);
-}
-.btn-demo:hover, .btn-demo:focus-visible {
-  background: linear-gradient(180deg, #ffe199, #ffc233);
-}
-.demo-note {
-  display: block;
-  margin: -8px 0 2px;
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--text-mute);
-  font-family: var(--font-ui);
-}
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .menu-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;

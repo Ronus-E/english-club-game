@@ -18,7 +18,7 @@ export class UI {
     this.audio = audio;
     this.el = {};
     const ids = [
-      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'demoBtn', 'playBtn', 'practiceBtn', 'howBtn',
+      'app', 'offlineBanner', 'bootBtn', 'bootStatus', 'playBtn', 'practiceBtn', 'howBtn',
       'achievementsBtn', 'settingsBtn', 'aboutBtn', 'installBtn', 'installHint',
       'profileName', 'profileStats', 'profileAvatar', 'storageBadge',
       'levelGrid', 'levelContinueBtn', 'placementBtn', 'avatarPicker', 'avatarCanvas', 'playerNameInput', 'startMissionBtn', 'introHowBtn',

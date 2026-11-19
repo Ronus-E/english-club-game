@@ -20,10 +20,6 @@ A static server is required: ES modules and the service worker do not work from 
 
 ---
 
-## Exhibition demo (one click)
-
-At the stand, press **★ EXHIBITION DEMO · 1 CLICK** on the menu. It resets local progress, applies a readable A1 preset (high contrast, no French hints) and starts the mission immediately — no placement test, no registration screen. Use **PLAY 3-MINUTE MISSION** for the full visitor journey.
-
 ## What is in the game
 
 Version 3.1. The listening and speaking modes were removed: the game is entirely visual and text-based, with no audio dependency.
@@ -78,10 +74,10 @@ Text fields accept typing without triggering game shortcuts.
 ## Tests
 
 ```bash
-# 43 pure-logic checks: timer, scoring, achievements, storage, content, plans
+# 42 pure-logic checks: timer, scoring, achievements, storage, content, plans
 node --test tests/unit.test.mjs
 
-# 28 real-browser checks: navigation, exhibition demo, movement, collision, dialogue, every
+# 27 real-browser checks: navigation, movement, collision, dialogue, every
 # station, results, pause, practice, settings, touch, 7 viewports, offline.
 node tools/serve.mjs --port 8080   # in another terminal
 node tests/e2e.mjs
@@ -89,7 +85,7 @@ node tests/e2e.mjs
 
 The browser test uses a built-in CDP client (`tools/cdp.mjs`) and headless Chromium. Results and screenshots go to `/tmp/opencode/ec-shots/e2e-report.json` and `/tmp/opencode/ec-shots/e2e/`.
 
-Latest verified run: **43/43 unit**, **28/28 browser**, **0 console errors, 0 exceptions, 0 warnings**.
+Latest verified run: **42/42 unit**, **27/27 browser**, **0 console errors, 0 exceptions, 0 warnings**.
 
 ---
 
@@ -98,11 +94,11 @@ Latest verified run: **43/43 unit**, **28/28 browser**, **0 console errors, 0 ex
 ```
 index.html                 DOM for all screens and overlays
 manifest.webmanifest       PWA metadata
-sw.js                      offline-first service worker (33 files precached)
+sw.js                      offline-first service worker (32 files precached)
 assets/icons/              generated PNG icons (192, 512, maskable)
 src/main.js                boot and wiring
 src/content/               150 exercises, dialogues, mission plan builder
-src/core/                  timer, scoring, achievements, storage, demo preset, Web Audio, utilities
+src/core/                  timer, scoring, achievements, storage, Web Audio, utilities
 src/game/                  input controller, mission orchestration
 src/ui/                    screens, exercises, dialogue, canvas decorations, icons
 src/world/                 isometric campus, collision, sprites, renderer
