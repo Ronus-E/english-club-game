@@ -548,7 +548,9 @@ export class UI {
         strip.append(h('span', { class: 'badge is-locked', text: 'No new badge this time — your progress is saved.' }));
       }
       for (const def of unlocked) {
-        strip.append(h('span', { class: 'badge' },
+        strip.append(h('span', { class: 'badge',
+          title: def.description,
+          tabindex: 0 },
           h('span', { class: 'badge-icon', 'aria-hidden': 'true', text: def.icon }),
           h('span', { text: def.name }),
         ));

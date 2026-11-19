@@ -124,7 +124,7 @@ try {
     throw new Error(`stage welcome content is wrong: ${JSON.stringify(welcome)}`);
   }
 
-  await client.evaluate(`document.getElementById('stageStartBtn').click()`);
+  await client.evaluate(`document.getElementById('stageContinueBtn').click()`);
   await sleep(400);
 
   const quiz = await client.evaluate(`(() => {
