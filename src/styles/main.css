@@ -14,14 +14,17 @@
   --text: #eef2ff;
   --text-dim: #a9b4d8;
   --text-mute: #7c88b0;
-  --amber: #ffc857;
-  --amber-deep: #e09b25;
+  --amber: #f2e8d0;
+  --amber-deep: #d23b32;
   --mint: #5ce1a6;
   --mint-deep: #1f9d72;
   --coral: #ff6b6b;
   --coral-deep: #c33f4e;
-  --sky: #63c5ff;
+  --sky: #6f93e8;
   --violet: #a78bfa;
+  --cream: #f2e8d0;
+  --english-red: #d23b32;
+  --english-blue: #2f4fa8;
   --pink: #ff8fd8;
 
   --shadow-hard: 4px 4px 0 rgba(0, 0, 0, .55);
@@ -30,6 +33,7 @@
 
   --font-ui: "Fira Code", "DejaVu Sans Mono", "Courier New", monospace;
   --font-body: "DejaVu Sans", "Trebuchet MS", system-ui, sans-serif;
+  --font-display: Georgia, "DejaVu Serif", "Liberation Serif", serif;
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -161,7 +165,7 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
   color: var(--amber);
   font-weight: 700;
 }
-h1, h2, h3 { font-family: var(--font-ui); line-height: 1.15; letter-spacing: .01em; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; letter-spacing: .005em; }
 h2 { font-size: clamp(22px, 2.6vw, 34px); }
 h3 { font-size: clamp(16px, 1.6vw, 20px); }
 .muted { color: var(--text-dim); }
@@ -206,21 +210,21 @@ code {
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
 .btn-primary {
-  --btn-bg: linear-gradient(180deg, #ffd98a, #f0a92f);
-  --btn-fg: #1a1206;
-  --btn-edge: #ffe6ad;
-  background: linear-gradient(180deg, #ffd98a, #f0a92f);
-  color: #1a1206;
-  box-shadow: 0 3px 0 #9a6412, 0 8px 22px rgba(240,169,47,.28);
+  --btn-bg: linear-gradient(180deg, #e2554b, #b82424);
+  --btn-fg: #fff8ec;
+  --btn-edge: #ffb3a6;
+  background: linear-gradient(180deg, #e2554b, #b82424);
+  color: #fff8ec;
+  box-shadow: 0 3px 0 #6e1414, 0 8px 22px rgba(210,59,50,.28);
 }
-.btn-primary:hover { background: linear-gradient(180deg, #ffe3a6, #ffb84d); }
+.btn-primary:hover { background: linear-gradient(180deg, #ef6a5e, #c83030); }
 
 .btn-secondary {
-  --btn-bg: #143c37;
-  --btn-edge: #2f8a70;
-  background: linear-gradient(180deg, rgba(92,225,166,.16), transparent 60%), #14342f;
-  color: #d7fff0;
-  border-color: #2f8a70;
+  --btn-bg: #223b86;
+  --btn-edge: #7e9bec;
+  background: linear-gradient(180deg, rgba(111,147,232,.16), transparent 60%), #223b86;
+  color: #eef3ff;
+  border-color: #7e9bec;
 }
 
 .btn-danger {
@@ -389,11 +393,11 @@ code {
 /* ============================ ACCESSIBILITY MODES ============================ */
 
 .high-contrast {
-  --text-dim: #dbe4ff;
-  --text-mute: #b8c3e6;
-  --line: #7f92d6;
-  --line-soft: #5d6fae;
-  --panel: #0d1530;
+  --text-dim: #f7f2e6;
+  --text-mute: #ded4bd;
+  --line: #f2e8d0;
+  --line-soft: #b9a98d;
+  --panel: #0b1024;
 }
 .high-contrast .panel { border-width: 2px; }
 .high-contrast .btn { border-width: 3px; }

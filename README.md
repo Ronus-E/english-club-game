@@ -20,6 +20,10 @@ A static server is required: ES modules and the service worker do not work from 
 
 ---
 
+## Visual identity
+
+English editorial style: serif titles, red / royal blue / parchment accents, and English station names drawn on the campus signs. All artwork stays procedural and offline. Green remains reserved for correct answers and red for corrections, so feedback stays unambiguous.
+
 ## What is in the game
 
 Version 3.1. The listening and speaking modes were removed: the game is entirely visual and text-based, with no audio dependency.

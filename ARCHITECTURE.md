@@ -89,6 +89,8 @@ Collision samples five points around the player; movement is axis-separated so s
 
 ## Rendering
 
+Campus signs use the `SIGN_LABELS` table in `renderer.js`: short English names (`VOCAB`, `GRAMMAR`, `FINAL`) drawn beside the procedural icon. Titles use a local serif stack (`Georgia` / `DejaVu Serif`); no web font is fetched.
+
 Canvas fixed at **480 × 270 logical pixels**, scaled with CSS `object-fit: contain` to preserve the pixel grid. `CampusRenderer` draws tiles, buildings, paths, NPCs, player, smooth camera and highlighted next station. Reduced-graphics mode lowers animation work. Sprites and icons are procedural. DOM handles all text and controls; the canvas handles the world.
 
 ## Storage and settings
@@ -97,7 +99,7 @@ Canvas fixed at **480 × 270 logical pixels**, scaled with CSS `object-fit: cont
 
 ## Offline operation
 
-`sw.js` precaches 32 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v1.1.0`.
+`sw.js` precaches 32 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v1.3.0`.
 
 ## Testing design
 

@@ -78,11 +78,13 @@ try {
         return c ? [c.width, c.height] : null;
       })(),
       title: document.title,
+      displayFont: getComputedStyle(document.getElementById('mainMenu')).fontFamily,
     }));
     if (client.consoleErrors.length) throw new Error(`console errors: ${client.consoleErrors.join(' | ')}`);
     if (client.exceptions.length) throw new Error(`exceptions: ${client.exceptions.join(' | ')}`);
     if (!boot.global) throw new Error('window.__ENGLISH_CLUB__ missing');
     if (!boot.splash) throw new Error('splash screen not active');
+    if (!/serif|Georgia/i.test(boot.displayFont)) throw new Error(`English display font missing: ${boot.displayFont}`);
     return boot;
   });
   await shot('01-splash.png');

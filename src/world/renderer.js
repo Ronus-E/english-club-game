@@ -21,6 +21,12 @@ const PALETTE = {
   shadow: 'rgba(5, 9, 20, .38)',
 };
 
+/** Short English labels drawn on campus signs (limited pixel width). */
+const SIGN_LABELS = {
+  hub: 'CLUB', vocabulary: 'VOCAB', grammar: 'GRAMMAR', reading: 'READ',
+  writing: 'WRITE', culture: 'CULTURE', arena: 'FINAL', achievement: 'BADGES',
+};
+
 const worldToIso = (x, y) => ({ x: (x - y) * (TILE_W / 2), y: (x + y) * (TILE_H / 2) });
 
 function diamond(ctx, cx, cy, w, h) {
@@ -286,16 +292,23 @@ export class CampusRenderer {
       ctx.fillRect(wx, wy - 6, 8, 2);
     }
 
-    // sign with pixel icon
+    // English signage: icon + short name, readable on the campus map
     const signY = roofLeft[1] - 8;
-    const signW = 30;
-    const signH = 22;
+    const signW = 58;
+    const signH = 24;
     ctx.fillStyle = '#0d1428';
     ctx.fillRect(px - signW / 2, signY, signW, signH);
     ctx.strokeStyle = s.color;
     ctx.lineWidth = 2;
     ctx.strokeRect(px - signW / 2, signY, signW, signH);
-    drawIcon(ctx, this.stationIcon(s.id), px - 9, signY + 3, 18);
+    drawIcon(ctx, this.stationIcon(s.id), px - signW / 2 + 3, signY + 5, 14);
+    ctx.save();
+    ctx.fillStyle = '#f2e8d0';
+    ctx.font = '700 8px "DejaVu Sans Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(SIGN_LABELS[s.id] || s.short.toUpperCase(), px - signW / 2 + 20, signY + signH / 2);
+    ctx.restore();
 
     // animated roof beacon for the next station
     if (this.nextStation === s.id) {

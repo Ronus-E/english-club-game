@@ -19,6 +19,8 @@ There is no audio setup, microphone permission or voice check to perform — the
 
 ## Suggested five-minute demonstration
 
+The display uses an English editorial style: serif titles, red / blue / parchment accents and English station names on the campus signs. Feedback colours are unchanged — green means correct, red means correction.
+
 | Time | Action | What to say |
 |---|---|---|
 | 0:00–0:25 | Splash → menu | "One player, three minutes, one campus. Everything you see is drawn in code." |
