@@ -70,15 +70,13 @@ function boot() {
       ui.renderTagSelect();
       ui.showScreen('results');
       if (result.levelCompleted) {
+        audio.playLevelSong(result.level);
         ui.toast(`All ${QUIZ_STAGES} stages cleared at ${result.level}! Level complete.`, { ms: 5200 });
       } else if (result.stagePassed) {
+        audio.playStageClear(result.stage);
         ui.toast(result.stageUnlocked
           ? `Stage ${result.stage} cleared — stage ${result.stageUnlocked} unlocked.`
           : `Stage ${result.stage} cleared at ${result.percent}%.`, { ms: 4200 });
-      }
-      if (result.levelCompleted) {
-        audio.playLevelSong(result.level);
-        ui.toast('Level completed!', { ms: 3000 });
       }
     },
   });
@@ -231,6 +229,7 @@ function boot() {
     ui.showScreen('menu');
     ui.updateProfile();
     if (logoRaf) { cancelAnimationFrame(logoRaf); logoRaf = null; }
+    audio.startMusic();
   });
 
   ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });

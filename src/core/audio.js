@@ -114,9 +114,16 @@ export class AudioEngine {
     const ctx = this.ensure();
     if (!ctx) return;
 
-    // A calm, slow ambient loop: soft sine arpeggio over a warm drone.
-    // Nothing musical is fetched; every note is synthesised locally.
+    // A calm, game-like ambient loop: soft sine arpeggio, a quiet harmonic
+    // shimmer, a warm sub drone and a slow chord pad. Every note is
+    // synthesised locally; nothing is fetched.
     const scale = [0, 3, 5, 7, 10, 12, 10, 7, 5, 3];
+    const chords = [
+      [0, 4, 7],    // C major
+      [5, 9, 12],   // F major
+      [7, 11, 14],  // G major
+      [2, 5, 9],    // D minor
+    ];
     const base = 261.63; // C4
     const stepMs = 560;
     const note = (freq, t0, { type = 'sine', peak = 0.16, attack = 0.08, release = 1.6, detune = 0 }) => {
@@ -146,6 +153,15 @@ export class AudioEngine {
         note(base / 4, t0, { type: 'sine', peak: 0.1, attack: 0.35, release: 3.4 });
         note((base / 2) * Math.pow(2, 7 / 12), t0 + 0.05, { type: 'sine', peak: 0.05, attack: 0.4, release: 3.2 });
       }
+      // Slow chord pad, one chord every eight steps.
+      if (this.musicStep % 8 === 0) {
+        const chord = chords[Math.floor(this.musicStep / 8) % chords.length];
+        for (const semis of chord) {
+          note(base * Math.pow(2, (semis + 12) / 12), t0 + 0.06, {
+            type: 'triangle', peak: 0.028, attack: 1.3, release: 5.0, detune: 3,
+          });
+        }
+      }
       this.musicStep += 1;
     };
     playStep();
@@ -159,41 +175,51 @@ export class AudioEngine {
     }
   }
 
+  /** Short reward melody when a stage is cleared. Pitch rises with the stage. */
+  playStageClear(stage = 1) {
+    if (!this.available || this.muted) return;
+    const s = Math.max(1, Math.min(10, Number(stage) || 1));
+    const shift = ((s - 1) % 5) - 2; // -2..+2 semitones, subtle lift per stage
+    const root = 392; // G4
+    const motif = [0, 4, 7, 12];
+    motif.forEach((semis, i) => {
+      this.tone({
+        freq: root * Math.pow(2, (semis + shift) / 12),
+        duration: 0.2, type: 'triangle', volume: 0.16, delay: i * 0.11,
+      });
+    });
+    [0, 4, 7].forEach((semis) => {
+      this.tone({
+        freq: root * Math.pow(2, (semis + shift) / 12),
+        duration: 0.5, type: 'sine', volume: 0.08, delay: 0.46,
+      });
+    });
+  }
+
+  /** Longer fanfare when every stage of a CEFR level is complete. */
   playLevelSong(level) {
-    if (!this.available || this.muted || !this.settings.musicOn) return;
-    const ctx = this.ensure();
-    if (!ctx) return;
-
-    // Short celebratory melody per CEFR level, all notes synthesized locally.
-    const base = 261.63; // C4
-    const durations = [0.18, 0.14, 0.22];
-    const types = ['sine', 'triangle', 'square'];
-
-    const playNote = (freq, dur, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = types[i % 3];
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
-      osc.connect(gain);
-      gain.connect(this.musicGain || ctx.destination);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + dur + 0.02);
+    if (!this.available || this.muted) return;
+    const melodies = {
+      A1: [0, 4, 7, 12, 7, 12],
+      A2: [2, 5, 9, 12, 9, 14],
+      B1: [7, 11, 14, 19, 14, 19],
     };
-
-    const delays = [0, 0.1, 0.2];
-    const levelOffsets = {
-      A1: [0, 4, 7],    // C4, E4, G4 – bright major arpeggio
-      A2: [4, 7, 9],    // E4, G4, A4 – warmer folk-like
-      B1: [7, 9, 12],   // G4, A4, C5 – uplifting resolve
-    };
-    const offsets = levelOffsets[level] || [0, 4, 7];
-
-    for (let i = 0; i < 3; i++) {
-      const freq = base * Math.pow(2, offsets[i] / 12);
-      setTimeout(() => playNote(freq, durations[i], i), delays[i] * 1000);
-    }
+    const notes = melodies[level] || melodies.A1;
+    const root = 261.63; // C4
+    notes.forEach((semis, i) => {
+      this.tone({
+        freq: root * Math.pow(2, semis / 12),
+        duration: 0.26,
+        type: i % 2 ? 'sine' : 'triangle',
+        volume: 0.16,
+        delay: i * 0.15,
+      });
+    });
+    [0, 4, 7, 12].forEach((semis) => {
+      this.tone({
+        freq: root * Math.pow(2, (semis + 12) / 12),
+        duration: 0.9, type: 'sine', volume: 0.08, delay: 0.9,
+      });
+    });
   }
 }
