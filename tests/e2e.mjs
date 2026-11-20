@@ -385,6 +385,7 @@ try {
         restartHidden: document.getElementById('stageRestartBtn').hidden,
       };
       document.getElementById('stageBackBtn').click();
+      window.__ENGLISH_CLUB__.ui.showScreen('results');
       return { welcome, fresh };
     });
     if (!out.welcome.open || !/Continue run/.test(out.welcome.kicker)) {
