@@ -28,7 +28,7 @@ export class UI {
       'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
       'profileName', 'profileStats', 'profileAvatar', 'storageBadge',
       'levelGrid', 'levelContinueBtn', 'placementBtn', 'playerNameInput',
-      'stageGrid', 'stagesTitle', 'stagesLead',
+      'stageGrid', 'stagesTitle', 'stagesLead', 'stageLevelBtn',
       'quizQuitBtn', 'quizOpenBtn', 'quizKicker', 'quizTitle', 'quizStatus', 'quizPips',
       'resultScore', 'resultMax', 'resultGrade', 'resultXp', 'newBest',
       'resultCorrect', 'resultWrong', 'resultsBadgeCanvas', 'skillReport',

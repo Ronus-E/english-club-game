@@ -130,21 +130,17 @@ try {
   });
 
   /* ======================================================= 2. NAVIGATION */
-  await step('splash → menu → level selection with real clicks', async () => {
+  await step('splash → menu → stage grid with real clicks', async () => {
     await ev(() => document.getElementById('bootBtn').click());
     await sleep(200);
     const fresh = await ev(() => ({
-      open: !document.getElementById('overlay-stage').hidden,
-      continueText: document.getElementById('stageContinueBtn').textContent.trim(),
-      restartHidden: document.getElementById('stageRestartBtn').hidden,
+      welcomeOpen: !document.getElementById('overlay-stage').hidden,
+      menu: document.getElementById('screen-menu').classList.contains('is-active'),
       splashText: document.getElementById('bootBtn').textContent.trim(),
     }));
-    if (!fresh.open || !/CONTINUE → STAGE 1/.test(fresh.continueText) || !fresh.restartHidden) {
-      throw new Error(`START did not open stage 1: ${JSON.stringify(fresh)}`);
-    }
+    if (fresh.welcomeOpen) throw new Error(`START must not open a welcome message: ${JSON.stringify(fresh)}`);
+    if (!fresh.menu) throw new Error(`START did not open the menu: ${JSON.stringify(fresh)}`);
     if (fresh.splashText !== 'START') throw new Error(`splash should show START only: ${JSON.stringify(fresh)}`);
-    await ev(() => document.getElementById('stageBackBtn').click());
-    await sleep(120);
     const menu = await ev(() => ({
       menu: document.getElementById('screen-menu').classList.contains('is-active'),
       title: document.getElementById('mainMenu').textContent.trim(),
@@ -185,20 +181,29 @@ try {
 
     await ev(() => document.getElementById('playBtn').click());
     await sleep(200);
-    const level = await ev(() => ({
+    const grid = await ev(() => ({
+      screen: document.getElementById('screen-stages').classList.contains('is-active'),
       level: document.getElementById('screen-level').classList.contains('is-active'),
-      cards: document.querySelectorAll('#levelGrid .level-card').length,
+      cards: document.querySelectorAll('#stageGrid .stage-card').length,
       levels: [...document.querySelectorAll('#levelGrid .level-card')].map((c) => c.dataset.level),
     }));
-    if (!level.level || level.cards !== 3) throw new Error(`level screen invalid: ${JSON.stringify(level)}`);
-    if (level.levels.join(',') !== 'A1,A2,B1') throw new Error(`wrong levels: ${level.levels}`);
-    return { menu: menu.title, levels: level.levels };
+    if (!grid.screen || grid.level || grid.cards !== 10) throw new Error(`stage grid invalid: ${JSON.stringify(grid)}`);
+    return { menu: menu.title, stages: grid.cards };
   });
-  await shot('02-levels.png');
+  await shot('02-stages.png');
 
   /* ======================================================== 3. STAGE PICK */
-  await step('choosing A2 opens ten progressive stages with only stage 1 unlocked', async () => {
+  await step('CHANGE LEVEL opens level selection, then A2 shows ten stages with only stage 1 unlocked', async () => {
     const out = await ev(async () => {
+      document.getElementById('stageLevelBtn').click();
+      await new Promise((r) => setTimeout(r, 200));
+      const level = {
+        screen: document.getElementById('screen-level').classList.contains('is-active'),
+        levels: [...document.querySelectorAll('#levelGrid .level-card')].map((c) => c.dataset.level),
+      };
+      if (!level.screen || level.levels.join(',') !== 'A1,A2,B1') {
+        throw new Error(`level screen invalid: ${JSON.stringify(level)}`);
+      }
       document.querySelector('#levelGrid .level-card[data-level="A2"]').click();
       const input = document.getElementById('playerNameInput');
       input.value = 'Tester';
@@ -395,39 +400,35 @@ try {
   });
   await shot('05-results.png');
 
-  await step('START reopens the current stage with CONTINUE and a RESTART choice', async () => {
+  await step('START returns to the menu without a welcome message', async () => {
     const out = await ev(async () => {
       document.getElementById('resultsMenuBtn').click();
       await new Promise((r) => setTimeout(r, 120));
       document.getElementById('bootBtn').click();
       await new Promise((r) => setTimeout(r, 200));
-      const welcome = {
-        open: !document.getElementById('overlay-stage').hidden,
-        kicker: document.getElementById('stageWelcomeKicker').textContent.trim(),
-        continueText: document.getElementById('stageContinueBtn').textContent.trim(),
-        restartHidden: document.getElementById('stageRestartBtn').hidden,
-        restartText: document.getElementById('stageRestartBtn').textContent.trim(),
+      const menu = {
+        open: document.getElementById('screen-menu').classList.contains('is-active'),
+        welcome: !document.getElementById('overlay-stage').hidden,
       };
-      document.getElementById('stageRestartBtn').click();
+      document.getElementById('playBtn').click();
       await new Promise((r) => setTimeout(r, 200));
-      const fresh = {
-        kicker: document.getElementById('stageWelcomeKicker').textContent.trim(),
-        continueText: document.getElementById('stageContinueBtn').textContent.trim(),
-        restartHidden: document.getElementById('stageRestartBtn').hidden,
+      const stages = {
+        open: document.getElementById('screen-stages').classList.contains('is-active'),
+        cards: document.querySelectorAll('#stageGrid .stage-card').length,
+        cleared: document.querySelectorAll('#stageGrid .stage-card.is-cleared').length,
+        unlocked: [...document.querySelectorAll('#stageGrid .stage-card')].filter((c) => !c.disabled).length,
+        changeLevel: Boolean(document.getElementById('stageLevelBtn')),
       };
-      document.getElementById('stageBackBtn').click();
       window.__ENGLISH_CLUB__.ui.showScreen('results');
-      return { welcome, fresh };
+      return { menu, stages };
     });
-    if (!out.welcome.open || !/Continue run/.test(out.welcome.kicker)) {
-      throw new Error(`CONTINUE not proposed on the open stage: ${JSON.stringify(out)}`);
+    if (!out.menu.open || out.menu.welcome) {
+      throw new Error(`START must open the menu without a welcome: ${JSON.stringify(out)}`);
     }
-    if (out.welcome.restartHidden || !/RESTART FROM STAGE 1/.test(out.welcome.restartText)) {
-      throw new Error(`RESTART choice missing: ${JSON.stringify(out)}`);
+    if (!out.stages.open || out.stages.cards !== 10 || out.stages.cleared !== 1 || out.stages.unlocked !== 2) {
+      throw new Error(`stage grid wrong after START A QUIZ: ${JSON.stringify(out)}`);
     }
-    if (!/Fresh run/.test(out.fresh.kicker) || !out.fresh.restartHidden) {
-      throw new Error(`RESTART did not return to stage 1: ${JSON.stringify(out)}`);
-    }
+    if (!out.stages.changeLevel) throw new Error('CHANGE LEVEL button missing');
     return out;
   });
 
@@ -551,9 +552,7 @@ try {
   await step('the stage grid shows stage 1 cleared and stage 2 starts with its own welcome', async () => {
     const out = await ev(async () => {
       document.getElementById('playBtn').click();
-      await new Promise((r) => setTimeout(r, 150));
-      document.getElementById('levelContinueBtn').click();
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 250));
       const cards = [...document.querySelectorAll('#stageGrid .stage-card')];
       const first = cards.find((card) => card.dataset.stage === '1');
       const second = cards.find((card) => card.dataset.stage === '2');

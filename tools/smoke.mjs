@@ -77,16 +77,9 @@ try {
 
   await client.evaluate(`document.getElementById('bootBtn').click()`);
   await sleep(200);
+  const startWelcome = await client.evaluate(`!document.getElementById('overlay-stage').hidden`);
+  if (startWelcome) throw new Error('START must not open a welcome message');
   await client.evaluate(`document.getElementById('playBtn').click()`);
-  await sleep(200);
-  const level = await client.evaluate(`(() => {
-    document.querySelector('#levelGrid .level-card[data-level="A1"]').click();
-    const input = document.getElementById('playerNameInput');
-    input.value = 'Smoke';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    document.getElementById('levelContinueBtn').click();
-    return true;
-  })()`);
   await sleep(250);
 
   const stages = await client.evaluate(`(() => {

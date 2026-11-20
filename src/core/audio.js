@@ -5,7 +5,7 @@
 export class AudioEngine {
   constructor(settings = {}) {
     this.settings = {
-      music: 70,
+      music: 100,
       sfx: 70,
       musicOn: true,
       ...settings,
@@ -16,6 +16,7 @@ export class AudioEngine {
     this.musicNextTime = 0;
     this.musicStage = 1;
     this.musicProgress = 0;
+    this.ambientNodes = [];
     this.musicGain = null;
     this.sfxGain = null;
     this.noise = null;
@@ -30,10 +31,10 @@ export class AudioEngine {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new Ctx();
       this.master = this.ctx.createGain();
-      this.master.gain.value = 0.9;
+      this.master.gain.value = 1;
       this.master.connect(this.ctx.destination);
       this.musicGain = this.ctx.createGain();
-      this.musicGain.gain.value = (this.settings.music / 100) * 0.5;
+      this.musicGain.gain.value = (this.settings.music / 100) * 1.1;
       this.musicGain.connect(this.master);
       this.sfxGain = this.ctx.createGain();
       this.sfxGain.gain.value = (this.settings.sfx / 100) * 0.5;
@@ -47,14 +48,14 @@ export class AudioEngine {
     this.settings = { ...this.settings, ...settings };
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    if (this.musicGain) this.musicGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.music / 100) * 0.5, now, 0.05);
+    if (this.musicGain) this.musicGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.music / 100) * 1.1, now, 0.05);
     if (this.sfxGain) this.sfxGain.gain.setTargetAtTime(this.muted ? 0 : (this.settings.sfx / 100) * 0.5, now, 0.05);
     if (!this.settings.musicOn) this.stopMusic();
   }
 
   setMuted(muted) {
     this.muted = muted;
-    if (this.ctx?.master) this.ctx.master.gain.setTargetAtTime(muted ? 0 : 0.9, this.ctx.currentTime, 0.03);
+    if (this.ctx?.master) this.ctx.master.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.03);
   }
 
   tone({ freq = 440, to = null, duration = 0.12, type = 'square', volume = 0.2, delay = 0 }) {
@@ -122,6 +123,52 @@ export class AudioEngine {
     filter.connect(gain);
     src.start(t0);
     src.stop(t0 + dur + 0.01);
+  }
+
+  /** Soft evolving pad that stays under the quiz theme for a warm atmosphere. */
+  startAmbient() {
+    const ctx = this.ensure();
+    if (!ctx || !this.musicGain || this.ambientNodes.length) return;
+    const now = ctx.currentTime;
+    const padGain = ctx.createGain();
+    padGain.gain.setValueAtTime(0.0001, now);
+    padGain.gain.exponentialRampToValueAtTime(0.22, now + 1.6);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+    filter.Q.value = 0.6;
+    padGain.connect(filter);
+    filter.connect(this.musicGain);
+    const root = 130.81; // C3
+    for (const [ratio, detune, level] of [[1, -4, 0.5], [1.5, 3, 0.3], [2, 5, 0.2]]) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = root * ratio;
+      osc.detune.value = detune;
+      gain.gain.value = level;
+      osc.connect(gain);
+      gain.connect(padGain);
+      osc.start(now);
+      this.ambientNodes.push({ osc, gain });
+    }
+    this.ambientGain = padGain;
+    this.ambientFilter = filter;
+  }
+
+  stopAmbient() {
+    const now = this.ctx?.currentTime ?? 0;
+    if (this.ambientGain) {
+      this.ambientGain.gain.cancelScheduledValues(now);
+      this.ambientGain.gain.setValueAtTime(Math.max(0.0001, this.ambientGain.gain.value), now);
+      this.ambientGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+    }
+    for (const { osc } of this.ambientNodes) {
+      try { osc.stop(now + 0.5); } catch { /* already stopped */ }
+    }
+    this.ambientNodes = [];
+    this.ambientGain = null;
+    this.ambientFilter = null;
   }
 
   /** Later stages bring a fuller arrangement; call again to reset a run. */
@@ -269,6 +316,7 @@ export class AudioEngine {
     };
     playStep();
     this.musicTimer = setInterval(playStep, stepMs);
+    this.startAmbient();
   }
 
   stopMusic() {
@@ -276,6 +324,7 @@ export class AudioEngine {
       clearInterval(this.musicTimer);
       this.musicTimer = null;
     }
+    this.stopAmbient();
   }
 
   /** Short reward melody when a stage is cleared. Pitch rises with the stage. */

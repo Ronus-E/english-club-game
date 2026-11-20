@@ -241,9 +241,16 @@ function boot() {
     startQuiz(level, null, stage, fresh ? 'Fresh run' : 'Continue run');
   };
 
-  ui.el.bootBtn?.addEventListener('click', () => openCurrentStage(false));
+  const openMenu = () => {
+    quickBoot();
+    ui.showScreen('menu');
+    ui.updateProfile();
+  };
 
-  ui.el.playBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
+  ui.el.bootBtn?.addEventListener('click', () => openMenu());
+
+  ui.el.playBtn?.addEventListener('click', () => { audio.play('fanfare'); openStageSelect(); });
+  ui.el.stageLevelBtn?.addEventListener('click', () => { audio.play('click'); openLevelSelect(); });
   ui.el.levelContinueBtn?.addEventListener('click', () => {
     audio.play('fanfare');
     openStageSelect();

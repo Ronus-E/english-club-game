@@ -8,7 +8,7 @@ export const STAGE_PASS_PERCENT = 60;
 const LEVEL_KEYS = ['A1', 'A2', 'B1'];
 
 export const DEFAULT_SETTINGS = {
-  music: 70,
+  music: 100,
   sfx: 70,
   musicOn: true,
   reducedGraphics: false,
