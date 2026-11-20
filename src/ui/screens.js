@@ -23,7 +23,7 @@ export class UI {
     this.el = {};
     const ids = [
       'app', 'offlineBanner', 'bootBtn', 'bootStatus',
-      'playBtn', 'practiceBtn', 'dailyBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
+      'playBtn', 'practiceBtn', 'dailyBtn', 'shareBtn', 'howBtn', 'achievementsBtn', 'settingsBtn',
       'comebackCard', 'comebackCount', 'comebackBtn',
       'aboutBtn', 'installBtn', 'installHint', 'progressBtn', 'progressHint',
       'profileName', 'profileStats', 'profileAvatar', 'storageBadge',

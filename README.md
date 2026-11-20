@@ -60,6 +60,7 @@ During the quiz, answers stay neutral: no green tick, no red cross, no explanati
 - **Levels and stages:** A1 (Beginner), A2 (Elementary), B1 (Intermediate) — 3 levels × 10 stages. The 150 authored exercises feed every stage; stage 1 draws from the easiest authored items and stage 10 from the hardest, so difficulty rises while staying inside the chosen CEFR level.
 - **Stage flow:** a welcome panel names the level, the stage and the question count before every run. Clearing a stage with 60 % or more unlocks the next one and shows a **Next level** button that opens the following stage directly. Closing all ten stages plays a longer level-complete fanfare.
 - **Fast start and comeback:** **START** opens the stage you are on. Its welcome panel offers **CONTINUE → STAGE X** to resume and **RESTART FROM STAGE 1** when you want a fresh run; a new player sees stage 1 with no restart choice. The menu shows a **Comeback queue** of up to three saved mistakes; clearing it removes those items from the book.
+- **Share:** the menu **SHARE** button opens the device share sheet when available and copies the page link otherwise.
 - **Result card:** the report can save a 1080×1350 PNG card locally — score, grade, skill bars and the no-ads/offline promise — with no upload and no external asset.
 - **Report:** a compact summary (score out of the stage maximum, grade, correct/wrong, per-skill breakdown and next actions). Corrections, explanations, recommendations and badges sit behind two collapsed sections, so the screen stays short until the learner asks for details.
 - **Audio:** an upbeat, fully synthesised 112 BPM loop (hook, bass, soft percussion and pad) that gains layers with stage and quiz progress, a short reward melody after each cleared stage, and a longer fanfare per CEFR level; no audio file is downloaded and no answer is revealed by the music.
@@ -102,7 +103,7 @@ Text fields accept typing without triggering shortcuts. There are no movement ke
 # import/export, SVG icons
 node --test tests/unit.test.mjs
 
-# 27 real-browser checks: boot, navigation, stage grid and unlocks, welcome
+# 28 real-browser checks: boot, navigation, stage grid and unlocks, welcome
 # message before each stage, Next level button, all exercise types, silent quiz
 # with no leaked corrections, final dashboard, replay, stage progress, practice,
 # topic revision, placement, progress, daily challenge, settings, achievements,
@@ -116,7 +117,7 @@ A quick boot-only check is also available: `node tools/smoke.mjs`.
 
 The browser tests use a small built-in CDP client (`tools/cdp.mjs`) and headless Chromium. Reports and screenshots go to `/tmp/opencode/ec-shots/e2e-report.json` and `/tmp/opencode/ec-shots/e2e/`.
 
-Latest verified run: **66/66 unit**, **27/27 browser**, **0 console errors, 0 exceptions, 0 warnings**.
+Latest verified run: **66/66 unit**, **28/28 browser**, **0 console errors, 0 exceptions, 0 warnings**.
 
 ---
 

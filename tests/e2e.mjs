@@ -152,6 +152,37 @@ try {
     }));
     if (!menu.menu) throw new Error('menu not shown');
     if (!/QUIZ/i.test(menu.title)) throw new Error(`wrong title: ${menu.title}`);
+    await step('the SHARE button works with Web Share and keeps the UI English', async () => {
+      const out = await ev(async () => {
+        const btn = document.getElementById('shareBtn');
+        const label = btn.textContent.trim();
+        let payload = null;
+        const native = navigator.share;
+        Object.defineProperty(navigator, 'share', {
+          configurable: true,
+          value: (data) => { payload = data; return Promise.resolve(); },
+        });
+        btn.click();
+        await new Promise((r) => setTimeout(r, 150));
+        Object.defineProperty(navigator, 'share', { configurable: true, value: native });
+        return {
+          label,
+          payload,
+          toast: document.getElementById('toast').textContent,
+          menu: document.getElementById('screen-menu').classList.contains('is-active'),
+          french: /Partag|Copi/.test(document.body.textContent),
+        };
+      });
+      if (out.label !== 'SHARE') throw new Error(`share label is not English: ${JSON.stringify(out)}`);
+      if (!out.payload || !/English Club Quiz/.test(out.payload.title) || !out.payload.url) {
+        throw new Error(`Web Share was not called: ${JSON.stringify(out)}`);
+      }
+      if (!/Shared!/.test(out.toast) || out.french || !out.menu) {
+        throw new Error(`share result failed: ${JSON.stringify(out)}`);
+      }
+      return out;
+    });
+
     await ev(() => document.getElementById('playBtn').click());
     await sleep(200);
     const level = await ev(() => ({
@@ -718,7 +749,7 @@ try {
   await step('the interface is English-only and locked against auto-translation', async () => {
     const out = await ev(() => {
       const body = document.body.textContent;
-      const bad = ['Choisissez', 'Réponse correcte', 'Pas tout à fait', 'Explication', 'Niveau']
+      const bad = ['Choisissez', 'Réponse correcte', 'Pas tout à fait', 'Explication', 'Niveau', 'Partager', 'Partagé', 'Copié']
         .filter((word) => body.includes(word));
       const html = document.documentElement;
       return {

@@ -269,6 +269,31 @@ function boot() {
     startQuiz(level, dailySeed(iso), stage, `Daily challenge · ${iso}`);
     ui.toast(`Daily challenge for ${iso} — stage ${stage} uses the same questions for everyone today.`, { ms: 4200 });
   });
+  const shareGame = async () => {
+    const title = 'English Club Quiz';
+    const text = 'Practice English with the English Club Quiz — 150 exercises, 10 stages, offline and free.';
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+        ui.toast('Shared!', { ms: 2200 });
+        return;
+      } catch (error) {
+        if (error?.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      ui.toast('Link copied to clipboard.', { ms: 2600 });
+    } catch {
+      ui.toast('Sharing is unavailable here. Copy the link from the address bar.', { warn: true, ms: 4200 });
+    }
+  };
+
+  ui.el.shareBtn?.addEventListener('click', () => {
+    audio.play('click');
+    shareGame();
+  });
   ui.el.achievementsBtn?.addEventListener('click', () => {
     audio.play('click');
     ui.renderAchievements();
