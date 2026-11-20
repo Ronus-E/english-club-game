@@ -377,21 +377,21 @@ test('todayIso returns a stable calendar date', () => {
 });
 
 /* ------------------------------------------------------------------ content */
-test('every skill and level has exactly ten exercises', () => {
+test('every skill and level has exactly fourteen exercises', () => {
   const counts = countExercises();
   for (const skill of Object.keys(counts)) {
-    for (const level of LEVELS) assert.equal(counts[skill][level], 10, `${skill} ${level}`);
+    for (const level of LEVELS) assert.equal(counts[skill][level], 14, `${skill} ${level}`);
   }
   assert.ok(!('listening' in counts) && !('speaking' in counts));
   assert.equal(Object.values(counts).reduce(
     (sum, byLevel) => sum + Object.values(byLevel).reduce((a, b) => a + b, 0), 0,
-  ), 150);
+  ), 210);
 });
 
 test('the content bank validates without any schema error', () => {
   let report = null;
   assert.doesNotThrow(() => { report = validateBank(banks); });
-  assert.equal(report.total, 150);
+  assert.equal(report.total, 210);
   assert.equal(Object.keys(report.counts).length, 15);
 });
 
@@ -416,7 +416,7 @@ test('exercise ids are unique across the whole bank', () => {
       }
     }
   }
-  assert.equal(ids.size, 150);
+  assert.equal(ids.size, 210);
 });
 
 test('every exercise carries objective, instruction and explanation', () => {
@@ -564,32 +564,34 @@ test('stage quizzes are reproducible and interleave the five skills', () => {
   assert.ok(runs.length >= 5, JSON.stringify(runs));
 });
 
-test('the difficulty window slides through the authored bank', () => {
+test('stage slices are disjoint and rise through the authored bank', () => {
   let previous = { start: -1, end: -1 };
   for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
     const band = stageBand(stage);
-    assert.ok(band.start >= 0 && band.end <= 9, JSON.stringify(band));
-    assert.ok(band.start < band.end, JSON.stringify(band));
+    assert.ok(band.start >= 0 && band.end <= 13, JSON.stringify(band));
+    assert.ok(band.start <= band.end, JSON.stringify(band));
     assert.ok(band.start >= previous.start && band.end >= previous.end, `stage ${stage}`);
     previous = band;
   }
-  assert.deepEqual(stageBand(1), { start: 0, end: 1, center: 0 });
-  assert.equal(stageBand(10).end, 9);
+  assert.deepEqual(stageBand(1), { start: 0, end: 0, center: 0 });
+  assert.equal(stageBand(10).end, 13);
 
   const authorIndex = (level, item) => getExercises(item.skill, level)
     .findIndex((candidate) => candidate.id === item.id);
   for (const level of LEVELS) {
+    const seen = new Set();
     for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
       const band = stageBand(stage);
       for (const item of buildStageQuiz(level, stage, 7)) {
         const index = authorIndex(level, item);
         assert.ok(index >= band.start && index <= band.end, `${item.id} outside stage ${stage}`);
+        assert.ok(!seen.has(item.id), `${item.id} repeated in ${level}`);
+        seen.add(item.id);
       }
     }
-  }
+    assert.equal(seen.size, 68, `${level}: expected 68 distinct questions`);
 
-  // Across the full sequence the later stages clearly draw on richer items.
-  for (const level of LEVELS) {
+    // Later stages clearly draw on richer items.
     const average = (stages) => {
       const values = stages.flatMap((stage) => buildStageQuiz(level, stage, 555)
         .map((item) => authorIndex(level, item)));
@@ -597,6 +599,36 @@ test('the difficulty window slides through the authored bank', () => {
     };
     assert.ok(average([8, 9, 10]) > average([1, 2, 3]) + 3, level);
   }
+});
+
+test('a question never appears in another stage or another level', () => {
+  const acrossAllLevels = new Set();
+  for (const level of LEVELS) {
+    const stageSets = [];
+    for (let stage = 1; stage <= QUIZ_STAGES; stage++) {
+      const ids = buildStageQuiz(level, stage, 42).map((item) => item.id);
+      assert.equal(ids.length, stageQuestionCount(stage), `${level} stage ${stage} size`);
+      assert.equal(new Set(ids).size, ids.length, `${level} stage ${stage} internal repeat`);
+      const set = new Set(ids);
+      for (const id of set) {
+        assert.ok(!acrossAllLevels.has(id), `${id} reused in ${level} stage ${stage}`);
+        acrossAllLevels.add(id);
+      }
+      stageSets.push(set);
+
+      // The seed shuffles order only; it never imports a question from another stage.
+      const other = new Set(buildStageQuiz(level, stage, 999).map((item) => item.id));
+      assert.deepEqual([...other].sort(), [...set].sort(), `${level} stage ${stage} seed leak`);
+    }
+    for (let a = 0; a < stageSets.length; a++) {
+      for (let b = a + 1; b < stageSets.length; b++) {
+        for (const id of stageSets[a]) {
+          assert.ok(!stageSets[b].has(id), `${id} shared by stages ${a + 1} and ${b + 1} in ${level}`);
+        }
+      }
+    }
+  }
+  assert.equal(acrossAllLevels.size, LEVELS.length * 68);
 });
 
 test('the stage builder rejects an unknown level', () => {
@@ -611,9 +643,9 @@ test('the placement check is six distinct questions across levels', () => {
   assert.ok(items.some((i) => i.level === 'B1'));
 });
 
-test('practice returns ten exercises for any skill and level', () => {
+test('practice returns fourteen exercises for any skill and level', () => {
   for (const level of LEVELS) {
-    for (const skill of QUIZ_SKILLS) assert.equal(getExercises(skill, level).length, 10);
+    for (const skill of QUIZ_SKILLS) assert.equal(getExercises(skill, level).length, 14);
   }
 });
 

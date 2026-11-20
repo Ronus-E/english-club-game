@@ -4,7 +4,7 @@
 Each level (A1, A2, B1) has 10 stages of 5–9 questions, with difficulty rising stage by stage.
 Corrections are held back until the end of each stage, then shown in a clear final dashboard.
 
-Everything is local: HTML, CSS, JavaScript, procedural Canvas decoration, synthesised Web Audio tones and 150 hand-written exercises. **No npm packages, no CDN, no web fonts, no image files, no API calls, no microphone, no speech recognition or synthesis.** Nothing is uploaded; progress stays in the browser.
+Everything is local: HTML, CSS, JavaScript, procedural Canvas decoration, synthesised Web Audio tones and 210 hand-written exercises. **No npm packages, no CDN, no web fonts, no image files, no API calls, no microphone, no speech recognition or synthesis.** Nothing is uploaded; progress stays in the browser.
 
 ---
 
@@ -54,10 +54,10 @@ During the quiz, answers stay neutral: no green tick, no red cross, no explanati
 
 ### Support and progress
 
-- **Practice mode:** 10 exercises per skill per level, no clock. Practice still gives immediate explanations (only the scored quiz is silent). Revision by topic filters the bank by tag.
+- **Practice mode:** 14 exercises per skill per level, no clock. Practice still gives immediate explanations (only the scored quiz is silent). Revision by topic filters the bank by tag.
 - **Placement check:** six mixed questions suggest A1, A2 or B1; the learner can override it.
 - **Daily challenge:** one stable seed per calendar day per stage — the same questions for everyone playing that stage that day, no account or leaderboard.
-- **Levels and stages:** A1 (Beginner), A2 (Elementary), B1 (Intermediate) — 3 levels × 10 stages. The 150 authored exercises feed every stage; stage 1 draws from the easiest authored items and stage 10 from the hardest, so difficulty rises while staying inside the chosen CEFR level.
+- **Levels and stages:** A1 (Beginner), A2 (Elementary), B1 (Intermediate) — 3 levels × 10 stages. The 210 authored exercises are split into disjoint stage pools: each level uses 68 distinct questions, no question repeats across its ten stages, and stage 1 draws the easiest authored items while stage 10 draws the hardest, so difficulty rises inside the chosen CEFR level.
 - **Stage flow:** a welcome panel names the level, the stage and the question count before every run. Clearing a stage with 60 % or more unlocks the next one and shows a **Next level** button that opens the following stage directly. Closing all ten stages plays a longer level-complete fanfare.
 - **Fast start and comeback:** **START** opens the stage you are on. Its welcome panel offers **CONTINUE → STAGE X** to resume and **RESTART FROM STAGE 1** when you want a fresh run; a new player sees stage 1 with no restart choice. The menu shows a **Comeback queue** of up to three saved mistakes; clearing it removes those items from the book.
 - **Share:** the menu **SHARE** button opens the device share sheet when available and copies the page link otherwise.
@@ -129,7 +129,7 @@ manifest.webmanifest       PWA metadata
 sw.js                      offline-first service worker (26 files precached)
 assets/icons/              generated PNG icons (192, 512, maskable)
 src/main.js                boot, navigation and wiring
-src/content/               150 exercises, quiz builder, placement, schema
+src/content/               210 exercises, quiz builder, placement, schema
 src/core/                  scoring, achievements, storage, audio, utilities
 src/game/quiz.js           stage-aware quiz controller
 src/ui/                    screens, exercises, icons, Canvas decoration

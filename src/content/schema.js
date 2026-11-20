@@ -115,7 +115,7 @@ export function checkAnswer(item, response) {
 }
 
 /** Validate the whole bank. Throws with a readable report on error. */
-export function validateBank(banks, { perSkillLevel = 10 } = {}) {
+export function validateBank(banks, { perSkillLevel = 14 } = {}) {
   const problems = [];
   const ids = new Set();
   const counts = {};

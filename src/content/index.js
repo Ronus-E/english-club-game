@@ -43,7 +43,7 @@ export function getExerciseById(id) {
 
 /**
  * Tags are authored when present, otherwise derived from the objective and
- * prompt. This keeps every exercise searchable without editing 150 records.
+ * prompt. This keeps every exercise searchable without editing 210 records.
  */
 const TAG_STOPWORDS = new Set([
   'about', 'after', 'again', 'answer', 'choose', 'correct', 'describe', 'every',
@@ -124,13 +124,42 @@ export function buildQuiz(level, seed = Date.now()) {
 /**
  * Ten progressive stages per CEFR level. Each stage asks between five and nine
  * questions, mixing the five skills. The authored banks are ordered from the
- * simplest to the richest exercise, so a two-item sliding window over that
- * author index makes each stage slightly harder than the previous one.
+ * simplest to the richest exercise. Stages take consecutive, non-overlapping
+ * slices of each bank, so no question is ever repeated across the ten stages
+ * of a level and later stages always use richer items than earlier ones.
  */
 export const QUIZ_STAGES = 10;
 export const STAGE_SIZES = [5, 5, 6, 6, 7, 7, 7, 8, 8, 9];
-export const STAGE_BAND_WIDTH = 2;
-const BANK_SIZE = 10;
+export const BANK_SIZE = 14;
+
+/** Extra slots beyond one per skill for this stage (0–4). */
+function stageExtra(stage) {
+  return stageQuestionCount(stage) - QUIZ_SKILLS.length;
+}
+
+/** Skills that receive a second item in this stage, rotated by stage number. */
+function extraSkills(stage) {
+  const s = normalizeStage(stage);
+  const rotation = (s - 1) % QUIZ_SKILLS.length;
+  const out = new Set();
+  for (let i = 0; i < stageExtra(s); i++) out.add((rotation + i) % QUIZ_SKILLS.length);
+  return out;
+}
+
+/**
+ * Consecutive slice of one authored bank used by one stage. Slices are
+ * disjoint across stages and advance with the stage number.
+ */
+export function stageSlice(stage, skillIndex) {
+  const s = normalizeStage(stage);
+  let start = 0;
+  for (let previous = 1; previous < s; previous++) {
+    const extra = extraSkills(previous);
+    start += extra.has(skillIndex) ? 2 : 1;
+  }
+  const count = extraSkills(s).has(skillIndex) ? 2 : 1;
+  return { start, end: start + count - 1, count };
+}
 
 export function normalizeStage(stage) {
   const value = Math.round(Number(stage));
@@ -143,41 +172,39 @@ export function stageQuestionCount(stage) {
   return STAGE_SIZES[normalizeStage(stage) - 1];
 }
 
-/**
- * Difficulty window on the 0..9 author index. Stage 1 uses indices 0–1,
- * stage 2 uses 1–2, and so on; the last two stages share indices 8–9.
- */
+/** Combined author-index span of all slices used by one stage. */
 export function stageBand(stage) {
   const s = normalizeStage(stage);
-  const start = Math.min(BANK_SIZE - STAGE_BAND_WIDTH, Math.max(0, s - 1));
-  return { start, end: start + STAGE_BAND_WIDTH - 1, center: s - 1 };
+  let start = Infinity;
+  let end = -Infinity;
+  for (let index = 0; index < QUIZ_SKILLS.length; index++) {
+    const slice = stageSlice(s, index);
+    start = Math.min(start, slice.start);
+    end = Math.max(end, slice.end);
+  }
+  return { start, end, center: s - 1 };
 }
 
 /**
- * Build one stage quiz. Questions are drawn only from the stage's difficulty
- * window, one per skill with the extra slots distributed by the seed, then
- * interleaved so the same skill never appears three times in a row.
+ * Build one stage quiz from that stage's disjoint bank slices, one or two
+ * items per skill, then interleave so the same skill never appears three
+ * times in a row. The seed changes the order, never the set of questions.
  */
 export function buildStageQuiz(level, stage, seed = Date.now()) {
   if (!LEVELS.includes(level)) throw new Error(`Unknown level: ${level}`);
   const s = normalizeStage(stage);
-  const total = stageQuestionCount(s);
-  const { start, end } = stageBand(s);
   const rng = createRng(hashString(`stage-${level}-${s}-${seed}`));
-  const skillOrder = shuffle(QUIZ_SKILLS, rng);
-  const base = Math.floor(total / QUIZ_SKILLS.length);
-  const extra = total % QUIZ_SKILLS.length;
   const groups = new Map();
 
-  for (const skill of QUIZ_SKILLS) {
+  QUIZ_SKILLS.forEach((skill, skillIndex) => {
     const bank = getExercises(skill, level);
+    const { start, count } = stageSlice(s, skillIndex);
     const pool = [];
-    for (let index = start; index <= end; index++) {
+    for (let index = start; index < start + count; index++) {
       if (bank[index]) pool.push(bank[index]);
     }
-    const count = base + (skillOrder.indexOf(skill) < extra ? 1 : 0);
-    groups.set(skill, sample(pool, count, rng));
-  }
+    groups.set(skill, shuffle(pool, rng));
+  });
 
   const maxPerSkill = Math.max(...[...groups.values()].map((group) => group.length));
   const rounds = [];

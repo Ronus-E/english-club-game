@@ -83,6 +83,33 @@ export const writing = {
       answerText: 'See you on Monday.',
       explanation: 'Use “on” with days of the week: on Monday.',
     }),
+    o({
+      id: 'wri-a1-11', level: 'A1', objective: 'Write a sentence about a daily routine.',
+      prompt: 'Say that you get up at seven.',
+      words: ['I', 'get', 'up', 'at', 'seven'],
+      answerText: 'I get up at seven.',
+      explanation: 'The verb phrase “get up” stays together before the time.',
+    }),
+    o({
+      id: 'wri-a1-12', level: 'A1', objective: 'Write a sentence with an adjective before a noun.',
+      prompt: 'Say that she has a blue bag.',
+      words: ['She', 'has', 'a', 'blue', 'bag'],
+      answerText: 'She has a blue bag.',
+      explanation: 'The adjective “blue” comes before the noun “bag”.',
+    }),
+    o({
+      id: 'wri-a1-13', level: 'A1', objective: 'Write a sentence about a weekly activity.',
+      prompt: 'Say that you play football on Sunday.',
+      words: ['We', 'play', 'football', 'on', 'Sunday'],
+      answerText: 'We play football on Sunday.',
+      explanation: 'Use “on” with a day of the week.',
+    }),
+    w({
+      id: 'wri-a1-14', level: 'A1', objective: 'Recognise a polite request.',
+      prompt: 'Which sentence is polite?',
+      options: ['Pass me the salt, please.', 'Give me salt.', 'Salt now.', 'I want salt.'], answer: 0,
+      explanation: '“Please” makes the request polite.',
+    }),
   ],
   A2: [
     o({
@@ -152,6 +179,33 @@ export const writing = {
       options: ['I am unable to attend the meeting.', 'Can’t come.', 'No meeting for me.', 'I won’t be there, sorry.'], answer: 0,
       explanation: '“I am unable to attend” is neutral and formal; the others are too casual or abrupt.',
     }),
+    o({
+      id: 'wri-a2-11', level: 'A2', objective: 'Use the present perfect with “for”.',
+      prompt: 'Say that you have lived here for three years.',
+      words: ['I', 'have', 'lived', 'here', 'for', 'three', 'years'],
+      answerText: 'I have lived here for three years.',
+      explanation: '“For” introduces a length of time with the present perfect.',
+    }),
+    o({
+      id: 'wri-a2-12', level: 'A2', objective: 'Write a polite request with “could”.',
+      prompt: 'Ask someone to tell you the time, politely.',
+      words: ['Could', 'you', 'tell', 'me', 'the', 'time', 'please'],
+      answerText: 'Could you tell me the time please?',
+      explanation: '“Could you … please?” is a standard polite request.',
+    }),
+    w({
+      id: 'wri-a2-13', level: 'A2', objective: 'Choose the most polite formulation.',
+      prompt: 'Which sentence is the most polite?',
+      options: ['Would you mind opening the window?', 'Open the window.', 'You open the window.', 'Opening the window.'], answer: 0,
+      explanation: '“Would you mind …?” is an indirect, polite request.',
+    }),
+    o({
+      id: 'wri-a2-14', level: 'A2', objective: 'Write a passive sentence with a reason.',
+      prompt: 'Say that the meeting was cancelled because of rain.',
+      words: ['The', 'meeting', 'was', 'cancelled', 'because', 'of', 'rain'],
+      answerText: 'The meeting was cancelled because of rain.',
+      explanation: 'The passive “was cancelled” focuses on the meeting, not on who cancelled it.',
+    }),
   ],
   B1: [
     o({
@@ -220,6 +274,32 @@ export const writing = {
       words: ['The', 'new', 'policy', 'is', 'intended', 'to', 'reduce', 'waiting', 'times'],
       answerText: 'The new policy is intended to reduce waiting times.',
       explanation: '“Is intended to + verb” states a purpose formally and precisely.',
+    }),
+    o({
+      id: 'wri-b1-11', level: 'B1', objective: 'Write a non-defining relative clause.',
+      prompt: 'Mention that the proposal was submitted in March and finally approved.',
+      words: ['The', 'proposal', 'which', 'was', 'submitted', 'in', 'March', 'was', 'finally', 'approved'],
+      answerText: 'The proposal, which was submitted in March, was finally approved.',
+      explanation: 'A non-defining relative clause is set off by commas.',
+    }),
+    w({
+      id: 'wri-b1-12', level: 'B1', objective: 'Use “despite” correctly.',
+      prompt: 'Which sentence uses “despite” correctly?',
+      options: ['Despite the delay, we arrived on time.', 'Despite of the delay, we arrived on time.', 'Despite we were delayed, we arrived on time.', 'In despite the delay, we arrived on time.'], answer: 0,
+      explanation: '“Despite” takes a noun phrase directly, with no “of”.',
+    }),
+    o({
+      id: 'wri-b1-13', level: 'B1', objective: 'Write a formal inverted conditional.',
+      prompt: 'Say that you would have taken the train if you had known about the delay.',
+      words: ['Had', 'I', 'known', 'about', 'the', 'delay', 'I', 'would', 'have', 'taken', 'the', 'train'],
+      answerText: 'Had I known about the delay, I would have taken the train.',
+      explanation: '“Had I known” is the formal inversion of “If I had known”.',
+    }),
+    w({
+      id: 'wri-b1-14', level: 'B1', objective: 'Choose the most concise summary.',
+      prompt: 'Which sentence is the clearest and most concise?',
+      options: ['The scheme reduced waste but cost more than expected.', 'The scheme was a thing which reduced waste and it cost more than it was expected.', 'Waste was reduced by the scheme, which cost more than was expected.', 'The scheme reduced the amount of waste and cost more money than was expected.'], answer: 0,
+      explanation: 'The first sentence states both ideas directly without extra words.',
     }),
   ],
 };

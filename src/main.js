@@ -271,7 +271,7 @@ function boot() {
   });
   const shareGame = async () => {
     const title = 'English Club Quiz';
-    const text = 'Practice English with the English Club Quiz — 150 exercises, 10 stages, offline and free.';
+    const text = 'Practice English with the English Club Quiz — 210 exercises, 10 stages, offline and free.';
     const url = window.location.href;
     if (navigator.share) {
       try {

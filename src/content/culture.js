@@ -68,6 +68,30 @@ export const cultureBank = {
       explanation: 'Most US schools start between late August and early September after the summer break.',
       note: 'Simplified: calendars vary by state, district and school type.',
     }),
+    c({
+      id: 'cul-a1-11', level: 'A1', prompt: 'Who was the first president of the United States?',
+      options: ['George Washington', 'Abraham Lincoln', 'Thomas Jefferson', 'John Adams'], answer: 0,
+      explanation: 'George Washington was the first president, from 1789 to 1797.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-a1-12', level: 'A1', prompt: 'Which bird is a national symbol of the United States?',
+      options: ['The bald eagle', 'The lion', 'The panda', 'The kangaroo'], answer: 0,
+      explanation: 'The bald eagle was adopted as the national bird in 1782.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-a1-13', level: 'A1', prompt: 'Which is the largest US state by area?',
+      options: ['Alaska', 'Texas', 'California', 'Montana'], answer: 0,
+      explanation: 'Alaska is the largest state by area; Texas is the second largest.',
+      note: 'Fact.', region: 'West',
+    }),
+    c({
+      id: 'cul-a1-14', level: 'A1', prompt: 'Which language is most widely spoken in the United States?',
+      options: ['English', 'French', 'German', 'Japanese'], answer: 0,
+      explanation: 'English is the main language; Spanish is also widely spoken.',
+      note: 'Simplified: the United States has no official language at federal level.',
+    }),
   ],
   A2: [
     c({
@@ -130,6 +154,30 @@ export const cultureBank = {
       explanation: 'Turkey is the dish most often associated with Thanksgiving, alongside foods such as pumpkin pie.',
       note: 'Cultural tradition: families vary widely; there is no legal menu.',
     }),
+    c({
+      id: 'cul-a2-11', level: 'A2', prompt: 'Which river flows through the Grand Canyon?',
+      options: ['The Colorado River', 'The Mississippi River', 'The Missouri River', 'The Ohio River'], answer: 0,
+      explanation: 'The Colorado River carved the Grand Canyon over millions of years.',
+      note: 'Fact.', region: 'Southwest',
+    }),
+    c({
+      id: 'cul-a2-12', level: 'A2', prompt: 'Which city is known as the “Big Apple”?',
+      options: ['New York City', 'Chicago', 'Miami', 'Seattle'], answer: 0,
+      explanation: '“Big Apple” is a well-known nickname for New York City.',
+      note: 'Cultural nickname, popularised in the 1970s.', region: 'Northeast',
+    }),
+    c({
+      id: 'cul-a2-13', level: 'A2', prompt: 'When is Memorial Day observed in the United States?',
+      options: ['The last Monday in May', 'The first Monday in September', 'The fourth Thursday in November', '11 November'], answer: 0,
+      explanation: 'Memorial Day honours the dead of the armed forces on the last Monday of May.',
+      note: 'Fact: it became a federal holiday in 1971.',
+    }),
+    c({
+      id: 'cul-a2-14', level: 'A2', prompt: 'Which mountain range runs through the eastern United States?',
+      options: ['The Appalachian Mountains', 'The Rocky Mountains', 'The Sierra Nevada', 'The Andes'], answer: 0,
+      explanation: 'The Appalachians run along the eastern side; the Rockies are in the west.',
+      note: 'Fact.', region: 'East',
+    }),
   ],
   B1: [
     c({
@@ -191,6 +239,30 @@ export const cultureBank = {
       options: ['The blending of cultures in American society', 'A famous American recipe', 'The US Congress', 'A national park'], answer: 0,
       explanation: 'The melting pot suggests that different cultures blend into one society. The “salad bowl” metaphor instead emphasises distinct cultures living together.',
       note: 'Concept: both are simplified metaphors, debated by historians and sociologists.',
+    }),
+    c({
+      id: 'cul-b1-11', level: 'B1', prompt: 'Which amendment abolished slavery in the United States?',
+      options: ['The 13th Amendment', 'The 15th Amendment', 'The 19th Amendment', 'The 21st Amendment'], answer: 0,
+      explanation: 'The 13th Amendment, ratified in 1865, abolished slavery except as punishment for a crime.',
+      note: 'Fact.',
+    }),
+    c({
+      id: 'cul-b1-12', level: 'B1', prompt: 'Who wrote the principal draft of the Declaration of Independence?',
+      options: ['Thomas Jefferson', 'George Washington', 'John Adams', 'Alexander Hamilton'], answer: 0,
+      explanation: 'Thomas Jefferson drafted the Declaration in 1776.',
+      note: 'Fact: a committee revised the draft before adoption.',
+    }),
+    c({
+      id: 'cul-b1-13', level: 'B1', prompt: 'What was the “New Deal”?',
+      options: ['A programme of reforms during the Great Depression', 'A trade agreement with Europe', 'A law passed in 1900', 'A presidential election'], answer: 0,
+      explanation: 'The New Deal was Franklin D. Roosevelt’s set of programmes from the 1930s.',
+      note: 'Fact: it began in 1933.',
+    }),
+    c({
+      id: 'cul-b1-14', level: 'B1', prompt: 'What is the “Electoral College”?',
+      options: ['The body that formally elects the president', 'A university in Washington', 'A committee of Congress', 'A political party'], answer: 0,
+      explanation: 'The Electoral College formally chooses the president and vice-president.',
+      note: 'Fact: established by the Constitution in 1787.',
     }),
   ],
 };

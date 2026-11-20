@@ -65,6 +65,30 @@ export const vocabulary = {
       options: ['water', 'bread', 'shoes', 'paper'], answer: 0,
       explanation: 'When you are hot or thirsty, you drink water.',
     }),
+    choice({
+      id: 'voc-a1-11', level: 'A1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'My mother’s brother is my ___.',
+      options: ['uncle', 'aunt', 'cousin', 'nephew'], answer: 0,
+      explanation: 'Your mother’s brother is your uncle; her sister is your aunt.',
+    }),
+    choice({
+      id: 'voc-a1-12', level: 'A1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'We keep milk in the ___.',
+      options: ['fridge', 'cupboard', 'wardrobe', 'shelf'], answer: 0,
+      explanation: 'Milk must stay cold, so we keep it in the fridge.',
+    }),
+    choice({
+      id: 'voc-a1-13', level: 'A1', skill: 'vocabulary', objective: 'Identify the odd word in a set.', instruction: I,
+      prompt: 'Which word is different from the others?',
+      options: ['Monday', 'Sunday', 'Kitchen', 'Friday'], answer: 2,
+      explanation: 'Monday, Sunday and Friday are days; a kitchen is a room.',
+    }),
+    choice({
+      id: 'voc-a1-14', level: 'A1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'The opposite of “never” is ___.',
+      options: ['always', 'seldom', 'rarely', 'hardly'], answer: 0,
+      explanation: '“Never” means zero times; “always” means every time.',
+    }),
   ],
   A2: [
     match({
@@ -127,6 +151,30 @@ export const vocabulary = {
       options: ['cheap', 'rich', 'large', 'heavy'], answer: 0,
       explanation: 'Expensive and cheap describe price. Rich describes a person with money.',
     }),
+    choice({
+      id: 'voc-a2-11', level: 'A2', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'A person who writes news stories is a ___.',
+      options: ['journalist', 'pianist', 'scientist', 'architect'], answer: 0,
+      explanation: 'A journalist writes news stories; a scientist does research.',
+    }),
+    choice({
+      id: 'voc-a2-12', level: 'A2', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'The word “ancient” means ___.',
+      options: ['very old', 'very new', 'very fast', 'very small'], answer: 0,
+      explanation: 'Something ancient is very old, often from a distant past.',
+    }),
+    choice({
+      id: 'voc-a2-13', level: 'A2', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'We had to ___ our holiday because of the storm.',
+      options: ['cancel', 'deliver', 'improve', 'suggest'], answer: 0,
+      explanation: 'To cancel is to stop a planned event from happening.',
+    }),
+    choice({
+      id: 'voc-a2-14', level: 'A2', skill: 'vocabulary', objective: 'Recognise a synonym.', instruction: I,
+      prompt: 'Which word is closest in meaning to “cheap”?',
+      options: ['inexpensive', 'invisible', 'informal', 'internal'], answer: 0,
+      explanation: 'Inexpensive means low in price; the other words have different meanings.',
+    }),
   ],
   B1: [
     match({
@@ -188,6 +236,30 @@ export const vocabulary = {
       prompt: 'She is responsible ___ the club budget.',
       options: ['for', 'of', 'to', 'with'], answer: 0,
       explanation: 'The collocation is “responsible for” something.',
+    }),
+    choice({
+      id: 'voc-b1-11', level: 'B1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'The new rule will ___ next month.',
+      options: ['come into force', 'come over', 'come across', 'come up'], answer: 0,
+      explanation: '“Come into force” is the fixed phrase for a rule starting to apply.',
+    }),
+    choice({
+      id: 'voc-b1-12', level: 'B1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'Her explanation was ___ and easy to follow.',
+      options: ['clear', 'clearly', 'clarity', 'clearness'], answer: 0,
+      explanation: 'After “was” we need an adjective: “clear”.',
+    }),
+    choice({
+      id: 'voc-b1-13', level: 'B1', skill: 'vocabulary', objective: 'Recognise register.', instruction: I,
+      prompt: 'Choose the most formal word for “buy”.',
+      options: ['purchase', 'pick up', 'get', 'grab'], answer: 0,
+      explanation: '“Purchase” is formal; “get” and “grab” are informal.',
+    }),
+    choice({
+      id: 'voc-b1-14', level: 'B1', skill: 'vocabulary', objective: O, instruction: I,
+      prompt: 'The word “reluctant” means ___.',
+      options: ['unwilling', 'eager', 'confident', 'careless'], answer: 0,
+      explanation: 'Reluctant means unwilling or hesitant; “eager” is the opposite.',
     }),
   ],
 };

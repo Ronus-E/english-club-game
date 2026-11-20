@@ -65,7 +65,7 @@ try {
     warnings: client.consoleWarnings.slice(0, 10),
   }, null, 2));
   if (!boot.booted || !boot.hasGlobal || !boot.splash) throw new Error('quiz did not boot');
-  if (boot.exercises !== 150) throw new Error(`expected 150 exercises, got ${boot.exercises}`);
+  if (boot.exercises !== 210) throw new Error(`expected 210 exercises, got ${boot.exercises}`);
   if (boot.campus.length) throw new Error(`campus elements remain: ${boot.campus.join(', ')}`);
   if (!boot.signature) throw new Error('developer signature is missing');
   if (boot.lang !== 'en' || boot.translate !== 'no' || !boot.googleNotranslate) {

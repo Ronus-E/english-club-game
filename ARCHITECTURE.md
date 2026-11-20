@@ -24,7 +24,7 @@ Content is data, separate from logic:
 ```
 src/content/schema.js      LEVEL_INFO, SKILL_INFO, builders, checkAnswer(),
                            validateBank(), arrangeOptions()
-src/content/{skill}.js     5 banks × 3 levels × 10 exercises = 150
+src/content/{skill}.js     5 banks × 3 levels × 14 exercises = 210
 src/content/index.js       bank registry, placement check, buildQuiz()
 ```
 
@@ -119,7 +119,7 @@ Badge ids from the old profile are preserved so stored progress survives; only t
 
 ## Offline operation
 
-`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.10`.
+`sw.js` precaches 26 files individually (one bad URL cannot abort installation), removes old caches on activation and claims clients. Navigations fall back to cached `index.html`; static assets are cache-first and repopulate on network success. Cache version `ec-v2.0.11`.
 
 After the first online visit, the offline banner appears when the network drops and the quiz still boots from cache.
 

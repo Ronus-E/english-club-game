@@ -88,7 +88,7 @@ Total: **5:00**. Timings are cumulative. If you run long, use the short versions
 
 > "Clearing a stage unlocks the next one, and the Next level button takes the learner straight there.
 >
-> The report also leads to focused practice: ten exercises per skill and level, still with immediate explanations.
+> The report also leads to focused practice: fourteen exercises per skill and level, still with immediate explanations.
 >
 > The badges reward real behaviour — finishing a quiz, mastering a skill, beating your own best. No speed ranking."
 

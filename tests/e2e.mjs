@@ -83,7 +83,7 @@ try {
     const total = Object.values(boot.exerciseCount).reduce(
       (n, byLevel) => n + Object.values(byLevel).reduce((a, b) => a + b, 0), 0,
     );
-    if (total !== 150) throw new Error(`expected 150 exercises, got ${total}`);
+    if (total !== 210) throw new Error(`expected 210 exercises, got ${total}`);
     return { title: boot.title, font: boot.displayFont, exercises: total };
   });
   await shot('01-boot.png');
@@ -604,7 +604,7 @@ try {
   });
 
   /* ========================================================= 6. PRACTICE */
-  await step('free practice opens ten exercises and can be left safely', async () => {
+  await step('free practice opens fourteen exercises and can be left safely', async () => {
     await ev(() => document.getElementById('practiceBtn').click());
     await sleep(200);
     const out = await ev(async () => {
@@ -616,7 +616,7 @@ try {
       await new Promise((r) => setTimeout(r, 150));
       return { open, back: document.getElementById('screen-practice').classList.contains('is-active') };
     });
-    if (out.open.items !== 10) throw new Error(`practice set wrong: ${JSON.stringify(out)}`);
+    if (out.open.items !== 14) throw new Error(`practice set wrong: ${JSON.stringify(out)}`);
     if (!out.back) throw new Error('practice did not return to the practice screen');
     return out;
   });
@@ -854,7 +854,7 @@ try {
     if (client.exceptions.length) throw new Error(`exceptions offline: ${client.exceptions[0]}`);
     const fatal = client.consoleErrors.filter((e) => !/Failed to load resource/i.test(e));
     if (fatal.length) throw new Error(`console errors offline: ${fatal.join(' | ')}`);
-    if (!offline.booted || !offline.global || !offline.banner || offline.exercises !== 150) {
+    if (!offline.booted || !offline.global || !offline.banner || offline.exercises !== 210) {
       throw new Error(`offline boot failed: ${JSON.stringify(offline)}`);
     }
     await client.send('Network.emulateNetworkConditions', {

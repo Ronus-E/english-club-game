@@ -64,6 +64,30 @@ export const grammar = {
       options: ['She', 'He', 'It', 'They'], answer: 1,
       explanation: 'Tom is a man or boy, so we use “he”.',
     }),
+    g({
+      id: 'gra-a1-11', level: 'A1', objective: 'Ask a question with “there is”.',
+      prompt: '___ there a pencil on the desk?',
+      options: ['Is', 'Are', 'Do', 'Have'], answer: 0,
+      explanation: 'A pencil is singular, so the question starts with “Is there…?”.',
+    }),
+    g({
+      id: 'gra-a1-12', level: 'A1', objective: 'Use the present simple with “I”.',
+      prompt: 'I ___ TV after dinner every day.',
+      options: ['watch', 'watches', 'watching', 'watched'], answer: 0,
+      explanation: 'With “I”, the present simple verb has no -s: “I watch”.',
+    }),
+    g({
+      id: 'gra-a1-13', level: 'A1', objective: 'Choose the correct article before a vowel sound.',
+      prompt: 'This is ___ apple. (one apple)',
+      options: ['an', 'a', 'the', '—'], answer: 0,
+      explanation: '“Apple” starts with a vowel sound, so we say “an apple”.',
+    }),
+    g({
+      id: 'gra-a1-14', level: 'A1', objective: 'Use an irregular plural noun.',
+      prompt: 'The plural of “mouse” is ___.',
+      options: ['mice', 'mouses', 'mouse’s', 'mousses'], answer: 0,
+      explanation: '“Mouse” has the irregular plural “mice”.',
+    }),
   ],
   A2: [
     g({
@@ -126,6 +150,30 @@ export const grammar = {
       options: ['Is there', 'Are there', 'There is', 'Has there'], answer: 0,
       explanation: 'Milk is uncountable, so we ask “Is there any milk?”.',
     }),
+    g({
+      id: 'gra-a2-11', level: 'A2', objective: 'Use the past continuous for an interrupted action.',
+      prompt: 'I ___ my homework when the lights went out.',
+      options: ['was doing', 'did', 'have done', 'do'], answer: 0,
+      explanation: 'A longer action interrupted by a short one uses the past continuous.',
+    }),
+    g({
+      id: 'gra-a2-12', level: 'A2', objective: 'Distinguish “since” and “for”.',
+      prompt: 'She has lived here ___ 2019.',
+      options: ['since', 'for', 'from', 'during'], answer: 0,
+      explanation: '“Since” introduces the starting point: since 2019.',
+    }),
+    g({
+      id: 'gra-a2-13', level: 'A2', objective: 'Use a superlative adjective.',
+      prompt: 'This is the ___ film I have ever seen.',
+      options: ['best', 'better', 'good', 'well'], answer: 0,
+      explanation: 'After “the” and with “ever”, use the superlative: “the best film”.',
+    }),
+    g({
+      id: 'gra-a2-14', level: 'A2', objective: 'Use a modal of absence of necessity.',
+      prompt: 'You ___ bring an umbrella; it isn’t raining.',
+      options: ['needn’t', 'mustn’t', 'can’t', 'shouldn’t'], answer: 0,
+      explanation: '“Needn’t” means it is not necessary; “mustn’t” means it is forbidden.',
+    }),
   ],
   B1: [
     g({
@@ -187,6 +235,30 @@ export const grammar = {
       prompt: '___ the bad weather, the event was a success.',
       options: ['Although', 'Despite', 'However', 'Because'], answer: 1,
       explanation: '“Despite” is followed by a noun phrase. “Although” needs a full clause: Although the weather was bad…',
+    }),
+    g({
+      id: 'gra-b1-11', level: 'B1', objective: 'Use the past perfect for an earlier action.',
+      prompt: 'By the time we arrived, the train ___.',
+      options: ['had left', 'has left', 'was leaving', 'leaves'], answer: 0,
+      explanation: 'The train left before we arrived, so the earlier action uses the past perfect.',
+    }),
+    g({
+      id: 'gra-b1-12', level: 'B1', objective: 'Use “wish” with a past form for a present regret.',
+      prompt: 'I wish I ___ more time to prepare.',
+      options: ['had', 'have', 'would have', 'will have'], answer: 0,
+      explanation: 'After “I wish” for a present regret, use a past form: “I wish I had…”.',
+    }),
+    g({
+      id: 'gra-b1-13', level: 'B1', objective: 'Use the past simple passive.',
+      prompt: 'The letter ___ by her yesterday.',
+      options: ['was sent', 'sent', 'has sent', 'is sending'], answer: 0,
+      explanation: 'The letter receives the action, so we use “was sent”.',
+    }),
+    g({
+      id: 'gra-b1-14', level: 'B1', objective: 'Use the unreal past after “as if”.',
+      prompt: 'She speaks as if she ___ the answer.',
+      options: ['knew', 'knows', 'know', 'has known'], answer: 0,
+      explanation: '“As if” for an unreal situation takes a past form: “as if she knew”.',
     }),
   ],
 };

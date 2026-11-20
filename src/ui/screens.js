@@ -330,12 +330,12 @@ export class UI {
       h('span', { class: 'skill-icon', 'aria-hidden': 'true', text: info.icon }),
       h('strong', { text: info.name }),
       h('small', { text: info.blurb || info.description || '' }),
-      h('span', { class: 'skill-count', text: '10 exercises · no timer' }),
+      h('span', { class: 'skill-count', text: '14 exercises · no timer' }),
       );
       grid.append(card);
     }
     if (this.el.practiceSummary) {
-      this.el.practiceSummary.textContent = `Level ${level} · ten exercises per skill · answers and explanations shown immediately.`;
+      this.el.practiceSummary.textContent = `Level ${level} · fourteen exercises per skill · answers and explanations shown immediately.`;
     }
   }
 
